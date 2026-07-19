@@ -1,0 +1,22 @@
+services:
+  ziwei:
+    build: .
+    ports:
+      - '8787:8787'
+    environment:
+      # 任选一家供应商,填对应变量即可(详见 packages/gateway/src/providers.ts)
+      ZIWEI_PROVIDER: ${ZIWEI_PROVIDER:-minimax}
+      MINIMAX_API_KEY: ${MINIMAX_API_KEY:-}
+      MINIMAX_MODEL: ${MINIMAX_MODEL:-}
+      POE_API_KEY: ${POE_API_KEY:-}
+      POE_MODEL: ${POE_MODEL:-}
+      LITELLM_BASE_URL: ${LITELLM_BASE_URL:-}
+      LITELLM_API_KEY: ${LITELLM_API_KEY:-}
+      LITELLM_MODEL: ${LITELLM_MODEL:-}
+      AZURE_OPENAI_ENDPOINT: ${AZURE_OPENAI_ENDPOINT:-}
+      AZURE_OPENAI_API_KEY: ${AZURE_OPENAI_API_KEY:-}
+      AZURE_OPENAI_DEPLOYMENT: ${AZURE_OPENAI_DEPLOYMENT:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-}
+    restart: unless-stopped

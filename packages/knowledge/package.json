@@ -1,0 +1,13 @@
+{
+  "name": "@ziwei/knowledge",
+  "version": "0.1.0",
+  "description": "紫微斗数可溯源知识库：知识条目 schema(zod)、加权检索、LLM 解读 Prompt 装配",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "license": "MIT",
+  "dependencies": {
+    "@ziwei/core": "*",
+    "zod": "^3.23.8"
+  }
+}

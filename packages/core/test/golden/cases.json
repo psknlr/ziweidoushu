@@ -1,0 +1,3048 @@
+{
+ "kernel": "iztro@2.5.8",
+ "generatedBy": "scripts/generate-golden.ts",
+ "cases": [
+  {
+   "input": {
+    "solarDate": "2000-8-16",
+    "timeIndex": 2,
+    "gender": "female",
+    "preset": "quanshu-default",
+    "note": "iztro 官方验证盘"
+   },
+   "expected": {
+    "lunarDate": "二〇〇〇年七月十七",
+    "ganzhi": [
+     "gengHeavenly.chenEarthly",
+     "jiaHeavenly.shenEarthly",
+     "bingHeavenly.wuEarthly",
+     "gengHeavenly.yinEarthly"
+    ],
+    "soulBranch": "wuEarthly",
+    "bodyBranch": "xuEarthly",
+    "soul": "pojunMaj",
+    "body": "wenchangMin",
+    "fiveElementsClass": "wood3rd",
+    "majors": [
+     "wuquMaj+tianxiangMaj",
+     "taiyangMaj+tianliangMaj",
+     "qishaMaj",
+     "tianjiMaj",
+     "ziweiMaj",
+     "",
+     "pojunMaj",
+     "",
+     "lianzhenMaj+tianfuMaj",
+     "taiyinMaj",
+     "tanlangMaj",
+     "tiantongMaj+jumenMaj"
+    ],
+    "mutagens": [
+     "taiyangMaj:sihuaLu",
+     "taiyinMaj:sihuaKe",
+     "tiantongMaj:sihuaJi",
+     "wuquMaj:sihuaQuan"
+    ],
+    "decadalRanges": [
+     "43-52",
+     "33-42",
+     "23-32",
+     "13-22",
+     "3-12",
+     "113-122",
+     "103-112",
+     "93-102",
+     "83-92",
+     "73-82",
+     "63-72",
+     "53-62"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "2023-1-21",
+    "timeIndex": 6,
+    "gender": "male",
+    "preset": "quanshu-default",
+    "note": "春节前一日"
+   },
+   "expected": {
+    "lunarDate": "二〇二二年腊月三十",
+    "ganzhi": [
+     "renHeavenly.yinEarthly",
+     "guiHeavenly.chouEarthly",
+     "jiHeavenly.maoEarthly",
+     "gengHeavenly.wuEarthly"
+    ],
+    "soulBranch": "weiEarthly",
+    "bodyBranch": "weiEarthly",
+    "soul": "wuquMaj",
+    "body": "tianliangMaj",
+    "fiveElementsClass": "water2nd",
+    "majors": [
+     "tanlangMaj",
+     "tianjiMaj+jumenMaj",
+     "ziweiMaj+tianxiangMaj",
+     "tianliangMaj",
+     "qishaMaj",
+     "",
+     "lianzhenMaj",
+     "",
+     "pojunMaj",
+     "tiantongMaj",
+     "wuquMaj+tianfuMaj",
+     "taiyangMaj+taiyinMaj"
+    ],
+    "mutagens": [
+     "tianliangMaj:sihuaLu",
+     "wuquMaj:sihuaJi",
+     "ziweiMaj:sihuaQuan",
+     "zuofuMin:sihuaKe"
+    ],
+    "decadalRanges": [
+     "72-81",
+     "82-91",
+     "92-101",
+     "102-111",
+     "112-121",
+     "2-11",
+     "12-21",
+     "22-31",
+     "32-41",
+     "42-51",
+     "52-61",
+     "62-71"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "2023-1-22",
+    "timeIndex": 6,
+    "gender": "male",
+    "preset": "quanshu-default",
+    "note": "春节当日"
+   },
+   "expected": {
+    "lunarDate": "二〇二三年正月初一",
+    "ganzhi": [
+     "guiHeavenly.maoEarthly",
+     "jiaHeavenly.yinEarthly",
+     "gengHeavenly.chenEarthly",
+     "renHeavenly.wuEarthly"
+    ],
+    "soulBranch": "shenEarthly",
+    "bodyBranch": "shenEarthly",
+    "soul": "lianzhenMaj",
+    "body": "tiantongMaj",
+    "fiveElementsClass": "wood3rd",
+    "majors": [
+     "tanlangMaj",
+     "tianjiMaj+jumenMaj",
+     "ziweiMaj+tianxiangMaj",
+     "tianliangMaj",
+     "qishaMaj",
+     "",
+     "lianzhenMaj",
+     "",
+     "pojunMaj",
+     "tiantongMaj",
+     "wuquMaj+tianfuMaj",
+     "taiyangMaj+taiyinMaj"
+    ],
+    "mutagens": [
+     "jumenMaj:sihuaQuan",
+     "pojunMaj:sihuaLu",
+     "taiyinMaj:sihuaKe",
+     "tanlangMaj:sihuaJi"
+    ],
+    "decadalRanges": [
+     "63-72",
+     "53-62",
+     "43-52",
+     "33-42",
+     "23-32",
+     "13-22",
+     "3-12",
+     "113-122",
+     "103-112",
+     "93-102",
+     "83-92",
+     "73-82"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "2023-1-25",
+    "timeIndex": 6,
+    "gender": "female",
+    "preset": "quanshu-default",
+    "note": "初一后立春前(normal 已换年)"
+   },
+   "expected": {
+    "lunarDate": "二〇二三年正月初四",
+    "ganzhi": [
+     "guiHeavenly.maoEarthly",
+     "jiaHeavenly.yinEarthly",
+     "guiHeavenly.weiEarthly",
+     "wuHeavenly.wuEarthly"
+    ],
+    "soulBranch": "shenEarthly",
+    "bodyBranch": "shenEarthly",
+    "soul": "lianzhenMaj",
+    "body": "tiantongMaj",
+    "fiveElementsClass": "wood3rd",
+    "majors": [
+     "taiyangMaj+jumenMaj",
+     "tianxiangMaj",
+     "tianjiMaj+tianliangMaj",
+     "ziweiMaj+qishaMaj",
+     "",
+     "",
+     "",
+     "lianzhenMaj+pojunMaj",
+     "",
+     "tianfuMaj",
+     "tiantongMaj+taiyinMaj",
+     "wuquMaj+tanlangMaj"
+    ],
+    "mutagens": [
+     "jumenMaj:sihuaQuan",
+     "pojunMaj:sihuaLu",
+     "taiyinMaj:sihuaKe",
+     "tanlangMaj:sihuaJi"
+    ],
+    "decadalRanges": [
+     "63-72",
+     "73-82",
+     "83-92",
+     "93-102",
+     "103-112",
+     "113-122",
+     "3-12",
+     "13-22",
+     "23-32",
+     "33-42",
+     "43-52",
+     "53-62"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "2023-1-25",
+    "timeIndex": 6,
+    "gender": "female",
+    "preset": "wenmo-zhongzhou",
+    "note": "同日中州派"
+   },
+   "expected": {
+    "lunarDate": "二〇二三年正月初四",
+    "ganzhi": [
+     "guiHeavenly.maoEarthly",
+     "jiaHeavenly.yinEarthly",
+     "guiHeavenly.weiEarthly",
+     "wuHeavenly.wuEarthly"
+    ],
+    "soulBranch": "shenEarthly",
+    "bodyBranch": "shenEarthly",
+    "soul": "wenquMin",
+    "body": "tiantongMaj",
+    "fiveElementsClass": "wood3rd",
+    "majors": [
+     "taiyangMaj+jumenMaj",
+     "tianxiangMaj",
+     "tianjiMaj+tianliangMaj",
+     "ziweiMaj+qishaMaj",
+     "",
+     "",
+     "",
+     "lianzhenMaj+pojunMaj",
+     "",
+     "tianfuMaj",
+     "tiantongMaj+taiyinMaj",
+     "wuquMaj+tanlangMaj"
+    ],
+    "mutagens": [
+     "jumenMaj:sihuaQuan",
+     "pojunMaj:sihuaLu",
+     "taiyinMaj:sihuaKe",
+     "tanlangMaj:sihuaJi"
+    ],
+    "decadalRanges": [
+     "63-72",
+     "73-82",
+     "83-92",
+     "93-102",
+     "103-112",
+     "113-122",
+     "3-12",
+     "13-22",
+     "23-32",
+     "33-42",
+     "43-52",
+     "53-62"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "1984-2-3",
+    "timeIndex": 4,
+    "gender": "male",
+    "preset": "quanshu-default",
+    "note": "1984 立春前一日"
+   },
+   "expected": {
+    "lunarDate": "一九八四年正月初二",
+    "ganzhi": [
+     "jiaHeavenly.ziEarthly",
+     "bingHeavenly.yinEarthly",
+     "dingHeavenly.maoEarthly",
+     "jiaHeavenly.chenEarthly"
+    ],
+    "soulBranch": "xuEarthly",
+    "bodyBranch": "wuEarthly",
+    "soul": "lucunMin",
+    "body": "huoxingMin",
+    "fiveElementsClass": "fire6th",
+    "majors": [
+     "wuquMaj+tianxiangMaj",
+     "taiyangMaj+tianliangMaj",
+     "qishaMaj",
+     "tianjiMaj",
+     "ziweiMaj",
+     "",
+     "pojunMaj",
+     "",
+     "lianzhenMaj+tianfuMaj",
+     "taiyinMaj",
+     "tanlangMaj",
+     "tiantongMaj+jumenMaj"
+    ],
+    "mutagens": [
+     "lianzhenMaj:sihuaLu",
+     "pojunMaj:sihuaQuan",
+     "taiyangMaj:sihuaJi",
+     "wuquMaj:sihuaKe"
+    ],
+    "decadalRanges": [
+     "46-55",
+     "56-65",
+     "66-75",
+     "76-85",
+     "86-95",
+     "96-105",
+     "106-115",
+     "116-125",
+     "6-15",
+     "16-25",
+     "26-35",
+     "36-45"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "1984-2-4",
+    "timeIndex": 4,
+    "gender": "male",
+    "preset": "quanshu-default",
+    "note": "1984 立春当日"
+   },
+   "expected": {
+    "lunarDate": "一九八四年正月初三",
+    "ganzhi": [
+     "jiaHeavenly.ziEarthly",
+     "bingHeavenly.yinEarthly",
+     "wuHeavenly.chenEarthly",
+     "bingHeavenly.chenEarthly"
+    ],
+    "soulBranch": "xuEarthly",
+    "bodyBranch": "wuEarthly",
+    "soul": "lucunMin",
+    "body": "huoxingMin",
+    "fiveElementsClass": "fire6th",
+    "majors": [
+     "",
+     "lianzhenMaj+pojunMaj",
+     "",
+     "tianfuMaj",
+     "tiantongMaj+taiyinMaj",
+     "wuquMaj+tanlangMaj",
+     "taiyangMaj+jumenMaj",
+     "tianxiangMaj",
+     "tianjiMaj+tianliangMaj",
+     "ziweiMaj+qishaMaj",
+     "",
+     ""
+    ],
+    "mutagens": [
+     "lianzhenMaj:sihuaLu",
+     "pojunMaj:sihuaQuan",
+     "taiyangMaj:sihuaJi",
+     "wuquMaj:sihuaKe"
+    ],
+    "decadalRanges": [
+     "46-55",
+     "56-65",
+     "66-75",
+     "76-85",
+     "86-95",
+     "96-105",
+     "106-115",
+     "116-125",
+     "6-15",
+     "16-25",
+     "26-35",
+     "36-45"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "1990-6-15",
+    "timeIndex": 0,
+    "gender": "male",
+    "preset": "quanshu-default",
+    "note": "早子时"
+   },
+   "expected": {
+    "lunarDate": "一九九〇年五月廿三",
+    "ganzhi": [
+     "gengHeavenly.wuEarthly",
+     "renHeavenly.wuEarthly",
+     "xinHeavenly.haiEarthly",
+     "wuHeavenly.ziEarthly"
+    ],
+    "soulBranch": "wuEarthly",
+    "bodyBranch": "wuEarthly",
+    "soul": "pojunMaj",
+    "body": "huoxingMin",
+    "fiveElementsClass": "wood3rd",
+    "majors": [
+     "qishaMaj",
+     "tiantongMaj",
+     "wuquMaj",
+     "taiyangMaj",
+     "pojunMaj",
+     "tianjiMaj",
+     "ziweiMaj+tianfuMaj",
+     "taiyinMaj",
+     "tanlangMaj",
+     "jumenMaj",
+     "lianzhenMaj+tianxiangMaj",
+     "tianliangMaj"
+    ],
+    "mutagens": [
+     "taiyangMaj:sihuaLu",
+     "taiyinMaj:sihuaKe",
+     "tiantongMaj:sihuaJi",
+     "wuquMaj:sihuaQuan"
+    ],
+    "decadalRanges": [
+     "83-92",
+     "93-102",
+     "103-112",
+     "113-122",
+     "3-12",
+     "13-22",
+     "23-32",
+     "33-42",
+     "43-52",
+     "53-62",
+     "63-72",
+     "73-82"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "1990-6-15",
+    "timeIndex": 12,
+    "gender": "male",
+    "preset": "quanshu-default",
+    "note": "晚子时 current"
+   },
+   "expected": {
+    "lunarDate": "一九九〇年五月廿三",
+    "ganzhi": [
+     "gengHeavenly.wuEarthly",
+     "renHeavenly.wuEarthly",
+     "xinHeavenly.haiEarthly",
+     "wuHeavenly.ziEarthly"
+    ],
+    "soulBranch": "wuEarthly",
+    "bodyBranch": "wuEarthly",
+    "soul": "pojunMaj",
+    "body": "huoxingMin",
+    "fiveElementsClass": "wood3rd",
+    "majors": [
+     "qishaMaj",
+     "tiantongMaj",
+     "wuquMaj",
+     "taiyangMaj",
+     "pojunMaj",
+     "tianjiMaj",
+     "ziweiMaj+tianfuMaj",
+     "taiyinMaj",
+     "tanlangMaj",
+     "jumenMaj",
+     "lianzhenMaj+tianxiangMaj",
+     "tianliangMaj"
+    ],
+    "mutagens": [
+     "taiyangMaj:sihuaLu",
+     "taiyinMaj:sihuaKe",
+     "tiantongMaj:sihuaJi",
+     "wuquMaj:sihuaQuan"
+    ],
+    "decadalRanges": [
+     "83-92",
+     "93-102",
+     "103-112",
+     "113-122",
+     "3-12",
+     "13-22",
+     "23-32",
+     "33-42",
+     "43-52",
+     "53-62",
+     "63-72",
+     "73-82"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "1990-6-15",
+    "timeIndex": 12,
+    "gender": "male",
+    "preset": "wenmo-zhongzhou",
+    "note": "晚子时 forward(换日)"
+   },
+   "expected": {
+    "lunarDate": "一九九〇年五月廿三",
+    "ganzhi": [
+     "gengHeavenly.wuEarthly",
+     "renHeavenly.wuEarthly",
+     "renHeavenly.ziEarthly",
+     "gengHeavenly.ziEarthly"
+    ],
+    "soulBranch": "wuEarthly",
+    "bodyBranch": "wuEarthly",
+    "soul": "pojunMaj",
+    "body": "huoxingMin",
+    "fiveElementsClass": "wood3rd",
+    "majors": [
+     "",
+     "",
+     "tiantongMaj",
+     "wuquMaj+pojunMaj",
+     "taiyangMaj",
+     "tianfuMaj",
+     "tianjiMaj+taiyinMaj",
+     "ziweiMaj+tanlangMaj",
+     "jumenMaj",
+     "tianxiangMaj",
+     "tianliangMaj",
+     "lianzhenMaj+qishaMaj"
+    ],
+    "mutagens": [
+     "taiyangMaj:sihuaLu",
+     "taiyinMaj:sihuaKe",
+     "tiantongMaj:sihuaJi",
+     "wuquMaj:sihuaQuan"
+    ],
+    "decadalRanges": [
+     "83-92",
+     "93-102",
+     "103-112",
+     "113-122",
+     "3-12",
+     "13-22",
+     "23-32",
+     "33-42",
+     "43-52",
+     "53-62",
+     "63-72",
+     "73-82"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "2000-12-31",
+    "timeIndex": 12,
+    "gender": "female",
+    "preset": "wenmo-zhongzhou",
+    "note": "晚子时跨年"
+   },
+   "expected": {
+    "lunarDate": "二〇〇〇年腊月初六",
+    "ganzhi": [
+     "gengHeavenly.chenEarthly",
+     "jiHeavenly.chouEarthly",
+     "jiaHeavenly.ziEarthly",
+     "jiaHeavenly.ziEarthly"
+    ],
+    "soulBranch": "chouEarthly",
+    "bodyBranch": "chouEarthly",
+    "soul": "lianzhenMaj",
+    "body": "wenchangMin",
+    "fiveElementsClass": "fire6th",
+    "majors": [
+     "lianzhenMaj",
+     "",
+     "pojunMaj",
+     "tiantongMaj",
+     "wuquMaj+tianfuMaj",
+     "taiyangMaj+taiyinMaj",
+     "tanlangMaj",
+     "tianjiMaj+jumenMaj",
+     "ziweiMaj+tianxiangMaj",
+     "tianliangMaj",
+     "qishaMaj",
+     ""
+    ],
+    "mutagens": [
+     "taiyangMaj:sihuaLu",
+     "taiyinMaj:sihuaKe",
+     "tiantongMaj:sihuaJi",
+     "wuquMaj:sihuaQuan"
+    ],
+    "decadalRanges": [
+     "116-125",
+     "106-115",
+     "96-105",
+     "86-95",
+     "76-85",
+     "66-75",
+     "56-65",
+     "46-55",
+     "36-45",
+     "26-35",
+     "16-25",
+     "6-15"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "2001-3-31",
+    "timeIndex": 12,
+    "gender": "male",
+    "preset": "quanshu-default",
+    "note": "晚子时跨月"
+   },
+   "expected": {
+    "lunarDate": "二〇〇一年三月初七",
+    "ganzhi": [
+     "xinHeavenly.siEarthly",
+     "renHeavenly.chenEarthly",
+     "guiHeavenly.siEarthly",
+     "renHeavenly.ziEarthly"
+    ],
+    "soulBranch": "chenEarthly",
+    "bodyBranch": "chenEarthly",
+    "soul": "lianzhenMaj",
+    "body": "tianjiMaj",
+    "fiveElementsClass": "water2nd",
+    "majors": [
+     "tanlangMaj",
+     "tianjiMaj+jumenMaj",
+     "ziweiMaj+tianxiangMaj",
+     "tianliangMaj",
+     "qishaMaj",
+     "",
+     "lianzhenMaj",
+     "",
+     "pojunMaj",
+     "tiantongMaj",
+     "wuquMaj+tianfuMaj",
+     "taiyangMaj+taiyinMaj"
+    ],
+    "mutagens": [
+     "jumenMaj:sihuaLu",
+     "taiyangMaj:sihuaQuan",
+     "wenchangMin:sihuaJi",
+     "wenquMin:sihuaKe"
+    ],
+    "decadalRanges": [
+     "22-31",
+     "12-21",
+     "2-11",
+     "112-121",
+     "102-111",
+     "92-101",
+     "82-91",
+     "72-81",
+     "62-71",
+     "52-61",
+     "42-51",
+     "32-41"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "2004-3-25",
+    "timeIndex": 5,
+    "gender": "female",
+    "preset": "quanshu-default",
+    "note": "2004 闰二月上半月"
+   },
+   "expected": {
+    "lunarDate": "二〇〇四年闰二月初五",
+    "ganzhi": [
+     "jiaHeavenly.shenEarthly",
+     "dingHeavenly.maoEarthly",
+     "guiHeavenly.maoEarthly",
+     "dingHeavenly.siEarthly"
+    ],
+    "soulBranch": "xuEarthly",
+    "bodyBranch": "shenEarthly",
+    "soul": "lucunMin",
+    "body": "tianliangMaj",
+    "fiveElementsClass": "fire6th",
+    "majors": [
+     "",
+     "tianfuMaj",
+     "taiyinMaj",
+     "lianzhenMaj+tanlangMaj",
+     "jumenMaj",
+     "tianxiangMaj",
+     "tiantongMaj+tianliangMaj",
+     "wuquMaj+qishaMaj",
+     "taiyangMaj",
+     "",
+     "tianjiMaj",
+     "ziweiMaj+pojunMaj"
+    ],
+    "mutagens": [
+     "lianzhenMaj:sihuaLu",
+     "pojunMaj:sihuaQuan",
+     "taiyangMaj:sihuaJi",
+     "wuquMaj:sihuaKe"
+    ],
+    "decadalRanges": [
+     "86-95",
+     "76-85",
+     "66-75",
+     "56-65",
+     "46-55",
+     "36-45",
+     "26-35",
+     "16-25",
+     "6-15",
+     "116-125",
+     "106-115",
+     "96-105"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "2004-4-15",
+    "timeIndex": 5,
+    "gender": "female",
+    "preset": "quanshu-default",
+    "note": "2004 闰二月下半月(fixLeap 归下月)"
+   },
+   "expected": {
+    "lunarDate": "二〇〇四年闰二月廿六",
+    "ganzhi": [
+     "jiaHeavenly.shenEarthly",
+     "wuHeavenly.chenEarthly",
+     "jiaHeavenly.ziEarthly",
+     "jiHeavenly.siEarthly"
+    ],
+    "soulBranch": "haiEarthly",
+    "bodyBranch": "youEarthly",
+    "soul": "jumenMaj",
+    "body": "tianliangMaj",
+    "fiveElementsClass": "fire6th",
+    "majors": [
+     "lianzhenMaj",
+     "",
+     "pojunMaj",
+     "tiantongMaj",
+     "wuquMaj+tianfuMaj",
+     "taiyangMaj+taiyinMaj",
+     "tanlangMaj",
+     "tianjiMaj+jumenMaj",
+     "ziweiMaj+tianxiangMaj",
+     "tianliangMaj",
+     "qishaMaj",
+     ""
+    ],
+    "mutagens": [
+     "lianzhenMaj:sihuaLu",
+     "pojunMaj:sihuaQuan",
+     "taiyangMaj:sihuaJi",
+     "wuquMaj:sihuaKe"
+    ],
+    "decadalRanges": [
+     "96-105",
+     "86-95",
+     "76-85",
+     "66-75",
+     "56-65",
+     "46-55",
+     "36-45",
+     "26-35",
+     "16-25",
+     "6-15",
+     "116-125",
+     "106-115"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "2017-7-28",
+    "timeIndex": 9,
+    "gender": "male",
+    "preset": "quanshu-default",
+    "note": "2017 闰六月上半月"
+   },
+   "expected": {
+    "lunarDate": "二〇一七年闰六月初六",
+    "ganzhi": [
+     "dingHeavenly.youEarthly",
+     "dingHeavenly.weiEarthly",
+     "bingHeavenly.chenEarthly",
+     "dingHeavenly.youEarthly"
+    ],
+    "soulBranch": "xuEarthly",
+    "bodyBranch": "chenEarthly",
+    "soul": "lucunMin",
+    "body": "tiantongMaj",
+    "fiveElementsClass": "metal4th",
+    "majors": [
+     "taiyangMaj+jumenMaj",
+     "tianxiangMaj",
+     "tianjiMaj+tianliangMaj",
+     "ziweiMaj+qishaMaj",
+     "",
+     "",
+     "",
+     "lianzhenMaj+pojunMaj",
+     "",
+     "tianfuMaj",
+     "tiantongMaj+taiyinMaj",
+     "wuquMaj+tanlangMaj"
+    ],
+    "mutagens": [
+     "jumenMaj:sihuaJi",
+     "taiyinMaj:sihuaLu",
+     "tianjiMaj:sihuaKe",
+     "tiantongMaj:sihuaQuan"
+    ],
+    "decadalRanges": [
+     "84-93",
+     "74-83",
+     "64-73",
+     "54-63",
+     "44-53",
+     "34-43",
+     "24-33",
+     "14-23",
+     "4-13",
+     "114-123",
+     "104-113",
+     "94-103"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "2017-8-15",
+    "timeIndex": 9,
+    "gender": "male",
+    "preset": "quanshu-default",
+    "note": "2017 闰六月下半月"
+   },
+   "expected": {
+    "lunarDate": "二〇一七年闰六月廿四",
+    "ganzhi": [
+     "dingHeavenly.youEarthly",
+     "wuHeavenly.shenEarthly",
+     "jiaHeavenly.xuEarthly",
+     "guiHeavenly.youEarthly"
+    ],
+    "soulBranch": "haiEarthly",
+    "bodyBranch": "siEarthly",
+    "soul": "jumenMaj",
+    "body": "tiantongMaj",
+    "fiveElementsClass": "metal4th",
+    "majors": [
+     "tiantongMaj+tianliangMaj",
+     "wuquMaj+qishaMaj",
+     "taiyangMaj",
+     "",
+     "tianjiMaj",
+     "ziweiMaj+pojunMaj",
+     "",
+     "tianfuMaj",
+     "taiyinMaj",
+     "lianzhenMaj+tanlangMaj",
+     "jumenMaj",
+     "tianxiangMaj"
+    ],
+    "mutagens": [
+     "jumenMaj:sihuaJi",
+     "taiyinMaj:sihuaLu",
+     "tianjiMaj:sihuaKe",
+     "tiantongMaj:sihuaQuan"
+    ],
+    "decadalRanges": [
+     "94-103",
+     "84-93",
+     "74-83",
+     "64-73",
+     "54-63",
+     "44-53",
+     "34-43",
+     "24-33",
+     "14-23",
+     "4-13",
+     "114-123",
+     "104-113"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "1995-9-30",
+    "timeIndex": 3,
+    "gender": "female",
+    "preset": "quanshu-default",
+    "note": "1995 闰八月上半月"
+   },
+   "expected": {
+    "lunarDate": "一九九五年闰八月初六",
+    "ganzhi": [
+     "yiHeavenly.haiEarthly",
+     "yiHeavenly.youEarthly",
+     "jiaHeavenly.ziEarthly",
+     "dingHeavenly.maoEarthly"
+    ],
+    "soulBranch": "wuEarthly",
+    "bodyBranch": "ziEarthly",
+    "soul": "pojunMaj",
+    "body": "tianjiMaj",
+    "fiveElementsClass": "wood3rd",
+    "majors": [
+     "tianjiMaj+taiyinMaj",
+     "ziweiMaj+tanlangMaj",
+     "jumenMaj",
+     "tianxiangMaj",
+     "tianliangMaj",
+     "lianzhenMaj+qishaMaj",
+     "",
+     "",
+     "tiantongMaj",
+     "wuquMaj+pojunMaj",
+     "taiyangMaj",
+     "tianfuMaj"
+    ],
+    "mutagens": [
+     "taiyinMaj:sihuaJi",
+     "tianjiMaj:sihuaLu",
+     "tianliangMaj:sihuaQuan",
+     "ziweiMaj:sihuaKe"
+    ],
+    "decadalRanges": [
+     "83-92",
+     "93-102",
+     "103-112",
+     "113-122",
+     "3-12",
+     "13-22",
+     "23-32",
+     "33-42",
+     "43-52",
+     "53-62",
+     "63-72",
+     "73-82"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "2020-5-30",
+    "timeIndex": 11,
+    "gender": "male",
+    "preset": "quanshu-default",
+    "note": "2020 闰四月"
+   },
+   "expected": {
+    "lunarDate": "二〇二〇年闰四月初八",
+    "ganzhi": [
+     "gengHeavenly.ziEarthly",
+     "xinHeavenly.siEarthly",
+     "guiHeavenly.youEarthly",
+     "guiHeavenly.haiEarthly"
+    ],
+    "soulBranch": "wuEarthly",
+    "bodyBranch": "chenEarthly",
+    "soul": "pojunMaj",
+    "body": "huoxingMin",
+    "fiveElementsClass": "wood3rd",
+    "majors": [
+     "tianjiMaj+taiyinMaj",
+     "ziweiMaj+tanlangMaj",
+     "jumenMaj",
+     "tianxiangMaj",
+     "tianliangMaj",
+     "lianzhenMaj+qishaMaj",
+     "",
+     "",
+     "tiantongMaj",
+     "wuquMaj+pojunMaj",
+     "taiyangMaj",
+     "tianfuMaj"
+    ],
+    "mutagens": [
+     "taiyangMaj:sihuaLu",
+     "taiyinMaj:sihuaKe",
+     "tiantongMaj:sihuaJi",
+     "wuquMaj:sihuaQuan"
+    ],
+    "decadalRanges": [
+     "83-92",
+     "93-102",
+     "103-112",
+     "113-122",
+     "3-12",
+     "13-22",
+     "23-32",
+     "33-42",
+     "43-52",
+     "53-62",
+     "63-72",
+     "73-82"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "1950-3-8",
+    "timeIndex": 0,
+    "gender": "male",
+    "preset": "wenmo-zhongzhou"
+   },
+   "expected": {
+    "lunarDate": "一九五〇年正月二十",
+    "ganzhi": [
+     "gengHeavenly.yinEarthly",
+     "wuHeavenly.yinEarthly",
+     "renHeavenly.yinEarthly",
+     "gengHeavenly.ziEarthly"
+    ],
+    "soulBranch": "yinEarthly",
+    "bodyBranch": "yinEarthly",
+    "soul": "lucunMin",
+    "body": "tianliangMaj",
+    "fiveElementsClass": "earth5th",
+    "majors": [
+     "taiyangMaj+jumenMaj",
+     "tianxiangMaj",
+     "tianjiMaj+tianliangMaj",
+     "ziweiMaj+qishaMaj",
+     "",
+     "",
+     "",
+     "lianzhenMaj+pojunMaj",
+     "",
+     "tianfuMaj",
+     "tiantongMaj+taiyinMaj",
+     "wuquMaj+tanlangMaj"
+    ],
+    "mutagens": [
+     "taiyangMaj:sihuaLu",
+     "taiyinMaj:sihuaKe",
+     "tiantongMaj:sihuaJi",
+     "wuquMaj:sihuaQuan"
+    ],
+    "decadalRanges": [
+     "5-14",
+     "15-24",
+     "25-34",
+     "35-44",
+     "45-54",
+     "55-64",
+     "65-74",
+     "75-84",
+     "85-94",
+     "95-104",
+     "105-114",
+     "115-124"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "1953-11-24",
+    "timeIndex": 5,
+    "gender": "female",
+    "preset": "quanshu-default"
+   },
+   "expected": {
+    "lunarDate": "一九五三年十月十八",
+    "ganzhi": [
+     "guiHeavenly.siEarthly",
+     "guiHeavenly.haiEarthly",
+     "jiHeavenly.maoEarthly",
+     "jiHeavenly.siEarthly"
+    ],
+    "soulBranch": "wuEarthly",
+    "bodyBranch": "chenEarthly",
+    "soul": "pojunMaj",
+    "body": "tianjiMaj",
+    "fiveElementsClass": "fire6th",
+    "majors": [
+     "tanlangMaj",
+     "tianjiMaj+jumenMaj",
+     "ziweiMaj+tianxiangMaj",
+     "tianliangMaj",
+     "qishaMaj",
+     "",
+     "lianzhenMaj",
+     "",
+     "pojunMaj",
+     "tiantongMaj",
+     "wuquMaj+tianfuMaj",
+     "taiyangMaj+taiyinMaj"
+    ],
+    "mutagens": [
+     "jumenMaj:sihuaQuan",
+     "pojunMaj:sihuaLu",
+     "taiyinMaj:sihuaKe",
+     "tanlangMaj:sihuaJi"
+    ],
+    "decadalRanges": [
+     "86-95",
+     "96-105",
+     "106-115",
+     "116-125",
+     "6-15",
+     "16-25",
+     "26-35",
+     "36-45",
+     "46-55",
+     "56-65",
+     "66-75",
+     "76-85"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "1957-7-1",
+    "timeIndex": 10,
+    "gender": "male",
+    "preset": "quanshu-default"
+   },
+   "expected": {
+    "lunarDate": "一九五七年六月初四",
+    "ganzhi": [
+     "dingHeavenly.youEarthly",
+     "dingHeavenly.weiEarthly",
+     "jiaHeavenly.xuEarthly",
+     "jiaHeavenly.xuEarthly"
+    ],
+    "soulBranch": "youEarthly",
+    "bodyBranch": "siEarthly",
+    "soul": "wenquMin",
+    "body": "tiantongMaj",
+    "fiveElementsClass": "earth5th",
+    "majors": [
+     "",
+     "tianfuMaj",
+     "taiyinMaj",
+     "lianzhenMaj+tanlangMaj",
+     "jumenMaj",
+     "tianxiangMaj",
+     "tiantongMaj+tianliangMaj",
+     "wuquMaj+qishaMaj",
+     "taiyangMaj",
+     "",
+     "tianjiMaj",
+     "ziweiMaj+pojunMaj"
+    ],
+    "mutagens": [
+     "jumenMaj:sihuaJi",
+     "taiyinMaj:sihuaLu",
+     "tianjiMaj:sihuaKe",
+     "tiantongMaj:sihuaQuan"
+    ],
+    "decadalRanges": [
+     "75-84",
+     "65-74",
+     "55-64",
+     "45-54",
+     "35-44",
+     "25-34",
+     "15-24",
+     "5-14",
+     "115-124",
+     "105-114",
+     "95-104",
+     "85-94"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "1960-1-27",
+    "timeIndex": 2,
+    "gender": "female",
+    "preset": "wenmo-zhongzhou"
+   },
+   "expected": {
+    "lunarDate": "一九五九年腊月廿九",
+    "ganzhi": [
+     "jiHeavenly.haiEarthly",
+     "dingHeavenly.chouEarthly",
+     "jiaHeavenly.yinEarthly",
+     "bingHeavenly.yinEarthly"
+    ],
+    "soulBranch": "haiEarthly",
+    "bodyBranch": "maoEarthly",
+    "soul": "jumenMaj",
+    "body": "tianjiMaj",
+    "fiveElementsClass": "fire6th",
+    "majors": [
+     "taiyangMaj+jumenMaj",
+     "tianxiangMaj",
+     "tianjiMaj+tianliangMaj",
+     "ziweiMaj+qishaMaj",
+     "",
+     "",
+     "",
+     "lianzhenMaj+pojunMaj",
+     "",
+     "tianfuMaj",
+     "tiantongMaj+taiyinMaj",
+     "wuquMaj+tanlangMaj"
+    ],
+    "mutagens": [
+     "tanlangMaj:sihuaQuan",
+     "tianliangMaj:sihuaKe",
+     "wenquMin:sihuaJi",
+     "wuquMaj:sihuaLu"
+    ],
+    "decadalRanges": [
+     "36-45",
+     "46-55",
+     "56-65",
+     "66-75",
+     "76-85",
+     "86-95",
+     "96-105",
+     "106-115",
+     "116-125",
+     "6-15",
+     "16-25",
+     "26-35"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "1963-9-9",
+    "timeIndex": 7,
+    "gender": "male",
+    "preset": "quanshu-default"
+   },
+   "expected": {
+    "lunarDate": "一九六三年七月廿二",
+    "ganzhi": [
+     "guiHeavenly.maoEarthly",
+     "gengHeavenly.shenEarthly",
+     "yiHeavenly.maoEarthly",
+     "guiHeavenly.weiEarthly"
+    ],
+    "soulBranch": "chouEarthly",
+    "bodyBranch": "maoEarthly",
+    "soul": "jumenMaj",
+    "body": "tiantongMaj",
+    "fiveElementsClass": "metal4th",
+    "majors": [
+     "",
+     "",
+     "tiantongMaj",
+     "wuquMaj+pojunMaj",
+     "taiyangMaj",
+     "tianfuMaj",
+     "tianjiMaj+taiyinMaj",
+     "ziweiMaj+tanlangMaj",
+     "jumenMaj",
+     "tianxiangMaj",
+     "tianliangMaj",
+     "lianzhenMaj+qishaMaj"
+    ],
+    "mutagens": [
+     "jumenMaj:sihuaQuan",
+     "pojunMaj:sihuaLu",
+     "taiyinMaj:sihuaKe",
+     "tanlangMaj:sihuaJi"
+    ],
+    "decadalRanges": [
+     "114-123",
+     "104-113",
+     "94-103",
+     "84-93",
+     "74-83",
+     "64-73",
+     "54-63",
+     "44-53",
+     "34-43",
+     "24-33",
+     "14-23",
+     "4-13"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "1966-5-5",
+    "timeIndex": 12,
+    "gender": "female",
+    "preset": "quanshu-default"
+   },
+   "expected": {
+    "lunarDate": "一九六六年闰三月十五",
+    "ganzhi": [
+     "bingHeavenly.wuEarthly",
+     "renHeavenly.chenEarthly",
+     "jiaHeavenly.ziEarthly",
+     "jiaHeavenly.ziEarthly"
+    ],
+    "soulBranch": "chenEarthly",
+    "bodyBranch": "chenEarthly",
+    "soul": "lianzhenMaj",
+    "body": "huoxingMin",
+    "fiveElementsClass": "water2nd",
+    "majors": [
+     "qishaMaj",
+     "tiantongMaj",
+     "wuquMaj",
+     "taiyangMaj",
+     "pojunMaj",
+     "tianjiMaj",
+     "ziweiMaj+tianfuMaj",
+     "taiyinMaj",
+     "tanlangMaj",
+     "jumenMaj",
+     "lianzhenMaj+tianxiangMaj",
+     "tianliangMaj"
+    ],
+    "mutagens": [
+     "lianzhenMaj:sihuaJi",
+     "tianjiMaj:sihuaQuan",
+     "tiantongMaj:sihuaLu",
+     "wenchangMin:sihuaKe"
+    ],
+    "decadalRanges": [
+     "22-31",
+     "12-21",
+     "2-11",
+     "112-121",
+     "102-111",
+     "92-101",
+     "82-91",
+     "72-81",
+     "62-71",
+     "52-61",
+     "42-51",
+     "32-41"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "1969-12-12",
+    "timeIndex": 4,
+    "gender": "male",
+    "preset": "wenmo-zhongzhou"
+   },
+   "expected": {
+    "lunarDate": "一九六九年冬月初四",
+    "ganzhi": [
+     "jiHeavenly.youEarthly",
+     "bingHeavenly.ziEarthly",
+     "xinHeavenly.youEarthly",
+     "renHeavenly.chenEarthly"
+    ],
+    "soulBranch": "shenEarthly",
+    "bodyBranch": "chenEarthly",
+    "soul": "wenquMin",
+    "body": "tiantongMaj",
+    "fiveElementsClass": "metal4th",
+    "majors": [
+     "ziweiMaj+tianfuMaj",
+     "taiyinMaj",
+     "tanlangMaj",
+     "jumenMaj",
+     "lianzhenMaj+tianxiangMaj",
+     "tianliangMaj",
+     "qishaMaj",
+     "tiantongMaj",
+     "wuquMaj",
+     "taiyangMaj",
+     "pojunMaj",
+     "tianjiMaj"
+    ],
+    "mutagens": [
+     "tanlangMaj:sihuaQuan",
+     "tianliangMaj:sihuaKe",
+     "wenquMin:sihuaJi",
+     "wuquMaj:sihuaLu"
+    ],
+    "decadalRanges": [
+     "64-73",
+     "54-63",
+     "44-53",
+     "34-43",
+     "24-33",
+     "14-23",
+     "4-13",
+     "114-123",
+     "104-113",
+     "94-103",
+     "84-93",
+     "74-83"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "1972-4-30",
+    "timeIndex": 9,
+    "gender": "female",
+    "preset": "quanshu-default"
+   },
+   "expected": {
+    "lunarDate": "一九七二年三月十七",
+    "ganzhi": [
+     "renHeavenly.ziEarthly",
+     "jiaHeavenly.chenEarthly",
+     "xinHeavenly.maoEarthly",
+     "dingHeavenly.youEarthly"
+    ],
+    "soulBranch": "weiEarthly",
+    "bodyBranch": "chouEarthly",
+    "soul": "wuquMaj",
+    "body": "huoxingMin",
+    "fiveElementsClass": "water2nd",
+    "majors": [
+     "",
+     "",
+     "tiantongMaj",
+     "wuquMaj+pojunMaj",
+     "taiyangMaj",
+     "tianfuMaj",
+     "tianjiMaj+taiyinMaj",
+     "ziweiMaj+tanlangMaj",
+     "jumenMaj",
+     "tianxiangMaj",
+     "tianliangMaj",
+     "lianzhenMaj+qishaMaj"
+    ],
+    "mutagens": [
+     "tianliangMaj:sihuaLu",
+     "wuquMaj:sihuaJi",
+     "ziweiMaj:sihuaQuan",
+     "zuofuMin:sihuaKe"
+    ],
+    "decadalRanges": [
+     "52-61",
+     "42-51",
+     "32-41",
+     "22-31",
+     "12-21",
+     "2-11",
+     "112-121",
+     "102-111",
+     "92-101",
+     "82-91",
+     "72-81",
+     "62-71"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "1975-8-18",
+    "timeIndex": 1,
+    "gender": "male",
+    "preset": "quanshu-default"
+   },
+   "expected": {
+    "lunarDate": "一九七五年七月十二",
+    "ganzhi": [
+     "yiHeavenly.maoEarthly",
+     "jiaHeavenly.shenEarthly",
+     "bingHeavenly.shenEarthly",
+     "jiHeavenly.chouEarthly"
+    ],
+    "soulBranch": "weiEarthly",
+    "bodyBranch": "youEarthly",
+    "soul": "wuquMaj",
+    "body": "tiantongMaj",
+    "fiveElementsClass": "wood3rd",
+    "majors": [
+     "taiyangMaj+jumenMaj",
+     "tianxiangMaj",
+     "tianjiMaj+tianliangMaj",
+     "ziweiMaj+qishaMaj",
+     "",
+     "",
+     "",
+     "lianzhenMaj+pojunMaj",
+     "",
+     "tianfuMaj",
+     "tiantongMaj+taiyinMaj",
+     "wuquMaj+tanlangMaj"
+    ],
+    "mutagens": [
+     "taiyinMaj:sihuaJi",
+     "tianjiMaj:sihuaLu",
+     "tianliangMaj:sihuaQuan",
+     "ziweiMaj:sihuaKe"
+    ],
+    "decadalRanges": [
+     "53-62",
+     "43-52",
+     "33-42",
+     "23-32",
+     "13-22",
+     "3-12",
+     "113-122",
+     "103-112",
+     "93-102",
+     "83-92",
+     "73-82",
+     "63-72"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "1978-2-14",
+    "timeIndex": 6,
+    "gender": "female",
+    "preset": "wenmo-zhongzhou"
+   },
+   "expected": {
+    "lunarDate": "一九七八年正月初八",
+    "ganzhi": [
+     "wuHeavenly.wuEarthly",
+     "jiaHeavenly.yinEarthly",
+     "dingHeavenly.weiEarthly",
+     "bingHeavenly.wuEarthly"
+    ],
+    "soulBranch": "shenEarthly",
+    "bodyBranch": "shenEarthly",
+    "soul": "pojunMaj",
+    "body": "huoxingMin",
+    "fiveElementsClass": "wood3rd",
+    "majors": [
+     "tianjiMaj+taiyinMaj",
+     "ziweiMaj+tanlangMaj",
+     "jumenMaj",
+     "tianxiangMaj",
+     "tianliangMaj",
+     "lianzhenMaj+qishaMaj",
+     "",
+     "",
+     "tiantongMaj",
+     "wuquMaj+pojunMaj",
+     "taiyangMaj",
+     "tianfuMaj"
+    ],
+    "mutagens": [
+     "taiyinMaj:sihuaQuan",
+     "tanlangMaj:sihuaLu",
+     "tianjiMaj:sihuaJi",
+     "youbiMin:sihuaKe"
+    ],
+    "decadalRanges": [
+     "63-72",
+     "53-62",
+     "43-52",
+     "33-42",
+     "23-32",
+     "13-22",
+     "3-12",
+     "113-122",
+     "103-112",
+     "93-102",
+     "83-92",
+     "73-82"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "1981-10-1",
+    "timeIndex": 11,
+    "gender": "male",
+    "preset": "quanshu-default"
+   },
+   "expected": {
+    "lunarDate": "一九八一年九月初四",
+    "ganzhi": [
+     "xinHeavenly.youEarthly",
+     "wuHeavenly.xuEarthly",
+     "renHeavenly.ziEarthly",
+     "xinHeavenly.haiEarthly"
+    ],
+    "soulBranch": "haiEarthly",
+    "bodyBranch": "youEarthly",
+    "soul": "jumenMaj",
+    "body": "tiantongMaj",
+    "fiveElementsClass": "wood3rd",
+    "majors": [
+     "taiyangMaj+jumenMaj",
+     "tianxiangMaj",
+     "tianjiMaj+tianliangMaj",
+     "ziweiMaj+qishaMaj",
+     "",
+     "",
+     "",
+     "lianzhenMaj+pojunMaj",
+     "",
+     "tianfuMaj",
+     "tiantongMaj+taiyinMaj",
+     "wuquMaj+tanlangMaj"
+    ],
+    "mutagens": [
+     "jumenMaj:sihuaLu",
+     "taiyangMaj:sihuaQuan",
+     "wenchangMin:sihuaJi",
+     "wenquMin:sihuaKe"
+    ],
+    "decadalRanges": [
+     "93-102",
+     "83-92",
+     "73-82",
+     "63-72",
+     "53-62",
+     "43-52",
+     "33-42",
+     "23-32",
+     "13-22",
+     "3-12",
+     "113-122",
+     "103-112"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "1984-6-6",
+    "timeIndex": 3,
+    "gender": "female",
+    "preset": "quanshu-default"
+   },
+   "expected": {
+    "lunarDate": "一九八四年五月初七",
+    "ganzhi": [
+     "jiaHeavenly.ziEarthly",
+     "gengHeavenly.wuEarthly",
+     "xinHeavenly.weiEarthly",
+     "xinHeavenly.maoEarthly"
+    ],
+    "soulBranch": "maoEarthly",
+    "bodyBranch": "youEarthly",
+    "soul": "wenquMin",
+    "body": "huoxingMin",
+    "fiveElementsClass": "fire6th",
+    "majors": [
+     "lianzhenMaj",
+     "",
+     "pojunMaj",
+     "tiantongMaj",
+     "wuquMaj+tianfuMaj",
+     "taiyangMaj+taiyinMaj",
+     "tanlangMaj",
+     "tianjiMaj+jumenMaj",
+     "ziweiMaj+tianxiangMaj",
+     "tianliangMaj",
+     "qishaMaj",
+     ""
+    ],
+    "mutagens": [
+     "lianzhenMaj:sihuaLu",
+     "pojunMaj:sihuaQuan",
+     "taiyangMaj:sihuaJi",
+     "wuquMaj:sihuaKe"
+    ],
+    "decadalRanges": [
+     "16-25",
+     "6-15",
+     "116-125",
+     "106-115",
+     "96-105",
+     "86-95",
+     "76-85",
+     "66-75",
+     "56-65",
+     "46-55",
+     "36-45",
+     "26-35"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "1987-3-3",
+    "timeIndex": 8,
+    "gender": "male",
+    "preset": "wenmo-zhongzhou"
+   },
+   "expected": {
+    "lunarDate": "一九八七年二月初四",
+    "ganzhi": [
+     "dingHeavenly.maoEarthly",
+     "guiHeavenly.maoEarthly",
+     "xinHeavenly.haiEarthly",
+     "bingHeavenly.shenEarthly"
+    ],
+    "soulBranch": "weiEarthly",
+    "bodyBranch": "haiEarthly",
+    "soul": "wenquMin",
+    "body": "tiantongMaj",
+    "fiveElementsClass": "water2nd",
+    "majors": [
+     "tianjiMaj+taiyinMaj",
+     "ziweiMaj+tanlangMaj",
+     "jumenMaj",
+     "tianxiangMaj",
+     "tianliangMaj",
+     "lianzhenMaj+qishaMaj",
+     "",
+     "",
+     "tiantongMaj",
+     "wuquMaj+pojunMaj",
+     "taiyangMaj",
+     "tianfuMaj"
+    ],
+    "mutagens": [
+     "jumenMaj:sihuaJi",
+     "taiyinMaj:sihuaLu",
+     "tianjiMaj:sihuaKe",
+     "tiantongMaj:sihuaQuan"
+    ],
+    "decadalRanges": [
+     "52-61",
+     "42-51",
+     "32-41",
+     "22-31",
+     "12-21",
+     "2-11",
+     "112-121",
+     "102-111",
+     "92-101",
+     "82-91",
+     "72-81",
+     "62-71"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "1989-6-4",
+    "timeIndex": 0,
+    "gender": "female",
+    "preset": "quanshu-default"
+   },
+   "expected": {
+    "lunarDate": "一九八九年五月初一",
+    "ganzhi": [
+     "jiHeavenly.siEarthly",
+     "gengHeavenly.wuEarthly",
+     "yiHeavenly.weiEarthly",
+     "bingHeavenly.ziEarthly"
+    ],
+    "soulBranch": "wuEarthly",
+    "bodyBranch": "wuEarthly",
+    "soul": "pojunMaj",
+    "body": "tianjiMaj",
+    "fiveElementsClass": "earth5th",
+    "majors": [
+     "wuquMaj+tianxiangMaj",
+     "taiyangMaj+tianliangMaj",
+     "qishaMaj",
+     "tianjiMaj",
+     "ziweiMaj",
+     "",
+     "pojunMaj",
+     "",
+     "lianzhenMaj+tianfuMaj",
+     "taiyinMaj",
+     "tanlangMaj",
+     "tiantongMaj+jumenMaj"
+    ],
+    "mutagens": [
+     "tanlangMaj:sihuaQuan",
+     "tianliangMaj:sihuaKe",
+     "wenquMin:sihuaJi",
+     "wuquMaj:sihuaLu"
+    ],
+    "decadalRanges": [
+     "85-94",
+     "95-104",
+     "105-114",
+     "115-124",
+     "5-14",
+     "15-24",
+     "25-34",
+     "35-44",
+     "45-54",
+     "55-64",
+     "65-74",
+     "75-84"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "1992-11-11",
+    "timeIndex": 5,
+    "gender": "male",
+    "preset": "quanshu-default"
+   },
+   "expected": {
+    "lunarDate": "一九九二年十月十七",
+    "ganzhi": [
+     "renHeavenly.shenEarthly",
+     "xinHeavenly.haiEarthly",
+     "xinHeavenly.maoEarthly",
+     "guiHeavenly.siEarthly"
+    ],
+    "soulBranch": "wuEarthly",
+    "bodyBranch": "chenEarthly",
+    "soul": "pojunMaj",
+    "body": "tianliangMaj",
+    "fiveElementsClass": "water2nd",
+    "majors": [
+     "",
+     "",
+     "tiantongMaj",
+     "wuquMaj+pojunMaj",
+     "taiyangMaj",
+     "tianfuMaj",
+     "tianjiMaj+taiyinMaj",
+     "ziweiMaj+tanlangMaj",
+     "jumenMaj",
+     "tianxiangMaj",
+     "tianliangMaj",
+     "lianzhenMaj+qishaMaj"
+    ],
+    "mutagens": [
+     "tianliangMaj:sihuaLu",
+     "wuquMaj:sihuaJi",
+     "ziweiMaj:sihuaQuan",
+     "zuofuMin:sihuaKe"
+    ],
+    "decadalRanges": [
+     "82-91",
+     "92-101",
+     "102-111",
+     "112-121",
+     "2-11",
+     "12-21",
+     "22-31",
+     "32-41",
+     "42-51",
+     "52-61",
+     "62-71",
+     "72-81"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "1994-7-7",
+    "timeIndex": 10,
+    "gender": "female",
+    "preset": "wenmo-zhongzhou"
+   },
+   "expected": {
+    "lunarDate": "一九九四年五月廿九",
+    "ganzhi": [
+     "jiaHeavenly.xuEarthly",
+     "gengHeavenly.wuEarthly",
+     "jiaHeavenly.wuEarthly",
+     "jiaHeavenly.xuEarthly"
+    ],
+    "soulBranch": "shenEarthly",
+    "bodyBranch": "chenEarthly",
+    "soul": "lucunMin",
+    "body": "wenchangMin",
+    "fiveElementsClass": "metal4th",
+    "majors": [
+     "wuquMaj+tianxiangMaj",
+     "taiyangMaj+tianliangMaj",
+     "qishaMaj",
+     "tianjiMaj",
+     "ziweiMaj",
+     "",
+     "pojunMaj",
+     "",
+     "lianzhenMaj+tianfuMaj",
+     "taiyinMaj",
+     "tanlangMaj",
+     "tiantongMaj+jumenMaj"
+    ],
+    "mutagens": [
+     "lianzhenMaj:sihuaLu",
+     "pojunMaj:sihuaQuan",
+     "taiyangMaj:sihuaJi",
+     "wuquMaj:sihuaKe"
+    ],
+    "decadalRanges": [
+     "64-73",
+     "54-63",
+     "44-53",
+     "34-43",
+     "24-33",
+     "14-23",
+     "4-13",
+     "114-123",
+     "104-113",
+     "94-103",
+     "84-93",
+     "74-83"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "1996-2-29",
+    "timeIndex": 2,
+    "gender": "male",
+    "preset": "quanshu-default"
+   },
+   "expected": {
+    "lunarDate": "一九九六年正月十一",
+    "ganzhi": [
+     "bingHeavenly.ziEarthly",
+     "gengHeavenly.yinEarthly",
+     "bingHeavenly.shenEarthly",
+     "gengHeavenly.yinEarthly"
+    ],
+    "soulBranch": "ziEarthly",
+    "bodyBranch": "chenEarthly",
+    "soul": "tanlangMaj",
+    "body": "huoxingMin",
+    "fiveElementsClass": "earth5th",
+    "majors": [
+     "qishaMaj",
+     "tiantongMaj",
+     "wuquMaj",
+     "taiyangMaj",
+     "pojunMaj",
+     "tianjiMaj",
+     "ziweiMaj+tianfuMaj",
+     "taiyinMaj",
+     "tanlangMaj",
+     "jumenMaj",
+     "lianzhenMaj+tianxiangMaj",
+     "tianliangMaj"
+    ],
+    "mutagens": [
+     "lianzhenMaj:sihuaJi",
+     "tianjiMaj:sihuaQuan",
+     "tiantongMaj:sihuaLu",
+     "wenchangMin:sihuaKe"
+    ],
+    "decadalRanges": [
+     "25-34",
+     "35-44",
+     "45-54",
+     "55-64",
+     "65-74",
+     "75-84",
+     "85-94",
+     "95-104",
+     "105-114",
+     "115-124",
+     "5-14",
+     "15-24"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "1998-9-28",
+    "timeIndex": 7,
+    "gender": "female",
+    "preset": "quanshu-default"
+   },
+   "expected": {
+    "lunarDate": "一九九八年八月初八",
+    "ganzhi": [
+     "wuHeavenly.yinEarthly",
+     "xinHeavenly.youEarthly",
+     "wuHeavenly.yinEarthly",
+     "jiHeavenly.weiEarthly"
+    ],
+    "soulBranch": "yinEarthly",
+    "bodyBranch": "chenEarthly",
+    "soul": "lucunMin",
+    "body": "tianliangMaj",
+    "fiveElementsClass": "water2nd",
+    "majors": [
+     "taiyangMaj+jumenMaj",
+     "tianxiangMaj",
+     "tianjiMaj+tianliangMaj",
+     "ziweiMaj+qishaMaj",
+     "",
+     "",
+     "",
+     "lianzhenMaj+pojunMaj",
+     "",
+     "tianfuMaj",
+     "tiantongMaj+taiyinMaj",
+     "wuquMaj+tanlangMaj"
+    ],
+    "mutagens": [
+     "taiyinMaj:sihuaQuan",
+     "tanlangMaj:sihuaLu",
+     "tianjiMaj:sihuaJi",
+     "youbiMin:sihuaKe"
+    ],
+    "decadalRanges": [
+     "2-11",
+     "112-121",
+     "102-111",
+     "92-101",
+     "82-91",
+     "72-81",
+     "62-71",
+     "52-61",
+     "42-51",
+     "32-41",
+     "22-31",
+     "12-21"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "2001-1-1",
+    "timeIndex": 12,
+    "gender": "male",
+    "preset": "wenmo-zhongzhou"
+   },
+   "expected": {
+    "lunarDate": "二〇〇〇年腊月初七",
+    "ganzhi": [
+     "gengHeavenly.chenEarthly",
+     "jiHeavenly.chouEarthly",
+     "yiHeavenly.chouEarthly",
+     "bingHeavenly.ziEarthly"
+    ],
+    "soulBranch": "chouEarthly",
+    "bodyBranch": "chouEarthly",
+    "soul": "lianzhenMaj",
+    "body": "wenchangMin",
+    "fiveElementsClass": "fire6th",
+    "majors": [
+     "tiantongMaj+tianliangMaj",
+     "wuquMaj+qishaMaj",
+     "taiyangMaj",
+     "",
+     "tianjiMaj",
+     "ziweiMaj+pojunMaj",
+     "",
+     "tianfuMaj",
+     "taiyinMaj",
+     "lianzhenMaj+tanlangMaj",
+     "jumenMaj",
+     "tianxiangMaj"
+    ],
+    "mutagens": [
+     "taiyangMaj:sihuaLu",
+     "taiyinMaj:sihuaKe",
+     "tiantongMaj:sihuaJi",
+     "wuquMaj:sihuaQuan"
+    ],
+    "decadalRanges": [
+     "16-25",
+     "26-35",
+     "36-45",
+     "46-55",
+     "56-65",
+     "66-75",
+     "76-85",
+     "86-95",
+     "96-105",
+     "106-115",
+     "116-125",
+     "6-15"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "2003-12-25",
+    "timeIndex": 4,
+    "gender": "female",
+    "preset": "quanshu-default"
+   },
+   "expected": {
+    "lunarDate": "二〇〇三年腊月初三",
+    "ganzhi": [
+     "guiHeavenly.weiEarthly",
+     "yiHeavenly.chouEarthly",
+     "renHeavenly.shenEarthly",
+     "jiaHeavenly.chenEarthly"
+    ],
+    "soulBranch": "youEarthly",
+    "bodyBranch": "siEarthly",
+    "soul": "wenquMin",
+    "body": "tianxiangMaj",
+    "fiveElementsClass": "wood3rd",
+    "majors": [
+     "ziweiMaj+tianfuMaj",
+     "taiyinMaj",
+     "tanlangMaj",
+     "jumenMaj",
+     "lianzhenMaj+tianxiangMaj",
+     "tianliangMaj",
+     "qishaMaj",
+     "tiantongMaj",
+     "wuquMaj",
+     "taiyangMaj",
+     "pojunMaj",
+     "tianjiMaj"
+    ],
+    "mutagens": [
+     "jumenMaj:sihuaQuan",
+     "pojunMaj:sihuaLu",
+     "taiyinMaj:sihuaKe",
+     "tanlangMaj:sihuaJi"
+    ],
+    "decadalRanges": [
+     "53-62",
+     "63-72",
+     "73-82",
+     "83-92",
+     "93-102",
+     "103-112",
+     "113-122",
+     "3-12",
+     "13-22",
+     "23-32",
+     "33-42",
+     "43-52"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "2006-4-18",
+    "timeIndex": 9,
+    "gender": "male",
+    "preset": "quanshu-default"
+   },
+   "expected": {
+    "lunarDate": "二〇〇六年三月廿一",
+    "ganzhi": [
+     "bingHeavenly.xuEarthly",
+     "renHeavenly.chenEarthly",
+     "dingHeavenly.chouEarthly",
+     "jiHeavenly.youEarthly"
+    ],
+    "soulBranch": "weiEarthly",
+    "bodyBranch": "chouEarthly",
+    "soul": "wuquMaj",
+    "body": "wenchangMin",
+    "fiveElementsClass": "metal4th",
+    "majors": [
+     "tanlangMaj",
+     "tianjiMaj+jumenMaj",
+     "ziweiMaj+tianxiangMaj",
+     "tianliangMaj",
+     "qishaMaj",
+     "",
+     "lianzhenMaj",
+     "",
+     "pojunMaj",
+     "tiantongMaj",
+     "wuquMaj+tianfuMaj",
+     "taiyangMaj+taiyinMaj"
+    ],
+    "mutagens": [
+     "lianzhenMaj:sihuaJi",
+     "tianjiMaj:sihuaQuan",
+     "tiantongMaj:sihuaLu",
+     "wenchangMin:sihuaKe"
+    ],
+    "decadalRanges": [
+     "74-83",
+     "84-93",
+     "94-103",
+     "104-113",
+     "114-123",
+     "4-13",
+     "14-23",
+     "24-33",
+     "34-43",
+     "44-53",
+     "54-63",
+     "64-73"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "2008-8-8",
+    "timeIndex": 1,
+    "gender": "female",
+    "preset": "wenmo-zhongzhou"
+   },
+   "expected": {
+    "lunarDate": "二〇〇八年七月初八",
+    "ganzhi": [
+     "wuHeavenly.ziEarthly",
+     "gengHeavenly.shenEarthly",
+     "gengHeavenly.chenEarthly",
+     "dingHeavenly.chouEarthly"
+    ],
+    "soulBranch": "weiEarthly",
+    "bodyBranch": "youEarthly",
+    "soul": "tanlangMaj",
+    "body": "huoxingMin",
+    "fiveElementsClass": "fire6th",
+    "majors": [
+     "tiantongMaj+tianliangMaj",
+     "wuquMaj+qishaMaj",
+     "taiyangMaj",
+     "",
+     "tianjiMaj",
+     "ziweiMaj+pojunMaj",
+     "",
+     "tianfuMaj",
+     "taiyinMaj",
+     "lianzhenMaj+tanlangMaj",
+     "jumenMaj",
+     "tianxiangMaj"
+    ],
+    "mutagens": [
+     "taiyinMaj:sihuaQuan",
+     "tanlangMaj:sihuaLu",
+     "tianjiMaj:sihuaJi",
+     "youbiMin:sihuaKe"
+    ],
+    "decadalRanges": [
+     "56-65",
+     "46-55",
+     "36-45",
+     "26-35",
+     "16-25",
+     "6-15",
+     "116-125",
+     "106-115",
+     "96-105",
+     "86-95",
+     "76-85",
+     "66-75"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "2010-10-10",
+    "timeIndex": 6,
+    "gender": "male",
+    "preset": "quanshu-default"
+   },
+   "expected": {
+    "lunarDate": "二〇一〇年九月初三",
+    "ganzhi": [
+     "gengHeavenly.yinEarthly",
+     "bingHeavenly.xuEarthly",
+     "guiHeavenly.siEarthly",
+     "wuHeavenly.wuEarthly"
+    ],
+    "soulBranch": "chenEarthly",
+    "bodyBranch": "chenEarthly",
+    "soul": "lianzhenMaj",
+    "body": "tianliangMaj",
+    "fiveElementsClass": "metal4th",
+    "majors": [
+     "",
+     "tianfuMaj",
+     "taiyinMaj",
+     "lianzhenMaj+tanlangMaj",
+     "jumenMaj",
+     "tianxiangMaj",
+     "tiantongMaj+tianliangMaj",
+     "wuquMaj+qishaMaj",
+     "taiyangMaj",
+     "",
+     "tianjiMaj",
+     "ziweiMaj+pojunMaj"
+    ],
+    "mutagens": [
+     "taiyangMaj:sihuaLu",
+     "taiyinMaj:sihuaKe",
+     "tiantongMaj:sihuaJi",
+     "wuquMaj:sihuaQuan"
+    ],
+    "decadalRanges": [
+     "104-113",
+     "114-123",
+     "4-13",
+     "14-23",
+     "24-33",
+     "34-43",
+     "44-53",
+     "54-63",
+     "64-73",
+     "74-83",
+     "84-93",
+     "94-103"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "2012-12-21",
+    "timeIndex": 11,
+    "gender": "female",
+    "preset": "quanshu-default"
+   },
+   "expected": {
+    "lunarDate": "二〇一二年冬月初九",
+    "ganzhi": [
+     "renHeavenly.chenEarthly",
+     "renHeavenly.ziEarthly",
+     "bingHeavenly.chenEarthly",
+     "jiHeavenly.haiEarthly"
+    ],
+    "soulBranch": "chouEarthly",
+    "bodyBranch": "haiEarthly",
+    "soul": "jumenMaj",
+    "body": "wenchangMin",
+    "fiveElementsClass": "wood3rd",
+    "majors": [
+     "tanlangMaj",
+     "tianjiMaj+jumenMaj",
+     "ziweiMaj+tianxiangMaj",
+     "tianliangMaj",
+     "qishaMaj",
+     "",
+     "lianzhenMaj",
+     "",
+     "pojunMaj",
+     "tiantongMaj",
+     "wuquMaj+tianfuMaj",
+     "taiyangMaj+taiyinMaj"
+    ],
+    "mutagens": [
+     "tianliangMaj:sihuaLu",
+     "wuquMaj:sihuaJi",
+     "ziweiMaj:sihuaQuan",
+     "zuofuMin:sihuaKe"
+    ],
+    "decadalRanges": [
+     "113-122",
+     "103-112",
+     "93-102",
+     "83-92",
+     "73-82",
+     "63-72",
+     "53-62",
+     "43-52",
+     "33-42",
+     "23-32",
+     "13-22",
+     "3-12"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "2014-5-20",
+    "timeIndex": 3,
+    "gender": "male",
+    "preset": "wenmo-zhongzhou"
+   },
+   "expected": {
+    "lunarDate": "二〇一四年四月廿二",
+    "ganzhi": [
+     "jiaHeavenly.wuEarthly",
+     "jiHeavenly.siEarthly",
+     "xinHeavenly.maoEarthly",
+     "xinHeavenly.maoEarthly"
+    ],
+    "soulBranch": "yinEarthly",
+    "bodyBranch": "shenEarthly",
+    "soul": "pojunMaj",
+    "body": "huoxingMin",
+    "fiveElementsClass": "fire6th",
+    "majors": [
+     "tiantongMaj+tianliangMaj",
+     "wuquMaj+qishaMaj",
+     "taiyangMaj",
+     "",
+     "tianjiMaj",
+     "ziweiMaj+pojunMaj",
+     "",
+     "tianfuMaj",
+     "taiyinMaj",
+     "lianzhenMaj+tanlangMaj",
+     "jumenMaj",
+     "tianxiangMaj"
+    ],
+    "mutagens": [
+     "lianzhenMaj:sihuaLu",
+     "pojunMaj:sihuaQuan",
+     "taiyangMaj:sihuaJi",
+     "wuquMaj:sihuaKe"
+    ],
+    "decadalRanges": [
+     "6-15",
+     "16-25",
+     "26-35",
+     "36-45",
+     "46-55",
+     "56-65",
+     "66-75",
+     "76-85",
+     "86-95",
+     "96-105",
+     "106-115",
+     "116-125"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "2015-11-30",
+    "timeIndex": 8,
+    "gender": "female",
+    "preset": "quanshu-default"
+   },
+   "expected": {
+    "lunarDate": "二〇一五年十月十九",
+    "ganzhi": [
+     "yiHeavenly.weiEarthly",
+     "dingHeavenly.haiEarthly",
+     "gengHeavenly.xuEarthly",
+     "jiaHeavenly.shenEarthly"
+    ],
+    "soulBranch": "maoEarthly",
+    "bodyBranch": "weiEarthly",
+    "soul": "wenquMin",
+    "body": "tianxiangMaj",
+    "fiveElementsClass": "earth5th",
+    "majors": [
+     "tanlangMaj",
+     "tianjiMaj+jumenMaj",
+     "ziweiMaj+tianxiangMaj",
+     "tianliangMaj",
+     "qishaMaj",
+     "",
+     "lianzhenMaj",
+     "",
+     "pojunMaj",
+     "tiantongMaj",
+     "wuquMaj+tianfuMaj",
+     "taiyangMaj+taiyinMaj"
+    ],
+    "mutagens": [
+     "taiyinMaj:sihuaJi",
+     "tianjiMaj:sihuaLu",
+     "tianliangMaj:sihuaQuan",
+     "ziweiMaj:sihuaKe"
+    ],
+    "decadalRanges": [
+     "115-124",
+     "5-14",
+     "15-24",
+     "25-34",
+     "35-44",
+     "45-54",
+     "55-64",
+     "65-74",
+     "75-84",
+     "85-94",
+     "95-104",
+     "105-114"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "2016-2-8",
+    "timeIndex": 0,
+    "gender": "male",
+    "preset": "quanshu-default"
+   },
+   "expected": {
+    "lunarDate": "二〇一六年正月初一",
+    "ganzhi": [
+     "bingHeavenly.shenEarthly",
+     "gengHeavenly.yinEarthly",
+     "gengHeavenly.shenEarthly",
+     "bingHeavenly.ziEarthly"
+    ],
+    "soulBranch": "yinEarthly",
+    "bodyBranch": "yinEarthly",
+    "soul": "lucunMin",
+    "body": "tianliangMaj",
+    "fiveElementsClass": "wood3rd",
+    "majors": [
+     "tanlangMaj",
+     "tianjiMaj+jumenMaj",
+     "ziweiMaj+tianxiangMaj",
+     "tianliangMaj",
+     "qishaMaj",
+     "",
+     "lianzhenMaj",
+     "",
+     "pojunMaj",
+     "tiantongMaj",
+     "wuquMaj+tianfuMaj",
+     "taiyangMaj+taiyinMaj"
+    ],
+    "mutagens": [
+     "lianzhenMaj:sihuaJi",
+     "tianjiMaj:sihuaQuan",
+     "tiantongMaj:sihuaLu",
+     "wenchangMin:sihuaKe"
+    ],
+    "decadalRanges": [
+     "3-12",
+     "13-22",
+     "23-32",
+     "33-42",
+     "43-52",
+     "53-62",
+     "63-72",
+     "73-82",
+     "83-92",
+     "93-102",
+     "103-112",
+     "113-122"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "2018-7-13",
+    "timeIndex": 5,
+    "gender": "female",
+    "preset": "wenmo-zhongzhou"
+   },
+   "expected": {
+    "lunarDate": "二〇一八年六月初一",
+    "ganzhi": [
+     "wuHeavenly.xuEarthly",
+     "jiHeavenly.weiEarthly",
+     "bingHeavenly.wuEarthly",
+     "guiHeavenly.siEarthly"
+    ],
+    "soulBranch": "yinEarthly",
+    "bodyBranch": "ziEarthly",
+    "soul": "lucunMin",
+    "body": "wenchangMin",
+    "fiveElementsClass": "water2nd",
+    "majors": [
+     "",
+     "tianfuMaj",
+     "taiyinMaj",
+     "lianzhenMaj+tanlangMaj",
+     "jumenMaj",
+     "tianxiangMaj",
+     "tiantongMaj+tianliangMaj",
+     "wuquMaj+qishaMaj",
+     "taiyangMaj",
+     "",
+     "tianjiMaj",
+     "ziweiMaj+pojunMaj"
+    ],
+    "mutagens": [
+     "taiyinMaj:sihuaQuan",
+     "tanlangMaj:sihuaLu",
+     "tianjiMaj:sihuaJi",
+     "youbiMin:sihuaKe"
+    ],
+    "decadalRanges": [
+     "2-11",
+     "112-121",
+     "102-111",
+     "92-101",
+     "82-91",
+     "72-81",
+     "62-71",
+     "52-61",
+     "42-51",
+     "32-41",
+     "22-31",
+     "12-21"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "2019-4-5",
+    "timeIndex": 10,
+    "gender": "male",
+    "preset": "quanshu-default"
+   },
+   "expected": {
+    "lunarDate": "二〇一九年三月初一",
+    "ganzhi": [
+     "jiHeavenly.haiEarthly",
+     "wuHeavenly.chenEarthly",
+     "renHeavenly.shenEarthly",
+     "gengHeavenly.xuEarthly"
+    ],
+    "soulBranch": "wuEarthly",
+    "bodyBranch": "yinEarthly",
+    "soul": "pojunMaj",
+    "body": "tianjiMaj",
+    "fiveElementsClass": "earth5th",
+    "majors": [
+     "wuquMaj+tianxiangMaj",
+     "taiyangMaj+tianliangMaj",
+     "qishaMaj",
+     "tianjiMaj",
+     "ziweiMaj",
+     "",
+     "pojunMaj",
+     "",
+     "lianzhenMaj+tianfuMaj",
+     "taiyinMaj",
+     "tanlangMaj",
+     "tiantongMaj+jumenMaj"
+    ],
+    "mutagens": [
+     "tanlangMaj:sihuaQuan",
+     "tianliangMaj:sihuaKe",
+     "wenquMin:sihuaJi",
+     "wuquMaj:sihuaLu"
+    ],
+    "decadalRanges": [
+     "45-54",
+     "35-44",
+     "25-34",
+     "15-24",
+     "5-14",
+     "115-124",
+     "105-114",
+     "95-104",
+     "85-94",
+     "75-84",
+     "65-74",
+     "55-64"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "2021-6-1",
+    "timeIndex": 2,
+    "gender": "female",
+    "preset": "quanshu-default"
+   },
+   "expected": {
+    "lunarDate": "二〇二一年四月廿一",
+    "ganzhi": [
+     "xinHeavenly.chouEarthly",
+     "guiHeavenly.siEarthly",
+     "gengHeavenly.chenEarthly",
+     "wuHeavenly.yinEarthly"
+    ],
+    "soulBranch": "maoEarthly",
+    "bodyBranch": "weiEarthly",
+    "soul": "wenquMin",
+    "body": "tianxiangMaj",
+    "fiveElementsClass": "wood3rd",
+    "majors": [
+     "qishaMaj",
+     "tiantongMaj",
+     "wuquMaj",
+     "taiyangMaj",
+     "pojunMaj",
+     "tianjiMaj",
+     "ziweiMaj+tianfuMaj",
+     "taiyinMaj",
+     "tanlangMaj",
+     "jumenMaj",
+     "lianzhenMaj+tianxiangMaj",
+     "tianliangMaj"
+    ],
+    "mutagens": [
+     "jumenMaj:sihuaLu",
+     "taiyangMaj:sihuaQuan",
+     "wenchangMin:sihuaJi",
+     "wenquMin:sihuaKe"
+    ],
+    "decadalRanges": [
+     "113-122",
+     "3-12",
+     "13-22",
+     "23-32",
+     "33-42",
+     "43-52",
+     "53-62",
+     "63-72",
+     "73-82",
+     "83-92",
+     "93-102",
+     "103-112"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "2022-9-15",
+    "timeIndex": 7,
+    "gender": "male",
+    "preset": "wenmo-zhongzhou"
+   },
+   "expected": {
+    "lunarDate": "二〇二二年八月二十",
+    "ganzhi": [
+     "renHeavenly.yinEarthly",
+     "jiHeavenly.youEarthly",
+     "xinHeavenly.weiEarthly",
+     "yiHeavenly.weiEarthly"
+    ],
+    "soulBranch": "yinEarthly",
+    "bodyBranch": "chenEarthly",
+    "soul": "lucunMin",
+    "body": "tianliangMaj",
+    "fiveElementsClass": "metal4th",
+    "majors": [
+     "wuquMaj+tianxiangMaj",
+     "taiyangMaj+tianliangMaj",
+     "qishaMaj",
+     "tianjiMaj",
+     "ziweiMaj",
+     "",
+     "pojunMaj",
+     "",
+     "lianzhenMaj+tianfuMaj",
+     "taiyinMaj",
+     "tanlangMaj",
+     "tiantongMaj+jumenMaj"
+    ],
+    "mutagens": [
+     "tianliangMaj:sihuaLu",
+     "wuquMaj:sihuaJi",
+     "ziweiMaj:sihuaQuan",
+     "zuofuMin:sihuaKe"
+    ],
+    "decadalRanges": [
+     "4-13",
+     "14-23",
+     "24-33",
+     "34-43",
+     "44-53",
+     "54-63",
+     "64-73",
+     "74-83",
+     "84-93",
+     "94-103",
+     "104-113",
+     "114-123"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "2024-2-10",
+    "timeIndex": 12,
+    "gender": "female",
+    "preset": "quanshu-default"
+   },
+   "expected": {
+    "lunarDate": "二〇二四年正月初一",
+    "ganzhi": [
+     "jiaHeavenly.chenEarthly",
+     "bingHeavenly.yinEarthly",
+     "jiaHeavenly.chenEarthly",
+     "jiaHeavenly.ziEarthly"
+    ],
+    "soulBranch": "yinEarthly",
+    "bodyBranch": "yinEarthly",
+    "soul": "lucunMin",
+    "body": "wenchangMin",
+    "fiveElementsClass": "fire6th",
+    "majors": [
+     "",
+     "",
+     "tiantongMaj",
+     "wuquMaj+pojunMaj",
+     "taiyangMaj",
+     "tianfuMaj",
+     "tianjiMaj+taiyinMaj",
+     "ziweiMaj+tanlangMaj",
+     "jumenMaj",
+     "tianxiangMaj",
+     "tianliangMaj",
+     "lianzhenMaj+qishaMaj"
+    ],
+    "mutagens": [
+     "lianzhenMaj:sihuaLu",
+     "pojunMaj:sihuaQuan",
+     "taiyangMaj:sihuaJi",
+     "wuquMaj:sihuaKe"
+    ],
+    "decadalRanges": [
+     "6-15",
+     "116-125",
+     "106-115",
+     "96-105",
+     "86-95",
+     "76-85",
+     "66-75",
+     "56-65",
+     "46-55",
+     "36-45",
+     "26-35",
+     "16-25"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "1955-8-15",
+    "timeIndex": 4,
+    "gender": "male",
+    "preset": "quanshu-default"
+   },
+   "expected": {
+    "lunarDate": "一九五五年六月廿八",
+    "ganzhi": [
+     "yiHeavenly.weiEarthly",
+     "guiHeavenly.weiEarthly",
+     "wuHeavenly.shenEarthly",
+     "bingHeavenly.chenEarthly"
+    ],
+    "soulBranch": "maoEarthly",
+    "bodyBranch": "haiEarthly",
+    "soul": "wenquMin",
+    "body": "tianxiangMaj",
+    "fiveElementsClass": "earth5th",
+    "majors": [
+     "",
+     "",
+     "tiantongMaj",
+     "wuquMaj+pojunMaj",
+     "taiyangMaj",
+     "tianfuMaj",
+     "tianjiMaj+taiyinMaj",
+     "ziweiMaj+tanlangMaj",
+     "jumenMaj",
+     "tianxiangMaj",
+     "tianliangMaj",
+     "lianzhenMaj+qishaMaj"
+    ],
+    "mutagens": [
+     "taiyinMaj:sihuaJi",
+     "tianjiMaj:sihuaLu",
+     "tianliangMaj:sihuaQuan",
+     "ziweiMaj:sihuaKe"
+    ],
+    "decadalRanges": [
+     "15-24",
+     "5-14",
+     "115-124",
+     "105-114",
+     "95-104",
+     "85-94",
+     "75-84",
+     "65-74",
+     "55-64",
+     "45-54",
+     "35-44",
+     "25-34"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "1961-4-12",
+    "timeIndex": 9,
+    "gender": "female",
+    "preset": "wenmo-zhongzhou"
+   },
+   "expected": {
+    "lunarDate": "一九六一年二月廿七",
+    "ganzhi": [
+     "xinHeavenly.chouEarthly",
+     "xinHeavenly.maoEarthly",
+     "yiHeavenly.haiEarthly",
+     "yiHeavenly.youEarthly"
+    ],
+    "soulBranch": "wuEarthly",
+    "bodyBranch": "ziEarthly",
+    "soul": "jumenMaj",
+    "body": "tianxiangMaj",
+    "fiveElementsClass": "metal4th",
+    "majors": [
+     "tiantongMaj+tianliangMaj",
+     "wuquMaj+qishaMaj",
+     "taiyangMaj",
+     "",
+     "tianjiMaj",
+     "ziweiMaj+pojunMaj",
+     "",
+     "tianfuMaj",
+     "taiyinMaj",
+     "lianzhenMaj+tanlangMaj",
+     "jumenMaj",
+     "tianxiangMaj"
+    ],
+    "mutagens": [
+     "jumenMaj:sihuaLu",
+     "taiyangMaj:sihuaQuan",
+     "wenchangMin:sihuaJi",
+     "wenquMin:sihuaKe"
+    ],
+    "decadalRanges": [
+     "84-93",
+     "94-103",
+     "104-113",
+     "114-123",
+     "4-13",
+     "14-23",
+     "24-33",
+     "34-43",
+     "44-53",
+     "54-63",
+     "64-73",
+     "74-83"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "1968-10-16",
+    "timeIndex": 1,
+    "gender": "male",
+    "preset": "quanshu-default"
+   },
+   "expected": {
+    "lunarDate": "一九六八年八月廿五",
+    "ganzhi": [
+     "wuHeavenly.shenEarthly",
+     "xinHeavenly.youEarthly",
+     "jiHeavenly.weiEarthly",
+     "yiHeavenly.chouEarthly"
+    ],
+    "soulBranch": "shenEarthly",
+    "bodyBranch": "xuEarthly",
+    "soul": "lianzhenMaj",
+    "body": "tianliangMaj",
+    "fiveElementsClass": "wood3rd",
+    "majors": [
+     "pojunMaj",
+     "",
+     "lianzhenMaj+tianfuMaj",
+     "taiyinMaj",
+     "tanlangMaj",
+     "tiantongMaj+jumenMaj",
+     "wuquMaj+tianxiangMaj",
+     "taiyangMaj+tianliangMaj",
+     "qishaMaj",
+     "tianjiMaj",
+     "ziweiMaj",
+     ""
+    ],
+    "mutagens": [
+     "taiyinMaj:sihuaQuan",
+     "tanlangMaj:sihuaLu",
+     "tianjiMaj:sihuaJi",
+     "youbiMin:sihuaKe"
+    ],
+    "decadalRanges": [
+     "63-72",
+     "73-82",
+     "83-92",
+     "93-102",
+     "103-112",
+     "113-122",
+     "3-12",
+     "13-22",
+     "23-32",
+     "33-42",
+     "43-52",
+     "53-62"
+    ]
+   }
+  },
+  {
+   "input": {
+    "solarDate": "1976-9-9",
+    "timeIndex": 6,
+    "gender": "female",
+    "preset": "quanshu-default"
+   },
+   "expected": {
+    "lunarDate": "一九七六年八月十六",
+    "ganzhi": [
+     "bingHeavenly.chenEarthly",
+     "dingHeavenly.youEarthly",
+     "jiaHeavenly.ziEarthly",
+     "gengHeavenly.wuEarthly"
+    ],
+    "soulBranch": "maoEarthly",
+    "bodyBranch": "maoEarthly",
+    "soul": "wenquMin",
+    "body": "wenchangMin",
+    "fiveElementsClass": "wood3rd",
+    "majors": [
+     "",
+     "",
+     "tiantongMaj",
+     "wuquMaj+pojunMaj",
+     "taiyangMaj",
+     "tianfuMaj",
+     "tianjiMaj+taiyinMaj",
+     "ziweiMaj+tanlangMaj",
+     "jumenMaj",
+     "tianxiangMaj",
+     "tianliangMaj",
+     "lianzhenMaj+qishaMaj"
+    ],
+    "mutagens": [
+     "lianzhenMaj:sihuaJi",
+     "tianjiMaj:sihuaQuan",
+     "tiantongMaj:sihuaLu",
+     "wenchangMin:sihuaKe"
+    ],
+    "decadalRanges": [
+     "13-22",
+     "3-12",
+     "113-122",
+     "103-112",
+     "93-102",
+     "83-92",
+     "73-82",
+     "63-72",
+     "53-62",
+     "43-52",
+     "33-42",
+     "23-32"
+    ]
+   }
+  }
+ ]
+}
