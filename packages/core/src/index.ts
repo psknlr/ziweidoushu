@@ -27,6 +27,8 @@ export {
   type PatternDef,
 } from './analyzer/index.js';
 export { STARTER_PATTERNS } from './data/patterns.js';
+export { CLASSIC_PATTERNS } from './data/patterns-classic.js';
+export { ALL_PATTERNS } from './analyzer/index.js';
 export {
   equationOfTimeMinutes,
   toTrueSolarTime,
