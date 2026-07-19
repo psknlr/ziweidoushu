@@ -3,7 +3,7 @@
  * 运行:npm run demo
  */
 import { PRESET_WENMO_ZHONGZHOU, sihuaOverlay, zh, ZiweiEngine } from '@ziwei/core';
-import { buildSystemPrompt, retrieve, STARTER_ENTRIES } from '@ziwei/knowledge';
+import { buildSystemPrompt, retrieve, ALL_ENTRIES } from '@ziwei/knowledge';
 
 const engine = new ZiweiEngine(PRESET_WENMO_ZHONGZHOU);
 
@@ -59,7 +59,7 @@ for (const hit of sihuaOverlay(chart, horoscope.yearly.stem)) {
 }
 
 console.log('\n═══ ⑤ 知识检索 → System Prompt(节选) ═══');
-const retrieved = retrieve(features, STARTER_ENTRIES, { limit: 4 });
+const retrieved = retrieve(features, ALL_ENTRIES, { limit: 6 });
 for (const r of retrieved) {
   console.log(`  [${r.score}] ${r.entry.id} ← ${r.entry.source.ref}`);
 }
