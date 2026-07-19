@@ -12,7 +12,8 @@ import type { Topic } from './schema.js';
 export type SkillId = 'overall' | 'marriage' | 'career' | 'business' | 'education' | 'health' | 'wealth';
 
 export interface ReadingSkill {
-  id: SkillId;
+  /** 基础技法为 SkillId,进阶技法(skills-advanced.ts)扩展更多 id */
+  id: string;
   name: string;
   /** 检索话题过滤 */
   topics: Topic[];

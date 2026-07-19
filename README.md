@@ -1,4 +1,7 @@
-# 紫微斗数 App —— 设计框架与参考实现
+# 紫微斗数工作台 —— 设计框架与参考实现
+
+> 出品:**医哲未来人工智能研究院(IMPF-AI,Institute of Medical-Philosophy Future AI)**
+> 在线体验:https://psknlr.github.io/ziweidoushu/ · Android APK 见 Releases
 
 基于对 6 个开源紫微斗数项目(iztro、dart_iztro、iztro_py、tianji、紫微知道、王多鱼AI)的深度代码调研,
 本仓库包含:
@@ -45,6 +48,8 @@ npm run web                  # 前端 :5173(/api 代理到网关)
 `apps/web/android/` 为 Capacitor 原生工程,排盘/档案/合盘全离线,AI 用 App 内置入的
 Key 直连(无 CORS 限制)。构建见 [docs/android.md](docs/android.md);
 Web 版同时是 PWA,浏览器可直接「添加到主屏幕」。
+**成品 APK**:Actions 里的 `Build Android APK` 工作流每次运行都会把
+`ziwei-workbench-IMPF-AI.apk` 发布到 [apk-latest Release](../../releases/tag/apk-latest),直接下载安装。
 
 ## 知识库审核流水线
 

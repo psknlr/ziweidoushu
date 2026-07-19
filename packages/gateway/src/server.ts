@@ -13,13 +13,12 @@ import { extname, join, normalize } from 'node:path';
 import { analyze, type Astrolabe } from '@ziwei/core';
 import {
   ALL_ENTRIES,
+  ALL_SKILLS,
   buildSynastryPrompt,
   buildSystemPrompt,
   compareCharts,
   PROMPT_VERSION,
-  READING_SKILLS,
   retrieve,
-  type SkillId,
   type Topic,
 } from '@ziwei/knowledge';
 import { availableProviders, type ProviderConfig } from './providers.js';
@@ -40,8 +39,8 @@ interface InterpretBody {
   chart: Astrolabe;
   /** 传入第二张盘即为合盘模式 */
   chartB?: Astrolabe;
-  /** 解读技法(单盘模式):overall/marriage/career/business/education/health/wealth */
-  skill?: SkillId;
+  /** 解读技法(单盘模式),15 技法之一,见 @ziwei/knowledge ALL_SKILLS */
+  skill?: string;
   topics?: Topic[];
   question?: string;
   temperature?: number;
@@ -150,9 +149,9 @@ async function interpret(req: IncomingMessage, res: ServerResponse, options: Gat
     json(res, 400, { error: 'chartB 不是合法星盘' });
     return;
   }
-  const skill = body.skill ? READING_SKILLS[body.skill] : undefined;
+  const skill = body.skill ? ALL_SKILLS[body.skill] : undefined;
   if (body.skill && !skill) {
-    json(res, 400, { error: `未知技法: ${body.skill}(可用: ${Object.keys(READING_SKILLS).join(', ')})` });
+    json(res, 400, { error: `未知技法: ${body.skill}(可用: ${Object.keys(ALL_SKILLS).join(', ')})` });
     return;
   }
 

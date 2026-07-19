@@ -4,8 +4,12 @@
  */
 import type { Astrolabe, ChartFeatures } from '../types.js';
 import { STARTER_PATTERNS } from '../data/patterns.js';
+import { CLASSIC_PATTERNS } from '../data/patterns-classic.js';
 import { evaluatePatterns, type PatternDef } from './patterns.js';
 import { buildFeatures } from './signals.js';
+
+/** 全量格局库:起步 10 格 + 古籍 24 格(吉格/凶格/中性格) */
+export const ALL_PATTERNS: readonly PatternDef[] = [...STARTER_PATTERNS, ...CLASSIC_PATTERNS];
 
 export { surroundedIndexes, trineIndexes, soulPalaceIndex } from './surround.js';
 export { fillBorrowedStars } from './borrow.js';
@@ -14,7 +18,7 @@ export { evaluatePatterns, type Condition, type PatternDef } from './patterns.js
 export { deriveSignals } from './signals.js';
 
 /** 全量分析:格局匹配 + 三方四正 + RAG 信号 */
-export function analyze(chart: Astrolabe, patternDefs: readonly PatternDef[] = STARTER_PATTERNS): ChartFeatures {
+export function analyze(chart: Astrolabe, patternDefs: readonly PatternDef[] = ALL_PATTERNS): ChartFeatures {
   const patterns = evaluatePatterns(chart, patternDefs);
   return buildFeatures(chart, patterns);
 }

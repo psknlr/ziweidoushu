@@ -1,0 +1,58 @@
+# 构建 Android APK(医哲未来人工智能研究院 IMPF-AI 出品)。
+# 手动触发或推 v* 标签;产物上传为 Artifact,并发布/更新到
+# "apk-latest" Release,提供公开可下载的 APK 文件。
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+      - name: Build web assets
+        run: npm run -w @ziwei/web build
+      - name: Capacitor sync
+        working-directory: apps/web
+        run: npx cap sync android
+      - name: Gradle assemble
+        working-directory: apps/web/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+      - name: Rename APK
+        run: |
+          mkdir -p out
+          cp apps/web/android/app/build/outputs/apk/debug/app-debug.apk \
+             "out/ziwei-workbench-IMPF-AI.apk"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ziwei-workbench-apk
+          path: out/ziwei-workbench-IMPF-AI.apk
+      - name: Publish to apk-latest release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk-latest
+          name: 紫微斗数工作台 APK(IMPF-AI)
+          body: |
+            医哲未来人工智能研究院(IMPF-AI)出品。
+            排盘/全国城市真太阳时/六级运限下钻/本地档案与合盘全离线;
+            AI 解读在 App 内「模型配置」置入自己的 API Key(直连模式)。
+            调试签名,安装时允许「未知来源」。
+          files: out/ziwei-workbench-IMPF-AI.apk
+          prerelease: false

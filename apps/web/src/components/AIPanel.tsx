@@ -7,7 +7,7 @@
  */
 import { useMemo, useRef, useState } from 'react';
 import { analyze, type Astrolabe } from '@ziwei/core';
-import { ALL_ENTRIES, buildSystemPrompt, READING_SKILLS, retrieve, type SkillId } from '@ziwei/knowledge';
+import { ALL_ENTRIES, ALL_SKILLS, buildSystemPrompt, retrieve } from '@ziwei/knowledge';
 import {
   loadDirectProviders,
   providerReady,
@@ -23,7 +23,7 @@ interface Props {
   chart: Astrolabe;
 }
 
-const SKILL_OPTIONS: { id: SkillId | ''; label: string }[] = [
+const SKILL_OPTIONS: { id: string; label: string }[] = [
   { id: '', label: '通用解读' },
   { id: 'overall', label: '整体命格' },
   { id: 'marriage', label: '姻缘婚恋' },
@@ -32,11 +32,19 @@ const SKILL_OPTIONS: { id: SkillId | ''; label: string }[] = [
   { id: 'wealth', label: '财帛理财' },
   { id: 'education', label: '学业考运' },
   { id: 'health', label: '健康养生' },
+  { id: 'children', label: '子女亲缘' },
+  { id: 'parents', label: '父母孝亲' },
+  { id: 'siblings', label: '兄弟手足' },
+  { id: 'friends', label: '人际贵人' },
+  { id: 'relocation', label: '迁移发展' },
+  { id: 'spirit', label: '福德精神' },
+  { id: 'decadal', label: '大限十年' },
+  { id: 'annual', label: '流年吉凶' },
 ];
 
 export function AIPanel({ chart }: Props) {
   const [channel, setChannel] = useState<Channel>('gateway');
-  const [skillId, setSkillId] = useState<SkillId | ''>('');
+  const [skillId, setSkillId] = useState<string>('');
   const [question, setQuestion] = useState('');
   const [providers, setProviders] = useState<[DirectProvider, DirectProvider]>(() => loadDirectProviders());
   const [showConfig, setShowConfig] = useState(false);
@@ -44,7 +52,7 @@ export function AIPanel({ chart }: Props) {
   const [busy, setBusy] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
-  const skill = skillId ? READING_SKILLS[skillId] : undefined;
+  const skill = skillId ? ALL_SKILLS[skillId] : undefined;
 
   /** 直连模式在本地装配 System Prompt(与网关同一套知识库与技法) */
   const localSystem = useMemo(() => {
@@ -122,7 +130,7 @@ export function AIPanel({ chart }: Props) {
         </label>
         <label>
           技法
-          <select value={skillId} onChange={(e) => setSkillId(e.target.value as SkillId | '')}>
+          <select value={skillId} onChange={(e) => setSkillId(e.target.value)}>
             {SKILL_OPTIONS.map((s) => (
               <option key={s.id} value={s.id}>
                 {s.label}
