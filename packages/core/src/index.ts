@@ -38,5 +38,5 @@ export {
   type NormalizeBirthInput,
   type NormalizedBirth,
 } from './solar-time.js';
-export { CITIES, lookupCity, type City } from './cities.js';
+export { CITIES, lookupCity, searchCities, cityLabel, type City } from './cities.js';
 export { stableHash, stableStringify, fnv1a64 } from './hash.js';

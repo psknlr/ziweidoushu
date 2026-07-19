@@ -42,9 +42,17 @@ export function ChartBoard({ chart, features, selected, onSelect, mode, horoscop
   // 运限四化叠加:取运限天干 → 四化星落宫(限/年/月/日前缀)
   const scope =
     mode !== 'origin' && horoscope
-      ? { decadal: horoscope.decadal, yearly: horoscope.yearly, monthly: horoscope.monthly, daily: horoscope.daily }[mode]
+      ? {
+          decadal: horoscope.decadal,
+          yearly: horoscope.yearly,
+          monthly: horoscope.monthly,
+          daily: horoscope.daily,
+          hourly: horoscope.hourly,
+        }[mode]
       : null;
-  const prefix = { decadal: '限', yearly: '年', monthly: '月', daily: '日' }[mode as Exclude<HoroscopeMode, 'origin'>];
+  const prefix = { decadal: '限', yearly: '年', monthly: '月', daily: '日', hourly: '时' }[
+    mode as Exclude<HoroscopeMode, 'origin'>
+  ];
 
   const overlay = useMemo(() => {
     const map = new Map<number, { label: string; mutagen: MutagenKey }[]>();

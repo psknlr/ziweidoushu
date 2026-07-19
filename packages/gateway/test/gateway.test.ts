@@ -233,6 +233,42 @@ describe('端到端 /api/interpret', () => {
     }
   });
 
+  test('技法与合盘:skill 注入方法论;chartB 触发合盘 Prompt', async () => {
+    const gateway = createGatewayServer({ provider: mockProvider(), cache: null });
+    await new Promise<void>((resolve) => gateway.listen(0, '127.0.0.1', resolve));
+    const port = (gateway.address() as AddressInfo).port;
+    try {
+      const chart = new ZiweiEngine().bySolar('2000-8-16', 2, 'female');
+      const chartB = new ZiweiEngine().bySolar('1998-3-16', 6, 'male');
+
+      await fetch(`http://127.0.0.1:${port}/api/interpret`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ chart, skill: 'marriage' }),
+      }).then((r) => r.text());
+      let system = captured.body?.messages.find((m) => m.role === 'system')?.content ?? '';
+      expect(system).toContain('本次解读技法:姻缘婚恋');
+
+      await fetch(`http://127.0.0.1:${port}/api/interpret`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ chart, chartB }),
+      }).then((r) => r.text());
+      system = captured.body?.messages.find((m) => m.role === 'system')?.content ?? '';
+      expect(system).toContain('双人合盘');
+      expect(system).toContain('四化互飞明细');
+
+      const bad = await fetch(`http://127.0.0.1:${port}/api/interpret`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ chart, skill: 'no-such' }),
+      });
+      expect(bad.status).toBe(400);
+    } finally {
+      gateway.close();
+    }
+  });
+
   test('非法请求体返回 400', async () => {
     const gateway = createGatewayServer({ provider: mockProvider() });
     await new Promise<void>((resolve) => gateway.listen(0, '127.0.0.1', resolve));

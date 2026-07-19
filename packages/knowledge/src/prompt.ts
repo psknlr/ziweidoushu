@@ -7,14 +7,17 @@
  */
 import { zh, type Astrolabe, type ChartFeatures } from '@ziwei/core';
 import type { RetrievedEntry } from './retrieval.js';
+import { buildSkillBlock, type ReadingSkill } from './skills.js';
 
-export const PROMPT_VERSION = '0.1.0';
+export const PROMPT_VERSION = '0.2.0';
 
 export interface PromptOptions {
   /** 命理师人设名 */
   personaName?: string;
   /** 流派立场声明 */
   schoolStatement?: string;
+  /** 解读技法(注入方法论与专属输出结构) */
+  skill?: ReadingSkill;
 }
 
 export const DISCLAIMER =
@@ -92,6 +95,10 @@ export function buildSystemPrompt(
     options.schoolStatement ??
     `本盘按「${chart.meta.school.preset}」配置排出(安星:${chart.meta.school.algorithm === 'zhongzhou' ? '中州派' : '全书通行版'};年分界:${chart.meta.school.yearDivide === 'exact' ? '立春' : '正月初一'};晚子时:${chart.meta.school.dayDivide === 'forward' ? '归次日' : '归当日'})。三合为体、四化为用。`;
 
+  const structure = options.skill
+    ? options.skill.outputStructure
+    : ['命格总断(150字内)', '事业与财运', '婚姻与情感', '健康与家庭', '隐忧与建议', '一句收束(命格金句)'];
+
   return [
     `# 角色`,
     `你是${persona},一位严谨的紫微斗数命理师。${school}`,
@@ -99,6 +106,7 @@ export function buildSystemPrompt(
     `# 本盘结构化事实(排盘引擎输出,不得自行重排或臆造星曜)`,
     describeChart(chart, features),
     ``,
+    ...(options.skill ? [buildSkillBlock(options.skill), ``] : []),
     `# 专业知识导向(检索自可溯源知识库;请自然融入论述,禁止逐条复述或罗列出处)`,
     buildGuidanceBlock(retrieved),
     ``,
@@ -108,12 +116,7 @@ export function buildSystemPrompt(
     `- 断语强度与知识置信度匹配:低置信度用"倾向/可能",高置信度方可用确定语气。`,
     ``,
     `# 输出结构(严格遵循)`,
-    `1. 命格总断(150字内)`,
-    `2. 事业与财运`,
-    `3. 婚姻与情感`,
-    `4. 健康与家庭`,
-    `5. 隐忧与建议`,
-    `6. 一句收束(命格金句)`,
+    ...structure.map((s, i) => `${i + 1}. ${s}`),
     ``,
     `# 免责声明(必须原文附于结尾)`,
     DISCLAIMER,

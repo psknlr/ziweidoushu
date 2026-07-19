@@ -29,6 +29,15 @@ export {
   type ReviewLedger,
   type ApplyResult,
 } from './review.js';
+export { READING_SKILLS, buildSkillBlock, type ReadingSkill, type SkillId } from './skills.js';
+export {
+  compareCharts,
+  branchRelation,
+  buildSynastryPrompt,
+  type SynastryFeatures,
+  type SihuaFlight,
+  type BranchRelation,
+} from './synastry.js';
 export { retrieve, type RetrievalOptions, type RetrievedEntry } from './retrieval.js';
 export {
   buildSystemPrompt,

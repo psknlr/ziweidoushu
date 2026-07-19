@@ -11,7 +11,17 @@ import { createServer, type IncomingMessage, type Server, type ServerResponse } 
 import { createReadStream, existsSync, statSync } from 'node:fs';
 import { extname, join, normalize } from 'node:path';
 import { analyze, type Astrolabe } from '@ziwei/core';
-import { ALL_ENTRIES, buildSystemPrompt, PROMPT_VERSION, retrieve, type Topic } from '@ziwei/knowledge';
+import {
+  ALL_ENTRIES,
+  buildSynastryPrompt,
+  buildSystemPrompt,
+  compareCharts,
+  PROMPT_VERSION,
+  READING_SKILLS,
+  retrieve,
+  type SkillId,
+  type Topic,
+} from '@ziwei/knowledge';
 import { availableProviders, type ProviderConfig } from './providers.js';
 import { streamChat, type ChatMessage } from './stream.js';
 import { InterpretCache } from './cache.js';
@@ -28,6 +38,10 @@ export interface GatewayOptions {
 
 interface InterpretBody {
   chart: Astrolabe;
+  /** 传入第二张盘即为合盘模式 */
+  chartB?: Astrolabe;
+  /** 解读技法(单盘模式):overall/marriage/career/business/education/health/wealth */
+  skill?: SkillId;
   topics?: Topic[];
   question?: string;
   temperature?: number;
@@ -132,12 +146,24 @@ async function interpret(req: IncomingMessage, res: ServerResponse, options: Gat
     return;
   }
 
-  const question = body.question?.trim() || '请依照输出结构,为这张命盘做整体解读。';
+  if (body.chartB && (!body.chartB.palaces || body.chartB.palaces.length !== 12)) {
+    json(res, 400, { error: 'chartB 不是合法星盘' });
+    return;
+  }
+  const skill = body.skill ? READING_SKILLS[body.skill] : undefined;
+  if (body.skill && !skill) {
+    json(res, 400, { error: `未知技法: ${body.skill}(可用: ${Object.keys(READING_SKILLS).join(', ')})` });
+    return;
+  }
+
+  const question =
+    body.question?.trim() ||
+    (body.chartB ? '请依照输出结构,为两张命盘做合盘分析。' : '请依照输出结构,为这张命盘做整体解读。');
 
   // 缓存键用 chart 全量内容计算(不信任客户端 meta.chartHash,防跨用户投毒)
   const cacheKey = options.cache
     ? InterpretCache.key({
-        chart,
+        chart: { a: chart, b: body.chartB, skill: body.skill },
         topics: body.topics,
         question,
         provider: options.provider.name,
@@ -165,9 +191,15 @@ async function interpret(req: IncomingMessage, res: ServerResponse, options: Gat
   }
 
   // 服务端重算分析与检索:确定性部分不信任客户端
-  const features = analyze(chart);
-  const retrieved = retrieve(features, ALL_ENTRIES, { topics: body.topics });
-  const system = buildSystemPrompt(chart, features, retrieved);
+  let system: string;
+  if (body.chartB) {
+    system = buildSynastryPrompt(chart, body.chartB, compareCharts(chart, body.chartB));
+  } else {
+    const features = analyze(chart);
+    const topics = body.topics ?? skill?.topics;
+    const retrieved = retrieve(features, ALL_ENTRIES, { topics });
+    system = buildSystemPrompt(chart, features, retrieved, { skill });
+  }
   const messages: ChatMessage[] = [
     { role: 'system', content: system },
     { role: 'user', content: question },
