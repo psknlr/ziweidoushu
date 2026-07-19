@@ -1,0 +1,21 @@
+{
+  "name": "ziwei-workspace",
+  "private": true,
+  "version": "0.1.0",
+  "description": "紫微斗数 App monorepo：实例化排盘内核、可溯源知识库、AI 解读层(设计见 docs/ziwei-app-design-framework.md)",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "demo": "tsx examples/demo.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "vitest": "^3.0.0"
+  }
+}

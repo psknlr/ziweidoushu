@@ -1,0 +1,25 @@
+/**
+ * @ziwei/knowledge —— 可溯源知识库(L3)+ RAG 检索与 Prompt 装配(L4 的确定性部分)。
+ * LLM 网关(多模型流式适配)属应用服务端,见设计文档 §7.1。
+ */
+export {
+  KnowledgeEntrySchema,
+  validateEntries,
+  TOPICS,
+  SOURCE_LEVELS,
+  REVIEW_STATUSES,
+  type KnowledgeEntry,
+  type Topic,
+  type SourceLevel,
+  type ReviewStatus,
+} from './schema.js';
+export { STARTER_ENTRIES } from './entries.js';
+export { retrieve, type RetrievalOptions, type RetrievedEntry } from './retrieval.js';
+export {
+  buildSystemPrompt,
+  buildGuidanceBlock,
+  describeChart,
+  DISCLAIMER,
+  PROMPT_VERSION,
+  type PromptOptions,
+} from './prompt.js';

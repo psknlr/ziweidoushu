@@ -1,1 +1,68 @@
-# ziweidoushu
+# 紫微斗数 App —— 设计框架与参考实现
+
+基于对 6 个开源紫微斗数项目(iztro、dart_iztro、iztro_py、tianji、紫微知道、王多鱼AI)的深度代码调研,
+本仓库包含:
+
+1. **设计框架文档**:[docs/ziwei-app-design-framework.md](docs/ziwei-app-design-framework.md)
+   —— 五层架构(排盘内核 / 历法时空 / 知识库 / AI 解读 / 应用 UI)、六项设计原则、测试与合规策略、实施路线图。
+2. **Phase 0 参考实现**(TypeScript monorepo,`packages/`):设计文档的核心主张全部落地为可运行、有测试的代码。
+
+## 包结构
+
+| 包 | 职责 | 对应设计层 |
+|---|---|---|
+| [`@ziwei/core`](packages/core) | 实例化排盘引擎(封装 iztro 2.5.8 并修复其全局可变配置缺陷)、真太阳时校正、离线城市库、盘面分析器(三方四正/借宫/四化叠加/格局三层判定)、RAG 加权信号 | L1 + L2 |
+| [`@ziwei/knowledge`](packages/knowledge) | 可溯源知识条目 schema(zod)、起步知识库、精度优先加权检索、LLM System Prompt 五要素装配 | L3 + L4 |
+
+## 快速开始
+
+```bash
+npm install
+npm test        # 43 个测试:黄金命例回归 / 实例隔离 / 真太阳时 / 格局引擎 / 知识库 lint
+npm run demo    # 端到端:出生信息 → 真太阳时 → 排盘 → 格局/信号 → 检索 → System Prompt
+npm run typecheck
+```
+
+### 排盘(实例化引擎,多流派并存互不污染)
+
+```ts
+import { ZiweiEngine, PRESET_WENMO_ZHONGZHOU } from '@ziwei/core';
+
+const engine = new ZiweiEngine(PRESET_WENMO_ZHONGZHOU); // 或自定义 SchoolConfig
+const chart = engine.fromBirth({
+  year: 1990, month: 1, day: 15, hour: 8, minute: 30,
+  gender: 'male',
+  city: '北京',              // 离线城市库 → 真太阳时校正,校正记录随盘返回
+});
+
+const features = engine.features(chart);           // 格局 + 三方四正 + RAG 信号
+const horoscope = engine.horoscope(chart, '2026-6-1'); // 大限~流时(按盘上配置快照,可复现)
+```
+
+### 解读 Prompt(确定性排盘 + 可溯源知识 → LLM)
+
+```ts
+import { retrieve, buildSystemPrompt, STARTER_ENTRIES } from '@ziwei/knowledge';
+
+const retrieved = retrieve(features, STARTER_ENTRIES, { topics: ['career'] });
+const systemPrompt = buildSystemPrompt(chart, features, retrieved);
+// → 交给任意 LLM(服务端网关);输出结构、语言风格、免责声明均已约束
+```
+
+## 设计原则(详见设计文档)
+
+1. **确定性与解释性分离** —— 排盘是纯函数,解读是概率性的,物理分层。
+2. **流派即配置** —— 年分界/晚子时/四化表等分歧点显式建模,实例隔离,绝不硬编码。
+3. **知识可溯源** —— 每条断语带来源等级、出处、置信度、审核状态,CI 强校验。
+4. **中文语义、多语呈现** —— 内部全部使用语言无关 key,词表漂移由适配层大声报错。
+5. **隐私默认** —— 端侧排盘;AI 只上传结构化星盘特征,不传原始生日。
+6. **文档即代码** —— 架构决策与代码同仓同步。
+
+## 仓库其他内容
+
+- `*.zip` / `*.tar.gz`:调研用的 6 个开源项目源码存档(licenses 归各自作者)。
+- 排盘内核依赖 [iztro](https://github.com/SylarLong/iztro)(MIT),黄金命例基准取自其官方测试套件。
+
+## 路线图
+
+Phase 0(本次):内核奠基 ✅ → Phase 1:星盘工作台 UI + 服务端 AI 网关 → Phase 2:人生K线/合盘/格局库扩至 60-80 → Phase 3:百科/古籍/多端。详见设计文档 §12。
