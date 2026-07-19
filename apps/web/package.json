@@ -1,0 +1,25 @@
+{
+  "name": "@ziwei/web",
+  "private": true,
+  "version": "0.1.0",
+  "description": "紫微斗数星盘工作台:4×4 宫格 + SVG 三方四正联动 + 运限四化叠加 + AI 解读",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@ziwei/core": "*",
+    "@ziwei/knowledge": "*",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "playwright-core": "^1.61.1",
+    "vite": "^6.0.0"
+  }
+}

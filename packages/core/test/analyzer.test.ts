@@ -134,6 +134,11 @@ describe('RAG 信号', () => {
     expect(top.entities).toEqual(['wuquMaj', 'sihuaQuan', 'wealthPalace']);
 
     expect(features.signals.some((s) => s.kind === 'pattern' && s.entities.includes('zifu-tonggong'))).toBe(true);
+    // 双主星同宫产生 combo 信号(80),星序按 14 主星序稳定排列
+    const combo = features.signals.find((s) => s.kind === 'combo');
+    expect(combo).toBeDefined();
+    expect(combo!.weight).toBe(80);
+    expect(combo!.entities).toEqual(['ziweiMaj', 'tianfuMaj', 'soulPalace']);
     expect(features.signals.some((s) => s.kind === 'star-palace' && s.weight === 60)).toBe(true);
     // 排序不增
     for (let i = 1; i < features.signals.length; i++) {

@@ -12,15 +12,23 @@
 | 包 | 职责 | 对应设计层 |
 |---|---|---|
 | [`@ziwei/core`](packages/core) | 实例化排盘引擎(封装 iztro 2.5.8 并修复其全局可变配置缺陷)、真太阳时校正、离线城市库、盘面分析器(三方四正/借宫/四化叠加/格局三层判定)、RAG 加权信号 | L1 + L2 |
-| [`@ziwei/knowledge`](packages/knowledge) | 可溯源知识条目 schema(zod)、起步知识库、精度优先加权检索、LLM System Prompt 五要素装配 | L3 + L4 |
+| [`@ziwei/knowledge`](packages/knowledge) | 可溯源知识条目 schema(zod)、300+ 条知识库(星×宫/四化×宫/星×四化/双星组合/格局)、精度优先加权检索、LLM System Prompt 五要素装配 | L3 + L4 |
+| [`@ziwei/gateway`](packages/gateway) | 服务端 AI 解读网关:RAG + Prompt 装配在服务端完成,多供应商流式适配(MiniMax / Azure OpenAI / Poe / LiteLLM / 任意 OpenAI 兼容),Key 永不进前端 | L4 |
+| [`@ziwei/web`](apps/web) | 星盘工作台:传统 4×4 宫格、点击宫位 SVG 三方四正联动、本命/大限/流年切换与四化叠加、真太阳时提示、AI 流式解读 | L5 |
 
 ## 快速开始
 
 ```bash
 npm install
-npm test        # 43 个测试:黄金命例回归 / 实例隔离 / 真太阳时 / 格局引擎 / 知识库 lint
+npm test        # 120+ 测试:54 黄金命例回归 / 实例隔离 / 真太阳时 / 格局引擎 / 知识库 lint+覆盖率 / 网关(mock 上游)
 npm run demo    # 端到端:出生信息 → 真太阳时 → 排盘 → 格局/信号 → 检索 → System Prompt
 npm run typecheck
+npm run golden  # 重新生成黄金命例基准(需在 PR 中说明理由)
+
+# 启动工作台(两个终端)
+export MINIMAX_API_KEY=...   # 或 POE_API_KEY / LITELLM_* / AZURE_OPENAI_* / OPENAI_*
+npm run gateway              # AI 网关 :8787(ZIWEI_PROVIDER 可指定 minimax|azure|poe|litellm|custom)
+npm run web                  # 前端 :5173(/api 代理到网关)
 ```
 
 ### 排盘(实例化引擎,多流派并存互不污染)

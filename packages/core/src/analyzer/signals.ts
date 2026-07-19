@@ -4,8 +4,10 @@
  * 信号供 @ziwei/knowledge 检索层按权重召回知识条目。
  */
 import type { Astrolabe, ChartFeatures, MatchedPattern, Signal } from '../types.js';
-import { zh } from '../keys.js';
+import { MAJOR_STARS, zh } from '../keys.js';
 import { soulPalaceIndex, trineIndexes } from './surround.js';
+
+const majorOrder = (key: string) => MAJOR_STARS.indexOf(key as (typeof MAJOR_STARS)[number]);
 
 export function deriveSignals(chart: Astrolabe, patterns: MatchedPattern[]): Signal[] {
   const signals: Signal[] = [];
@@ -35,6 +37,23 @@ export function deriveSignals(chart: Astrolabe, patterns: MatchedPattern[]): Sig
           kind: 'brightness',
           note: `${zh(star.key)}${star.brightness === 'miao' ? '入庙' : '落陷'}于${zh(palace.name)}(命宫三方)`,
         });
+      }
+    }
+    // 双主星同宫 → 组合信号(80):双星组合是常用解读单元(紫府/武贪/同阴…)
+    const majors = palace.majorStars.filter((s) => s.type === 'major');
+    if (majors.length >= 2) {
+      const sorted = [...majors].sort((a, b) => majorOrder(a.key) - majorOrder(b.key));
+      for (let i = 0; i < sorted.length - 1; i++) {
+        for (let j = i + 1; j < sorted.length; j++) {
+          const a = sorted[i]!;
+          const b = sorted[j]!;
+          signals.push({
+            entities: [a.key, b.key, palace.name],
+            weight: 80,
+            kind: 'combo',
+            note: `${zh(a.key)}${zh(b.key)}同宫于${zh(palace.name)}`,
+          });
+        }
       }
     }
     if (palace.borrowed && palace.name === 'soulPalace') {

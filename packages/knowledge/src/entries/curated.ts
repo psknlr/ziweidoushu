@@ -4,9 +4,9 @@
  * 入库规范:LLM 可生成初稿(draft),但升为 reviewed/verified 必须过人工审核;
  * verified 条目在 CI 中不可被静默修改。
  */
-import type { KnowledgeEntry } from './schema.js';
+import type { KnowledgeEntry } from '../schema.js';
 
-export const STARTER_ENTRIES: KnowledgeEntry[] = [
+export const CURATED_ENTRIES: KnowledgeEntry[] = [
   {
     id: 'star.ziwei.soul',
     domain: 'star',

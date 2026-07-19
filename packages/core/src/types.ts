@@ -183,7 +183,7 @@ export interface Signal {
   entities: string[];
   /** 0-100 */
   weight: number;
-  kind: 'star-palace' | 'star-mutagen-palace' | 'pattern' | 'borrowed' | 'brightness';
+  kind: 'star-palace' | 'star-mutagen-palace' | 'combo' | 'pattern' | 'borrowed' | 'brightness';
   note?: string;
 }
 
