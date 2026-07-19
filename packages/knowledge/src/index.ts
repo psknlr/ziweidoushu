@@ -13,8 +13,22 @@ export {
   type SourceLevel,
   type ReviewStatus,
 } from './schema.js';
-export { STARTER_ENTRIES, CURATED_ENTRIES, ALL_ENTRIES } from './entries/index.js';
+export {
+  STARTER_ENTRIES,
+  CURATED_ENTRIES,
+  ALL_ENTRIES,
+  RAW_ENTRIES,
+  REVIEW_LEDGER,
+  REVIEW_APPLY_RESULT,
+} from './entries/index.js';
 export { entry, srcs, type EntryInit } from './entries/builder.js';
+export {
+  applyReviewLedger,
+  entryContentHash,
+  type ReviewRecord,
+  type ReviewLedger,
+  type ApplyResult,
+} from './review.js';
 export { retrieve, type RetrievalOptions, type RetrievedEntry } from './retrieval.js';
 export {
   buildSystemPrompt,

@@ -39,12 +39,16 @@ interface Props {
 }
 
 export function ChartBoard({ chart, features, selected, onSelect, mode, horoscope }: Props) {
-  // 运限四化叠加:取运限天干 → 四化星落宫
+  // 运限四化叠加:取运限天干 → 四化星落宫(限/年/月/日前缀)
+  const scope =
+    mode !== 'origin' && horoscope
+      ? { decadal: horoscope.decadal, yearly: horoscope.yearly, monthly: horoscope.monthly, daily: horoscope.daily }[mode]
+      : null;
+  const prefix = { decadal: '限', yearly: '年', monthly: '月', daily: '日' }[mode as Exclude<HoroscopeMode, 'origin'>];
+
   const overlay = useMemo(() => {
-    if (mode === 'origin' || !horoscope) return new Map<number, { label: string; mutagen: MutagenKey }[]>();
-    const scope = mode === 'decadal' ? horoscope.decadal : horoscope.yearly;
-    const prefix = mode === 'decadal' ? '限' : '年';
     const map = new Map<number, { label: string; mutagen: MutagenKey }[]>();
+    if (!scope) return map;
     for (const hit of sihuaOverlay(chart, scope.stem)) {
       if (hit.palaceIndex === null) continue;
       const list = map.get(hit.palaceIndex) ?? [];
@@ -52,9 +56,9 @@ export function ChartBoard({ chart, features, selected, onSelect, mode, horoscop
       map.set(hit.palaceIndex, list);
     }
     return map;
-  }, [chart, mode, horoscope]);
+  }, [chart, scope, prefix]);
 
-  const scopeNames = mode !== 'origin' && horoscope ? (mode === 'decadal' ? horoscope.decadal : horoscope.yearly).palaceNames : null;
+  const scopeNames = scope?.palaceNames ?? null;
 
   return (
     <div className="board">

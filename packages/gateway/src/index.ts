@@ -8,3 +8,4 @@ export {
 } from './providers.js';
 export { streamChat, type ChatMessage, type ChatRequest } from './stream.js';
 export { createGatewayServer, type GatewayOptions } from './server.js';
+export { InterpretCache, type CacheKeyParts, type CacheStats } from './cache.js';

@@ -196,6 +196,15 @@ button.primary:disabled { opacity: 0.5; cursor: wait; }
   border-radius: 6px; width: 26px; height: 26px; cursor: pointer;
 }
 .year-stepper span { min-width: 48px; text-align: center; color: var(--amber); font-weight: 600; }
+.decade-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.decade {
+  background: var(--bg-deep); color: var(--text-dim);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 3px 9px; font-size: 12px; cursor: pointer; font-family: inherit;
+}
+.decade:hover { border-color: var(--border-strong); }
+.decade.active { color: var(--amber); border-color: var(--amber); font-weight: 600; }
+
 .sihua-line {
   display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
   margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border);

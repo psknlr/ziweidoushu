@@ -13,15 +13,22 @@ export function App() {
   const [selected, setSelected] = useState<number | null>(null);
   const [mode, setMode] = useState<HoroscopeMode>('origin');
   const [year, setYear] = useState<number>(CURRENT_YEAR);
+  const [month, setMonth] = useState<number>(new Date().getMonth() + 1);
+  const [day, setDay] = useState<number>(new Date().getDate());
 
   const engine = useMemo(() => new ZiweiEngine(preset), [preset]);
 
   const features = useMemo(() => (chart ? engine.features(chart) : null), [engine, chart]);
-  // 运限快照按盘上配置推算(可复现);流年目标日取当年年中
-  const horoscope = useMemo(
-    () => (chart && mode !== 'origin' ? engine.horoscope(chart, `${year}-6-15 12:00`) : null),
-    [engine, chart, mode, year],
-  );
+  // 运限快照按盘上配置推算(可复现)。
+  // 大限/流年以年中为目标日(年语义稳定);流月/流日用具体日期(日截断到当月天数)。
+  const horoscope = useMemo(() => {
+    if (!chart || mode === 'origin') return null;
+    const target =
+      mode === 'monthly' || mode === 'daily'
+        ? `${year}-${month}-${Math.min(day, new Date(year, month, 0).getDate())} 12:00`
+        : `${year}-6-15 12:00`;
+    return engine.horoscope(chart, target);
+  }, [engine, chart, mode, year, month, day]);
 
   const handleSubmit = (input: BirthInput) => {
     setChart(engine.fromBirth(input));
@@ -47,10 +54,14 @@ export function App() {
               <TimeNav
                 mode={mode}
                 year={year}
+                month={month}
+                day={day}
                 horoscope={horoscope}
                 chart={chart}
                 onModeChange={setMode}
                 onYearChange={setYear}
+                onMonthChange={setMonth}
+                onDayChange={setDay}
               />
               <ChartBoard
                 chart={chart}

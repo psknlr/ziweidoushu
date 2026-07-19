@@ -6,6 +6,8 @@
  *   规模、zod 合法性、星×宫/四化×宫全覆盖由 library-scale.test.ts 在 CI 强校验
  */
 import type { KnowledgeEntry } from '../schema.js';
+import { applyReviewLedger, type ReviewLedger } from '../review.js';
+import ledgerJson from '../../review/ledger.json';
 import { CURATED_ENTRIES } from './curated.js';
 import { SOUL_STAR_ENTRIES } from './star-soul.js';
 import { STAR_PALACE_ENTRIES } from './star-palace.js';
@@ -18,7 +20,8 @@ import { PATTERN_EXTRA_ENTRIES } from './pattern-entries.js';
 
 export { CURATED_ENTRIES };
 
-export const ALL_ENTRIES: KnowledgeEntry[] = [
+/** 未套用审核台账的原始条目(审核 CLI 与测试使用) */
+export const RAW_ENTRIES: KnowledgeEntry[] = [
   ...CURATED_ENTRIES,
   ...SOUL_STAR_ENTRIES,
   ...STAR_PALACE_ENTRIES,
@@ -29,6 +32,14 @@ export const ALL_ENTRIES: KnowledgeEntry[] = [
   ...STAR_OVERVIEW_ENTRIES,
   ...PATTERN_EXTRA_ENTRIES,
 ];
+
+export const REVIEW_LEDGER = ledgerJson as ReviewLedger;
+
+/** 套用审核台账后的生效结果(stale/unknown 由 CI 校验为空) */
+export const REVIEW_APPLY_RESULT = applyReviewLedger(RAW_ENTRIES, REVIEW_LEDGER);
+
+/** 全库(已套用审核台账) */
+export const ALL_ENTRIES: KnowledgeEntry[] = REVIEW_APPLY_RESULT.entries;
 
 /** 兼容旧名 */
 export const STARTER_ENTRIES = CURATED_ENTRIES;

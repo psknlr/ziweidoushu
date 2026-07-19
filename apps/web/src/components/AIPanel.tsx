@@ -9,6 +9,9 @@ interface Props {
   chart: Astrolabe;
 }
 
+// 静态部署(GitHub Pages 等)时经 VITE_GATEWAY_URL 指向独立网关;同源部署留空
+const GATEWAY_BASE = (import.meta.env.VITE_GATEWAY_URL as string | undefined)?.replace(/\/$/, '') ?? '';
+
 export function AIPanel({ chart }: Props) {
   const [question, setQuestion] = useState('');
   const [output, setOutput] = useState('');
@@ -22,7 +25,7 @@ export function AIPanel({ chart }: Props) {
     setOutput('');
     setStatus('streaming');
     try {
-      const response = await fetch('/api/interpret', {
+      const response = await fetch(`${GATEWAY_BASE}/api/interpret`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ chart, question: question || undefined }),

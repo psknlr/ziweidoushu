@@ -31,6 +31,37 @@ npm run gateway              # AI 网关 :8787(ZIWEI_PROVIDER 可指定 minimax|
 npm run web                  # 前端 :5173(/api 代理到网关)
 ```
 
+## 知识库审核流水线
+
+批量条目默认 `draft`;审核状态记录在 `packages/knowledge/review/ledger.json` 台账,与条目
+**内容哈希**绑定 —— 条目在审核后被修改,审核自动失效(CI 报 stale),杜绝"已审核"内容被静默篡改:
+
+```bash
+npx tsx scripts/review.ts stats                 # 各状态统计
+npx tsx scripts/review.ts list --domain pattern # 待审核清单
+npx tsx scripts/review.ts show star.qisha.soul  # 查看条目全文与台账状态
+npx tsx scripts/review.ts approve star.qisha.soul --reviewer 张三 [--verified] [--note 备注]
+npx tsx scripts/review.ts audit                 # 台账健康检查(CI 同款)
+```
+
+## 部署
+
+**方式一:单容器(完整功能,推荐)** —— 网关同时托管前端静态文件与 `/api`,同源单进程:
+
+```bash
+docker compose up -d --build     # 读取 .env 中的供应商 Key
+# 或
+docker build -t ziwei-app . && docker run -p 8787:8787 -e MINIMAX_API_KEY=xxx ziwei-app
+```
+
+打开 `http://localhost:8787` 即为完整工作台。解读结果按
+`(星盘内容, 话题, 问题, 供应商, 模型, promptVersion)` 缓存(LRU+TTL,`/api/cache/stats` 可观测)。
+
+**方式二:GitHub Pages(纯静态)** —— 排盘/三方四正/运限下钻全端侧可用,零服务器成本;
+AI 解读需另行部署网关并在仓库 Variables 配置 `ZIWEI_GATEWAY_URL`(构建时注入)。
+在仓库 Settings → Pages 将 Source 设为 "GitHub Actions" 后,推送 main 即自动部署
+(工作流:`.github/workflows/deploy-pages.yml`)。
+
 ### 排盘(实例化引擎,多流派并存互不污染)
 
 ```ts

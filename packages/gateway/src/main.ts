@@ -23,7 +23,9 @@ if (!name) {
 
 const provider = resolveProvider(name);
 const port = Number(process.env['PORT'] ?? 8787);
-createGatewayServer({ provider }).listen(port, () => {
+const staticDir = process.env['ZIWEI_STATIC_DIR'];
+createGatewayServer({ provider, staticDir }).listen(port, () => {
   console.log(`[@ziwei/gateway] 监听 :${port}  供应商=${provider.name}  模型=${provider.model}`);
   console.log(`[@ziwei/gateway] 已配置供应商: ${configured.join(', ') || '(无)'}`);
+  if (staticDir) console.log(`[@ziwei/gateway] 静态托管: ${staticDir}(工作台与 API 同源单进程)`);
 });
