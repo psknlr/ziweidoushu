@@ -170,9 +170,27 @@ function StarChip({ star, major = false }: { star: Star; major?: boolean }) {
   return (
     <span className={major ? 'star major' : 'star minor'}>
       {zh(star.key)}
-      {star.brightness && <sub>{zh(star.brightness)}</sub>}
+      {star.brightness && <sub className={`b-${star.brightness}`}>{zh(star.brightness)}</sub>}
       {star.mutagen && <i className={`mutagen m-${star.mutagen}`}>{zh(star.mutagen)}</i>}
     </span>
+  );
+}
+
+/** 亮度图例(庙旺得利平不陷七级) */
+export function BrightnessLegend() {
+  const levels: [string, string][] = [
+    ['miao', '庙'], ['wang', '旺'], ['de', '得'], ['li', '利'], ['ping', '平'], ['bu', '不'], ['xian', '陷'],
+  ];
+  return (
+    <div className="brightness-legend">
+      <span className="legend-title">星曜亮度</span>
+      {levels.map(([key, label]) => (
+        <span key={key} className={`legend-item b-${key}`}>
+          {label}
+        </span>
+      ))}
+      <span className="legend-note">庙旺力宏 · 落陷保守断 · 煞星入庙化煞为权</span>
+    </div>
   );
 }
 
@@ -205,6 +223,13 @@ function CenterInfo({ chart, features }: { chart: Astrolabe; features: ChartFeat
           {tst.totalOffsetMinutes} 分{tst.timeIndexChanged ? ' · 时辰已改变' : ''}
         </div>
       )}
+      <div className="center-bright">
+        <span className="bright-chip up">庙旺 {features.brightness.exalted.length}</span>
+        <span className="bright-chip down">落陷 {features.brightness.fallen.length}</span>
+        {features.brightness.fallen.some((f) => f.rescuedBy?.length) && (
+          <span className="bright-chip rescue">陷而有救</span>
+        )}
+      </div>
       {features.patterns.length > 0 && (
         <div className="center-patterns">
           {features.patterns.map((p) => (

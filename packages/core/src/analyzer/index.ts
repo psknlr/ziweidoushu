@@ -16,6 +16,13 @@ export { fillBorrowedStars } from './borrow.js';
 export { SIHUA_TABLE, sihuaForStem, sihuaOverlay, type SihuaHit } from './sihua.js';
 export { evaluatePatterns, type Condition, type PatternDef } from './patterns.js';
 export { deriveSignals } from './signals.js';
+export {
+  summarizeBrightness,
+  describeBrightness,
+  BRIGHTNESS_SCORE,
+  type BrightnessSummary,
+  type BrightStarNote,
+} from './brightness.js';
 
 /** 全量分析:格局匹配 + 三方四正 + RAG 信号 */
 export function analyze(chart: Astrolabe, patternDefs: readonly PatternDef[] = ALL_PATTERNS): ChartFeatures {

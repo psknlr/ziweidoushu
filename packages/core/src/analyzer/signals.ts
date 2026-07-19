@@ -6,6 +6,7 @@
 import type { Astrolabe, ChartFeatures, MatchedPattern, Signal } from '../types.js';
 import { MAJOR_STARS, zh } from '../keys.js';
 import { soulPalaceIndex, trineIndexes } from './surround.js';
+import { summarizeBrightness } from './brightness.js';
 
 const majorOrder = (key: string) => MAJOR_STARS.indexOf(key as (typeof MAJOR_STARS)[number]);
 
@@ -30,15 +31,31 @@ export function deriveSignals(chart: Astrolabe, patterns: MatchedPattern[]): Sig
           note: `${zh(star.key)}化${zh(star.mutagen)}在${zh(palace.name)}`,
         });
       }
-      if (soulTrine.has(palace.index) && (star.brightness === 'miao' || star.brightness === 'xian')) {
+      // 亮度信号:庙旺(正面上限)与不/陷(保守口径)全盘皆发;命宫三方加权
+      if (star.brightness === 'miao' || star.brightness === 'wang' || star.brightness === 'xian' || star.brightness === 'bu') {
+        const inSoulTrine = soulTrine.has(palace.index);
+        const exalted = star.brightness === 'miao' || star.brightness === 'wang';
         signals.push({
           entities: [star.key, star.brightness, palace.name],
-          weight: 40,
+          weight: inSoulTrine ? 45 : 40,
           kind: 'brightness',
-          note: `${zh(star.key)}${star.brightness === 'miao' ? '入庙' : '落陷'}于${zh(palace.name)}(命宫三方)`,
+          note: `${zh(star.key)}${exalted ? (star.brightness === 'miao' ? '入庙' : '居旺') : star.brightness === 'xian' ? '落陷' : '不得地'}于${zh(palace.name)}${inSoulTrine ? '(命宫三方)' : ''}`,
         });
       }
     }
+    // 辅星亮度信号(35):煞星庙旺化煞为权、文星落陷科名受阻等规则依赖此信号召回
+    for (const star of palace.minorStars) {
+      if (!star.brightness) continue;
+      if (star.brightness === 'miao' || star.brightness === 'wang' || star.brightness === 'xian' || star.brightness === 'bu') {
+        signals.push({
+          entities: [star.key, star.brightness, palace.name],
+          weight: 35,
+          kind: 'brightness',
+          note: `${zh(star.key)}${zh(star.brightness)}于${zh(palace.name)}`,
+        });
+      }
+    }
+
     // 双主星同宫 → 组合信号(80):双星组合是常用解读单元(紫府/武贪/同阴…)
     const majors = palace.majorStars.filter((s) => s.type === 'major');
     if (majors.length >= 2) {
@@ -84,6 +101,7 @@ export function deriveSignals(chart: Astrolabe, patterns: MatchedPattern[]): Sig
 export function buildFeatures(chart: Astrolabe, patterns: MatchedPattern[]): ChartFeatures {
   const soulIdx = soulPalaceIndex(chart);
   return {
+    brightness: summarizeBrightness(chart),
     soulSurround: {
       target: soulIdx,
       opposite: (soulIdx + 6) % 12,

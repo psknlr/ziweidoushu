@@ -13,6 +13,11 @@ export { ZiweiEngine, type BirthInput } from './engine.js';
 export { ENGINE_ID, ENGINE_VERSION, KERNEL_ID } from './adapter.js';
 export {
   analyze,
+  summarizeBrightness,
+  describeBrightness,
+  BRIGHTNESS_SCORE,
+  type BrightnessSummary,
+  type BrightStarNote,
   surroundedIndexes,
   trineIndexes,
   soulPalaceIndex,
