@@ -1,6 +1,6 @@
 # 部署静态工作台到 GitHub Pages(排盘/下钻/知识库全端侧可用;
 # AI 解读需另行部署网关并在构建时注入 VITE_GATEWAY_URL 指向它)。
-# 首次使用需在仓库 Settings → Pages 将 Source 设为 "GitHub Actions"。
+# configure-pages 的 enablement 会在首次运行时自动启用 Pages(Source=GitHub Actions)。
 name: Deploy Pages
 
 on:
@@ -25,6 +25,9 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - uses: actions/setup-node@v4
         with:
           node-version: 22
