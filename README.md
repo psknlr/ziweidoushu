@@ -14,7 +14,7 @@
 | [`@ziwei/core`](packages/core) | 实例化排盘引擎(封装 iztro 2.5.8 并修复其全局可变配置缺陷)、真太阳时校正、离线城市库、盘面分析器(三方四正/借宫/四化叠加/格局三层判定)、RAG 加权信号 | L1 + L2 |
 | [`@ziwei/knowledge`](packages/knowledge) | 可溯源知识条目 schema(zod)、300+ 条知识库(星×宫/四化×宫/星×四化/双星组合/格局)、精度优先加权检索、LLM System Prompt 五要素装配 | L3 + L4 |
 | [`@ziwei/gateway`](packages/gateway) | 服务端 AI 解读网关:RAG + Prompt 装配在服务端完成,多供应商流式适配(MiniMax / Azure OpenAI / Poe / LiteLLM / 任意 OpenAI 兼容),Key 永不进前端 | L4 |
-| [`@ziwei/web`](apps/web) | 星盘工作台:传统 4×4 宫格、点击宫位 SVG 三方四正联动、本命/大限/流年切换与四化叠加、真太阳时提示、AI 流式解读 | L5 |
+| [`@ziwei/web`](apps/web) | 星盘工作台:4×4 宫格、SVG 三方四正联动、本命→大限→流年→流月→流日→流时六级下钻、全国 3300+ 区县真太阳时、本地多用户档案与合盘、AI 解读(网关/自带 Key 直连/双模型对比)、PWA + Capacitor Android 封装 | L5 |
 
 ## 快速开始
 
@@ -30,6 +30,21 @@ export MINIMAX_API_KEY=...   # 或 POE_API_KEY / LITELLM_* / AZURE_OPENAI_* / OP
 npm run gateway              # AI 网关 :8787(ZIWEI_PROVIDER 可指定 minimax|azure|poe|litellm|custom)
 npm run web                  # 前端 :5173(/api 代理到网关)
 ```
+
+## 解读技法与合盘
+
+- **七大解读技法**(`READING_SKILLS`):整体/姻缘/事业/生意/学业/健康/财帛——每个技法定义体用宫位、
+  看盘次第、断语纪律与专属输出结构,注入 Prompt 后 LLM 按命理师方法论看盘(方法论依据:
+  《紫微斗数全书》体例 + 三合派通行技法 + 倪海夏夫妻宫体系)。
+- **合盘引擎**(`compareCharts`):命宫/年支合冲刑害、双方生年四化互飞、夫妻宫互参——确定性计算,
+  LLM 只消费结果;`buildSynastryPrompt` 装配合盘解读。
+- 网关 `/api/interpret` 支持 `skill`(技法)与 `chartB`(合盘)参数。
+
+## Android App
+
+`apps/web/android/` 为 Capacitor 原生工程,排盘/档案/合盘全离线,AI 用 App 内置入的
+Key 直连(无 CORS 限制)。构建见 [docs/android.md](docs/android.md);
+Web 版同时是 PWA,浏览器可直接「添加到主屏幕」。
 
 ## 知识库审核流水线
 

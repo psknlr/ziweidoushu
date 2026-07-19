@@ -1,0 +1,16 @@
+{
+  "name": "紫微斗数工作台",
+  "short_name": "紫微工作台",
+  "description": "确定性排盘 · 真太阳时 · 六级运限下钻 · 本地档案与合盘 · 可溯源 AI 解读",
+  "lang": "zh-CN",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#12132b",
+  "background_color": "#0c0d1f",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

@@ -223,6 +223,68 @@ button.primary:disabled { opacity: 0.5; cursor: wait; }
 .ai-output.error { color: var(--ji); }
 .hint { font-size: 11px; color: #6a6d99; margin: 8px 0 0; }
 
+.ai-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+@media (max-width: 640px) { .ai-columns { grid-template-columns: 1fr; } }
+.ai-col-title { font-size: 12px; color: var(--amber); margin: 0 0 4px; }
+.ai-columns .ai-output { margin-top: 0; }
+
+.link-btn {
+  background: none; border: none; color: var(--accent); cursor: pointer;
+  font-size: 12px; padding: 0 0 10px; font-family: inherit;
+}
+.provider-config fieldset {
+  border: 1px dashed var(--border); border-radius: 8px; margin: 0 0 8px; padding: 8px 10px;
+}
+.provider-config legend { font-size: 11px; color: var(--amber); padding: 0 4px; }
+.provider-config input {
+  display: block; width: 100%; margin-bottom: 6px;
+  background: var(--bg-deep); color: var(--text);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 6px 8px; font-size: 12px; font-family: inherit;
+}
+
+/* -------------------------------------------------------------- 档案面板 */
+.profile-save { display: flex; gap: 6px; margin-bottom: 10px; }
+.profile-save input {
+  flex: 1; background: var(--bg-deep); color: var(--text);
+  border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; font-size: 12px;
+}
+.profile-save button {
+  background: var(--panel-2); color: var(--text); border: 1px solid var(--border-strong);
+  border-radius: 6px; padding: 0 10px; font-size: 12px; cursor: pointer; white-space: nowrap;
+}
+.profile-list { list-style: none; margin: 0 0 10px; padding: 0; }
+.profile-list li { display: flex; align-items: center; gap: 6px; padding: 4px 0; border-bottom: 1px dashed var(--border); }
+.profile-name {
+  background: none; border: none; color: var(--amber); cursor: pointer;
+  font-size: 13px; font-family: inherit; padding: 0;
+}
+.profile-meta { font-size: 11px; color: var(--text-dim); flex: 1; }
+.profile-actions { display: flex; gap: 4px; }
+.pick {
+  background: var(--bg-deep); color: var(--text-dim); border: 1px solid var(--border);
+  border-radius: 5px; font-size: 11px; padding: 2px 7px; cursor: pointer; font-family: inherit;
+}
+.pick.active { color: #0c0d1f; background: var(--amber); border-color: var(--amber); font-weight: 700; }
+.pick.danger:hover { color: var(--ji); border-color: var(--ji); }
+
+/* -------------------------------------------------------------- 合盘面板 */
+.synastry-panel { margin-top: 4px; }
+.synastry-head { display: flex; justify-content: space-between; align-items: center; }
+.synastry-notes { display: flex; flex-direction: column; gap: 5px; margin: 8px 0; }
+.synastry-note {
+  font-size: 12.5px; background: var(--bg-deep); border-left: 3px solid var(--accent);
+  border-radius: 4px; padding: 6px 10px; line-height: 1.6;
+}
+.synastry-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 8px 0; }
+.synastry-grid h3 { font-size: 12px; color: var(--amber); margin: 0 0 4px; }
+.synastry-grid p { margin: 0; font-size: 13px; }
+.flight-list { font-size: 12px; color: var(--text-dim); margin: 6px 0; padding-left: 18px; line-height: 1.8; }
+.synastry-actions { display: flex; gap: 8px; margin-top: 10px; }
+.synastry-actions .primary { width: auto; flex: 1; letter-spacing: 1px; }
+.primary.alt { background: var(--panel-2); border: 1px solid var(--accent); }
+.year-stepper.wide span { min-width: 88px; }
+
 /* ---------------------------------------------------------------- 空状态 */
 .empty-state {
   border: 1px dashed var(--border); border-radius: 12px;

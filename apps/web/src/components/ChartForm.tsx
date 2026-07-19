@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from 'react';
-import { CITIES, PRESETS, type BirthInput, type Gender } from '@ziwei/core';
+import { useMemo, useState, type FormEvent } from 'react';
+import { cityLabel, PRESETS, searchCities, type BirthInput, type Gender } from '@ziwei/core';
 
 interface Props {
   preset: string;
@@ -13,6 +13,7 @@ export function ChartForm({ preset, onPresetChange, onSubmit }: Props) {
   const [gender, setGender] = useState<Gender>('male');
   const [city, setCity] = useState('北京');
   const [useTst, setUseTst] = useState(true);
+  const citySuggestions = useMemo(() => searchCities(city, 12), [city]);
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
@@ -62,11 +63,11 @@ export function ChartForm({ preset, onPresetChange, onSubmit }: Props) {
         </label>
       </div>
       <label>
-        出生城市(真太阳时)
-        <input list="cities" value={city} onChange={(e) => setCity(e.target.value)} placeholder="离线库查询经度" />
+        出生城市(真太阳时,全国区县)
+        <input list="cities" value={city} onChange={(e) => setCity(e.target.value)} placeholder="输入城市/区县名" />
         <datalist id="cities">
-          {CITIES.map((c) => (
-            <option key={c.pinyin} value={c.name} />
+          {citySuggestions.map((c, i) => (
+            <option key={`${c.province}-${c.city}-${c.name}-${i}`} value={c.name} label={cityLabel(c)} />
           ))}
         </datalist>
       </label>

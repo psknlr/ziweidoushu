@@ -6,34 +6,45 @@
  */
 import { sihuaForStem, zh, type Astrolabe, type HoroscopeSnapshot } from '@ziwei/core';
 
-export type HoroscopeMode = 'origin' | 'decadal' | 'yearly' | 'monthly' | 'daily';
+export type HoroscopeMode = 'origin' | 'decadal' | 'yearly' | 'monthly' | 'daily' | 'hourly';
 
 interface Props {
   mode: HoroscopeMode;
   year: number;
   month: number;
   day: number;
+  hourIndex: number;
   chart: Astrolabe;
   horoscope: HoroscopeSnapshot | null;
   onModeChange: (mode: HoroscopeMode) => void;
   onYearChange: (year: number) => void;
   onMonthChange: (month: number) => void;
   onDayChange: (day: number) => void;
+  onHourChange: (hourIndex: number) => void;
 }
 
 const MUTAGEN_NAMES = ['禄', '权', '科', '忌'];
+/** 时辰序 0-12(0 早子,12 晚子),与 iztro timeIndex 约定一致 */
+export const HOUR_NAMES = ['早子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥', '晚子'];
 const MODE_LABELS: [HoroscopeMode, string][] = [
   ['origin', '本命'],
   ['decadal', '大限'],
   ['yearly', '流年'],
   ['monthly', '流月'],
   ['daily', '流日'],
+  ['hourly', '流时'],
 ];
 
-export function TimeNav({ mode, year, month, day, chart, horoscope, onModeChange, onYearChange, onMonthChange, onDayChange }: Props) {
+export function TimeNav({ mode, year, month, day, hourIndex, chart, horoscope, onModeChange, onYearChange, onMonthChange, onDayChange, onHourChange }: Props) {
   const scope =
     horoscope && mode !== 'origin'
-      ? { decadal: horoscope.decadal, yearly: horoscope.yearly, monthly: horoscope.monthly, daily: horoscope.daily }[mode]
+      ? {
+          decadal: horoscope.decadal,
+          yearly: horoscope.yearly,
+          monthly: horoscope.monthly,
+          daily: horoscope.daily,
+          hourly: horoscope.hourly,
+        }[mode]
       : null;
   const sihua = scope ? sihuaForStem(scope.stem, chart.meta.school) : null;
 
@@ -90,6 +101,15 @@ export function TimeNav({ mode, year, month, day, chart, horoscope, onModeChange
             <button type="button" onClick={() => stepDay(1)}>›</button>
           </div>
         )}
+        {mode === 'hourly' && (
+          <div className="year-stepper wide">
+            <button type="button" onClick={() => onHourChange((hourIndex + 12) % 13)}>‹</button>
+            <span>
+              {month}·{Math.min(day, daysInMonth)} {HOUR_NAMES[hourIndex]}时
+            </span>
+            <button type="button" onClick={() => onHourChange((hourIndex + 1) % 13)}>›</button>
+          </div>
+        )}
       </div>
 
       {mode === 'decadal' && (
@@ -121,9 +141,11 @@ export function TimeNav({ mode, year, month, day, chart, horoscope, onModeChange
                 ? `${year} 流年 ${zh(scope.stem)}${zh(scope.branch)}`
                 : mode === 'monthly' && horoscope
                   ? `流月 ${zh(scope.stem)}${zh(scope.branch)} · ${horoscope.lunarDate}`
-                  : horoscope
+                  : mode === 'daily' && horoscope
                     ? `流日 ${zh(scope.stem)}${zh(scope.branch)} · ${horoscope.lunarDate}`
-                    : ''}
+                    : horoscope
+                      ? `流时 ${zh(scope.stem)}${zh(scope.branch)}(${HOUR_NAMES[hourIndex]}时)· ${horoscope.lunarDate}`
+                      : ''}
           </span>
           {sihua.map((star, i) => (
             <span key={star} className={`sihua-item m-${['sihuaLu', 'sihuaQuan', 'sihuaKe', 'sihuaJi'][i]}`}>
