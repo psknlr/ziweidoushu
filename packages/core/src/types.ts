@@ -194,6 +194,8 @@ export interface ChartFeatures {
   surroundByPalace: SurroundedPalaces[];
   /** 匹配到的格局(含成格与破格) */
   patterns: MatchedPattern[];
+  /** 亮度体系汇总(庙旺/落陷清单、解救与加重、各宫强弱分) */
+  brightness: import('./analyzer/brightness.js').BrightnessSummary;
   /** RAG 加权信号 */
   signals: Signal[];
 }

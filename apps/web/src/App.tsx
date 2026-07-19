@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { ZiweiEngine, type Astrolabe, type BirthInput } from '@ziwei/core';
 import { ChartForm } from './components/ChartForm.js';
-import { ChartBoard } from './components/ChartBoard.js';
+import { BrightnessLegend, ChartBoard } from './components/ChartBoard.js';
 import { TimeNav, type HoroscopeMode } from './components/TimeNav.js';
 import { AIPanel } from './components/AIPanel.js';
 import { ProfilesPanel } from './components/ProfilesPanel.js';
@@ -92,6 +92,7 @@ export function App() {
                 mode={mode}
                 horoscope={horoscope}
               />
+              <BrightnessLegend />
             </>
           ) : (
             <div className="empty-state">

@@ -5,7 +5,7 @@
  * 装配结果是纯文本 system prompt,与具体 LLM 供应商解耦;
  * promptVersion 纳入解读缓存 key,变更必须升版本。
  */
-import { zh, type Astrolabe, type ChartFeatures } from '@ziwei/core';
+import { describeBrightness, zh, type Astrolabe, type ChartFeatures } from '@ziwei/core';
 import type { RetrievedEntry } from './retrieval.js';
 import { buildSkillBlock, type ReadingSkill } from './skills.js';
 
@@ -58,6 +58,11 @@ export function describeChart(chart: Astrolabe, features: ChartFeatures): string
         (p.brokenBy.length > 0 ? `;破格:${p.brokenBy.join(';')}` : '') +
         `(出处:${p.source})`,
     );
+  }
+  const brightness = describeBrightness(features.brightness);
+  if (brightness) {
+    lines.push('星曜亮度总览(庙旺得利平不陷):');
+    lines.push(brightness);
   }
   return lines.join('\n');
 }
@@ -114,6 +119,7 @@ export function buildSystemPrompt(
     `- 白话为主,术语首次出现时随手解释;吉凶并陈,不恐吓、不谄媚、不宿命论。`,
     `- 禁用"能量""磁场""宇宙频率"等身心灵话术。`,
     `- 断语强度与知识置信度匹配:低置信度用"倾向/可能",高置信度方可用确定语气。`,
+    `- ${features.brightness.discipline}`,
     ``,
     `# 输出结构(严格遵循)`,
     ...structure.map((s, i) => `${i + 1}. ${s}`),

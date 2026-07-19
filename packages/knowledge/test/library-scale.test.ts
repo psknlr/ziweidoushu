@@ -12,6 +12,7 @@ import {
   STAR_KEY_SET,
   MUTAGEN_KEY_SET,
   PALACE_KEY_SET,
+  BRIGHTNESS_KEY_SET,
 } from '@ziwei/core';
 import { ALL_ENTRIES, validateEntries } from '@ziwei/knowledge';
 
@@ -29,6 +30,7 @@ describe('知识库规模', () => {
           STAR_KEY_SET.has(entity) ||
           PALACE_KEY_SET.has(entity) ||
           MUTAGEN_KEY_SET.has(entity) ||
+          BRIGHTNESS_KEY_SET.has(entity) ||
           KNOWN_EXTRA.has(entity) ||
           (e.domain === 'pattern' && /^[a-z0-9-]+$/.test(entity));
         expect(ok, `条目 ${e.id} 含非法实体 "${entity}"`).toBe(true);
