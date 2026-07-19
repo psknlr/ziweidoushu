@@ -55,9 +55,11 @@ export function App() {
     <div className="app">
       <header className="app-header">
         <h1>
-          紫微斗数工作台 <span className="tagline">确定性排盘 · 可溯源解读</span>
+          紫微斗数工作台<span className="tagline">确定性排盘 · 可溯源解读</span>
         </h1>
-        <span className="kernel-tag">{chart ? `${chart.meta.school.preset} · ${chart.meta.kernel}` : ''}</span>
+        <span className="kernel-tag">
+          {chart ? `${chart.meta.school.preset} · ${chart.meta.kernel}` : 'IMPF-AI 医哲未来人工智能研究院'}
+        </span>
       </header>
       <div className="layout">
         <aside className="sidebar">
@@ -109,6 +111,12 @@ export function App() {
           )}
         </main>
       </div>
+      <footer className="app-footer">
+        <span className="footer-brand">
+          医哲未来人工智能研究院<small>IMPF-AI · Institute of Medical-Philosophy Future AI</small>
+        </span>
+        <span className="footer-note">命理内容仅供文化研究与自我认知参考,不构成医疗/投资/重大决策建议</span>
+      </footer>
     </div>
   );
 }
