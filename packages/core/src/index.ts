@@ -32,6 +32,8 @@ export {
   type PatternDef,
 } from './analyzer/index.js';
 export { STARTER_PATTERNS } from './data/patterns.js';
+export { STAR_NATURE, starNature, type StarNature, type StarEnergyKind } from './data/star-energy.js';
+export { exportChartData } from './export.js';
 export { CLASSIC_PATTERNS } from './data/patterns-classic.js';
 export { ALL_PATTERNS } from './analyzer/index.js';
 export {

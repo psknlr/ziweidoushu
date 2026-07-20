@@ -5,9 +5,13 @@ interface Props {
   preset: string;
   onPresetChange: (preset: string) => void;
   onSubmit: (input: BirthInput) => void;
+  /** 今日剩余排盘次数;null 表示已解锁不限 */
+  remaining?: number | null;
+  /** 有当前盘时提供导出 */
+  onExport?: () => void;
 }
 
-export function ChartForm({ preset, onPresetChange, onSubmit }: Props) {
+export function ChartForm({ preset, onPresetChange, onSubmit, remaining, onExport }: Props) {
   const [date, setDate] = useState('1990-01-15');
   const [time, setTime] = useState('08:30');
   const [gender, setGender] = useState<Gender>('male');
@@ -78,6 +82,16 @@ export function ChartForm({ preset, onPresetChange, onSubmit }: Props) {
       <button type="submit" className="primary">
         排盘
       </button>
+      {remaining !== undefined && (
+        <p className="usage-note">
+          {remaining === null ? '研究权限已解锁 · 排盘不限次' : `防沉迷:今日剩余 ${remaining} 次`}
+        </p>
+      )}
+      {onExport && (
+        <button type="button" className="primary alt export-btn" onClick={onExport}>
+          导出命盘参数(JSON)
+        </button>
+      )}
     </form>
   );
 }

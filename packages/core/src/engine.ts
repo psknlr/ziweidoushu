@@ -123,12 +123,26 @@ export class ZiweiEngine {
     applySchool(this.school);
     const raw = astro.bySolar(input.solarDate, input.timeIndex, genderZh(gender), input.fixLeap, 'zh-CN');
     const chart = adaptAstrolabe(raw, input, this.school, gender);
+    applyClassicalBrightnessRules(chart);
     return fillBorrowedStars(chart);
   }
 }
 
 function genderZh(gender: Gender): '男' | '女' {
   return ZH_CN[gender] as '男' | '女';
+}
+
+/**
+ * 古籍亮度规则(对无十二宫庙陷表的星曜):
+ * 《紫微斗数全书》:禄存无落陷,不论何宫均作入庙论。
+ * (左辅右弼天魁天钺"无庙陷、恒作吉论"以星性标签呈现,不伪造亮度。)
+ */
+function applyClassicalBrightnessRules(chart: Astrolabe): void {
+  for (const palace of chart.palaces) {
+    for (const star of palace.minorStars) {
+      if (star.key === 'lucunMin' && !star.brightness) star.brightness = 'miao';
+    }
+  }
 }
 
 /** 清空 iztro 全局残留并重放本实例配置(实例隔离的关键) */
