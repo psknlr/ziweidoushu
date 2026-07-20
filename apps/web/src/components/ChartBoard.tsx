@@ -6,6 +6,7 @@
 import { useMemo } from 'react';
 import {
   sihuaOverlay,
+  starNature,
   surroundedIndexes,
   zh,
   type Astrolabe,
@@ -151,9 +152,14 @@ function PalaceCell({
         ))}
       </div>
       <div className="stars-adj">
-        {adjectives.map((s) => (
-          <span key={s.key}>{zh(s.key)}</span>
-        ))}
+        {adjectives.map((s) => {
+          const nature = starNature(s.key);
+          return (
+            <span key={s.key} className={nature ? `n-${nature.kind}` : ''} title={nature?.note ?? ''}>
+              {zh(s.key)}
+            </span>
+          );
+        })}
         {more > 0 && <span className="more">+{more}</span>}
       </div>
       <div className="cell-foot">
@@ -167,10 +173,17 @@ function PalaceCell({
 }
 
 function StarChip({ star, major = false }: { star: Star; major?: boolean }) {
+  // 有庙陷表者显示亮度;无庙陷表者显示古籍星性标签(恒吉/煞/驿等)
+  const nature = !star.brightness ? starNature(star.key) : undefined;
   return (
     <span className={major ? 'star major' : 'star minor'}>
       {zh(star.key)}
       {star.brightness && <sub className={`b-${star.brightness}`}>{zh(star.brightness)}</sub>}
+      {!star.brightness && nature && (
+        <sub className={`n-${nature.kind}`} title={nature.note ?? ''}>
+          {nature.tag}
+        </sub>
+      )}
       {star.mutagen && <i className={`mutagen m-${star.mutagen}`}>{zh(star.mutagen)}</i>}
     </span>
   );
@@ -189,7 +202,12 @@ export function BrightnessLegend() {
           {label}
         </span>
       ))}
-      <span className="legend-note">庙旺力宏 · 落陷保守断 · 煞星入庙化煞为权</span>
+      <span className="legend-sep">|</span>
+      <span className="legend-item n-auspicious">吉</span>
+      <span className="legend-item n-inauspicious">煞</span>
+      <span className="legend-item n-flower">桃</span>
+      <span className="legend-item n-literary">文</span>
+      <span className="legend-note">庙旺力宏 · 落陷保守断 · 煞星入庙化煞为权 · 无庙陷者标星性(禄存恒庙,辅弼魁钺恒吉)</span>
     </div>
   );
 }

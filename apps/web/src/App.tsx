@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
-import { ZiweiEngine, type Astrolabe, type BirthInput } from '@ziwei/core';
+import { exportChartData, ZiweiEngine, type Astrolabe, type BirthInput } from '@ziwei/core';
+import { consumeUsage, isUnlocked, remainingToday } from './lib/usage-limit.js';
+import { UnlockDialog } from './components/UnlockDialog.js';
 import { ChartForm } from './components/ChartForm.js';
 import { BrightnessLegend, ChartBoard } from './components/ChartBoard.js';
 import { TimeNav, type HoroscopeMode } from './components/TimeNav.js';
@@ -21,6 +23,8 @@ export function App() {
   const [day, setDay] = useState<number>(NOW.getDate());
   const [hourIndex, setHourIndex] = useState<number>(6);
   const [synastry, setSynastry] = useState<{ a: Profile; b: Profile } | null>(null);
+  const [limitOpen, setLimitOpen] = useState(false);
+  const [usageTick, setUsageTick] = useState(0);
 
   const engine = useMemo(() => new ZiweiEngine(preset), [preset]);
 
@@ -46,10 +50,30 @@ export function App() {
   }, [engine, synastry]);
 
   const handleSubmit = (input: BirthInput) => {
+    // 防沉迷:每日限排 3 张盘(特殊权限密钥解锁后不限)
+    if (!consumeUsage()) {
+      setLimitOpen(true);
+      return;
+    }
+    setUsageTick((t) => t + 1);
     setChart(engine.fromBirth(input));
     setLastInput(input);
     setSelected(null);
   };
+
+  const handleExport = () => {
+    if (!chart || !features) return;
+    const data = exportChartData(chart, features);
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ziwei-chart-${chart.meta.chartHash}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  void usageTick; // 触发剩余次数重渲染
 
   return (
     <div className="app">
@@ -63,7 +87,13 @@ export function App() {
       </header>
       <div className="layout">
         <aside className="sidebar">
-          <ChartForm preset={preset} onPresetChange={setPreset} onSubmit={handleSubmit} />
+          <ChartForm
+            preset={preset}
+            onPresetChange={setPreset}
+            onSubmit={handleSubmit}
+            remaining={isUnlocked() ? null : remainingToday()}
+            onExport={chart ? handleExport : undefined}
+          />
           <ProfilesPanel currentInput={lastInput} onLoad={handleSubmit} onSynastry={(a, b) => setSynastry({ a, b })} />
           {chart && features && <AIPanel chart={chart} />}
         </aside>
@@ -112,6 +142,15 @@ export function App() {
           )}
         </main>
       </div>
+      {limitOpen && (
+        <UnlockDialog
+          onClose={() => setLimitOpen(false)}
+          onUnlocked={() => {
+            setLimitOpen(false);
+            setUsageTick((t) => t + 1);
+          }}
+        />
+      )}
       <footer className="app-footer">
         <span className="footer-brand">
           医哲未来人工智能研究院<small>IMPF-AI · Institute of Medical-Philosophy Future AI</small>
