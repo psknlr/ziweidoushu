@@ -70,7 +70,8 @@ export function ChartBoard({ chart, features, selected, onSelect, mode, horoscop
   const scopeNames = scope?.palaceNames ?? null;
 
   return (
-    <div className="board">
+    <div className="board-scroll">
+      <div className="board">
       {chart.palaces.map((palace) => (
         <PalaceCell
           key={palace.index}
@@ -85,6 +86,7 @@ export function ChartBoard({ chart, features, selected, onSelect, mode, horoscop
       ))}
       <CenterInfo chart={chart} features={features} />
       {selected !== null && <TrineOverlay selected={selected} />}
+      </div>
     </div>
   );
 }
