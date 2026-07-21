@@ -1,17 +1,13 @@
 import { useMemo, useState, type FormEvent } from 'react';
-import { cityLabel, PRESETS, searchCities, type BirthInput, type Gender } from '@ziwei/core';
+import { cityLabel, searchCities, type BirthInput, type Gender } from '@ziwei/core';
 
 interface Props {
-  preset: string;
-  onPresetChange: (preset: string) => void;
   onSubmit: (input: BirthInput) => void;
   /** 今日剩余排盘次数;null 表示已解锁不限 */
   remaining?: number | null;
-  /** 有当前盘时提供导出 */
-  onExport?: () => void;
 }
 
-export function ChartForm({ preset, onPresetChange, onSubmit, remaining, onExport }: Props) {
+export function ChartForm({ onSubmit, remaining }: Props) {
   const [date, setDate] = useState('1990-01-15');
   const [time, setTime] = useState('08:30');
   const [gender, setGender] = useState<Gender>('male');
@@ -47,25 +43,13 @@ export function ChartForm({ preset, onPresetChange, onSubmit, remaining, onExpor
         出生时间
         <input type="time" value={time} onChange={(e) => setTime(e.target.value)} required />
       </label>
-      <div className="row">
-        <label>
-          性别
-          <select value={gender} onChange={(e) => setGender(e.target.value as Gender)}>
-            <option value="male">男</option>
-            <option value="female">女</option>
-          </select>
-        </label>
-        <label>
-          流派
-          <select value={preset} onChange={(e) => onPresetChange(e.target.value)}>
-            {Object.keys(PRESETS).map((key) => (
-              <option key={key} value={key}>
-                {key === 'wenmo-zhongzhou' ? '中州派(文墨对齐)' : '全书通行版'}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
+      <label>
+        性别
+        <select value={gender} onChange={(e) => setGender(e.target.value as Gender)}>
+          <option value="male">男</option>
+          <option value="female">女</option>
+        </select>
+      </label>
       <label>
         出生城市(真太阳时,全国区县)
         <input list="cities" value={city} onChange={(e) => setCity(e.target.value)} placeholder="输入城市/区县名" />
@@ -84,13 +68,8 @@ export function ChartForm({ preset, onPresetChange, onSubmit, remaining, onExpor
       </button>
       {remaining !== undefined && (
         <p className="usage-note">
-          {remaining === null ? '研究权限已解锁 · 排盘不限次' : `防沉迷:今日剩余 ${remaining} 次`}
+          {remaining === null ? '研究权限已解锁 · 排盘不限次' : `防沉迷:今日剩余 ${remaining} 次(密钥在「设置」页输入)`}
         </p>
-      )}
-      {onExport && (
-        <button type="button" className="primary alt export-btn" onClick={onExport}>
-          导出命盘参数(JSON)
-        </button>
       )}
     </form>
   );

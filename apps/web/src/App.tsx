@@ -1,19 +1,32 @@
 import { useMemo, useState } from 'react';
-import { exportChartData, ZiweiEngine, type Astrolabe, type BirthInput } from '@ziwei/core';
-import { consumeUsage, isUnlocked, remainingToday } from './lib/usage-limit.js';
-import { UnlockDialog } from './components/UnlockDialog.js';
+import { ZiweiEngine, type Astrolabe, type BirthInput } from '@ziwei/core';
 import { ChartForm } from './components/ChartForm.js';
 import { BrightnessLegend, ChartBoard } from './components/ChartBoard.js';
 import { TimeNav, type HoroscopeMode } from './components/TimeNav.js';
-import { AIPanel } from './components/AIPanel.js';
+import { AIPanel, type Channel } from './components/AIPanel.js';
 import { ProfilesPanel } from './components/ProfilesPanel.js';
 import { SynastryPanel } from './components/SynastryPanel.js';
+import { SettingsView } from './components/SettingsView.js';
+import { UnlockDialog } from './components/UnlockDialog.js';
+import { Logo } from './components/Logo.js';
+import { consumeUsage, isUnlocked, remainingToday } from './lib/usage-limit.js';
 import type { Profile } from './lib/profiles.js';
 
 const NOW = new Date();
 
+type View = 'profile' | 'chart' | 'agent' | 'settings';
+
+const NAV_ITEMS: { id: View; label: string; glyph: string }[] = [
+  { id: 'profile', label: '档案', glyph: '档' },
+  { id: 'chart', label: '星盘', glyph: '盘' },
+  { id: 'agent', label: '智能体', glyph: '智' },
+  { id: 'settings', label: '设置', glyph: '设' },
+];
+
 export function App() {
+  const [view, setView] = useState<View>('profile');
   const [preset, setPreset] = useState<string>('wenmo-zhongzhou');
+  const [channel, setChannel] = useState<Channel>('gateway');
   const [chart, setChart] = useState<Astrolabe | null>(null);
   const [lastInput, setLastInput] = useState<BirthInput | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
@@ -27,10 +40,7 @@ export function App() {
   const [usageTick, setUsageTick] = useState(0);
 
   const engine = useMemo(() => new ZiweiEngine(preset), [preset]);
-
   const features = useMemo(() => (chart ? engine.features(chart) : null), [engine, chart]);
-  // 运限快照按盘上配置推算(可复现)。
-  // 大限/流年取年中(年语义稳定);流月/流日/流时用具体日期,流时另传时辰序。
   const horoscope = useMemo(() => {
     if (!chart || mode === 'origin') return null;
     const safeDay = Math.min(day, new Date(year, month, 0).getDate());
@@ -43,14 +53,10 @@ export function App() {
 
   const synastryCharts = useMemo(() => {
     if (!synastry) return null;
-    return {
-      a: engine.fromBirth(synastry.a.input),
-      b: engine.fromBirth(synastry.b.input),
-    };
+    return { a: engine.fromBirth(synastry.a.input), b: engine.fromBirth(synastry.b.input) };
   }, [engine, synastry]);
 
   const handleSubmit = (input: BirthInput) => {
-    // 防沉迷:每日限排 3 张盘(特殊权限密钥解锁后不限)
     if (!consumeUsage()) {
       setLimitOpen(true);
       return;
@@ -59,89 +65,110 @@ export function App() {
     setChart(engine.fromBirth(input));
     setLastInput(input);
     setSelected(null);
+    setView('chart');
   };
+  void usageTick;
 
-  const handleExport = () => {
-    if (!chart || !features) return;
-    const data = exportChartData(chart, features);
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `ziwei-chart-${chart.meta.chartHash}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  void usageTick; // 触发剩余次数重渲染
+  const needChart = (label: string) => (
+    <div className="empty-state">
+      <div className="empty-glyph">☯</div>
+      <p>{label}</p>
+      <p className="hint">先到「档案」页输入出生信息排盘</p>
+    </div>
+  );
 
   return (
     <div className="app">
       <header className="app-header">
-        <h1>
-          紫微斗数工作台<span className="tagline">确定性排盘 · 可溯源解读</span>
-        </h1>
-        <span className="kernel-tag">
-          {chart ? `${chart.meta.school.preset} · ${chart.meta.kernel}` : 'IMPF-AI 医哲未来人工智能研究院'}
-        </span>
+        <div className="brand">
+          <Logo size={38} />
+          <div className="brand-text">
+            <h1>紫微斗数工作台</h1>
+            <span className="brand-sub">医哲未来人工智能研究院 · IMPF-AI</span>
+          </div>
+        </div>
+        <nav className="nav-top">
+          {NAV_ITEMS.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              className={view === item.id ? 'nav-item active' : 'nav-item'}
+              onClick={() => setView(item.id)}
+            >
+              {item.label}
+            </button>
+          ))}
+        </nav>
       </header>
-      <div className="layout">
-        <aside className="sidebar">
-          <ChartForm
-            preset={preset}
-            onPresetChange={setPreset}
-            onSubmit={handleSubmit}
-            remaining={isUnlocked() ? null : remainingToday()}
-            onExport={chart ? handleExport : undefined}
-          />
-          <ProfilesPanel currentInput={lastInput} onLoad={handleSubmit} onSynastry={(a, b) => setSynastry({ a, b })} />
-          {chart && features && <AIPanel chart={chart} />}
-        </aside>
-        <main className="board-area">
-          {chart && features ? (
-            <>
+
+      <main className="view-area">
+        {view === 'profile' && (
+          <div className="view-stack">
+            <ChartForm onSubmit={handleSubmit} remaining={isUnlocked() ? null : remainingToday()} />
+            <ProfilesPanel
+              currentInput={lastInput}
+              onLoad={handleSubmit}
+              onSynastry={(a, b) => {
+                setSynastry({ a, b });
+                setView('chart');
+              }}
+            />
+          </div>
+        )}
+
+        {view === 'chart' &&
+          (chart && features ? (
+            <div className="view-stack">
               <TimeNav
-                mode={mode}
-                year={year}
-                month={month}
-                day={day}
-                hourIndex={hourIndex}
-                horoscope={horoscope}
-                chart={chart}
-                onModeChange={setMode}
-                onYearChange={setYear}
-                onMonthChange={setMonth}
-                onDayChange={setDay}
-                onHourChange={setHourIndex}
+                mode={mode} year={year} month={month} day={day} hourIndex={hourIndex}
+                horoscope={horoscope} chart={chart}
+                onModeChange={setMode} onYearChange={setYear} onMonthChange={setMonth}
+                onDayChange={setDay} onHourChange={setHourIndex}
               />
               <ChartBoard
-                chart={chart}
-                features={features}
-                selected={selected}
+                chart={chart} features={features} selected={selected}
                 onSelect={(i) => setSelected((cur) => (cur === i ? null : i))}
-                mode={mode}
-                horoscope={horoscope}
+                mode={mode} horoscope={horoscope}
               />
               <BrightnessLegend />
-            </>
-          ) : (
-            <div className="empty-state">
-              <div className="empty-glyph">☯</div>
-              <p>输入出生信息开始排盘</p>
-              <p className="hint">全国城市真太阳时 · 全书/中州双流派 · 大限至流时六级下钻 · 本地档案与合盘</p>
+              {synastry && synastryCharts && (
+                <SynastryPanel
+                  nameA={synastry.a.name} nameB={synastry.b.name}
+                  chartA={synastryCharts.a} chartB={synastryCharts.b}
+                  onClose={() => setSynastry(null)}
+                />
+              )}
             </div>
-          )}
-          {synastry && synastryCharts && (
-            <SynastryPanel
-              nameA={synastry.a.name}
-              nameB={synastry.b.name}
-              chartA={synastryCharts.a}
-              chartB={synastryCharts.b}
-              onClose={() => setSynastry(null)}
-            />
-          )}
-        </main>
-      </div>
+          ) : (
+            needChart('尚未排盘')
+          ))}
+
+        {view === 'agent' &&
+          (chart ? (
+            <AIPanel chart={chart} channel={channel} horoscope={horoscope} mode={mode} onModeChange={setMode} />
+          ) : (
+            needChart('智能体需要一张命盘')
+          ))}
+
+        {view === 'settings' && (
+          <SettingsView preset={preset} onPresetChange={setPreset} channel={channel} onChannelChange={setChannel} />
+        )}
+      </main>
+
+      <nav className="nav-bottom">
+        {NAV_ITEMS.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            className={view === item.id ? 'nav-item active' : 'nav-item'}
+            onClick={() => setView(item.id)}
+          >
+            <span className="nav-glyph">{item.glyph}</span>
+            {item.label}
+          </button>
+        ))}
+      </nav>
+
       {limitOpen && (
         <UnlockDialog
           onClose={() => setLimitOpen(false)}
