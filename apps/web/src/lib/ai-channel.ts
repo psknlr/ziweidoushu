@@ -1,11 +1,12 @@
 /**
- * AI 通道:网关模式(推荐,Key 在服务端)与直连模式(用户自带 Key)。
+ * AI 通道:网关模式(Key 在服务端)与直连模式(用户自带 Key)。
  *
  * 直连模式说明:
  * - Key 仅存于本设备 localStorage,请求由浏览器直发 OpenAI 兼容端点;
  *   公网页面上自担 Key 泄露与端点 CORS 限制的风险(App/自部署场景推荐)。
  * - Prompt 在本地用 @ziwei/knowledge 装配,与网关同一套技法与知识库,
  *   便于对不同智能体(模型)做同题对比。
+ * - 默认预置 MiniMax 国内版(api.minimaxi.com)+ MiniMax-M3,用户只需填 Key。
  */
 
 export interface DirectProvider {
@@ -15,28 +16,59 @@ export interface DirectProvider {
   apiKey: string;
 }
 
-const KEY = 'ziwei.direct-providers.v1';
+export type Channel = 'gateway' | 'directA' | 'directB' | 'compare';
+
+const PROVIDERS_KEY = 'ziwei.direct-providers.v1';
+const CHANNEL_KEY = 'ziwei.channel.v1';
+
+/** 默认直连配置:模型A = MiniMax 国内版 M3(Key 留空);模型B 留待用户自配 */
+export const DEFAULT_PROVIDERS: readonly [DirectProvider, DirectProvider] = [
+  { label: 'MiniMax', baseUrl: 'https://api.minimaxi.com/v1', model: 'MiniMax-M3', apiKey: '' },
+  { label: '模型B', baseUrl: '', model: '', apiKey: '' },
+];
+
+function mergeProvider(stored: Partial<DirectProvider> | undefined, fallback: DirectProvider): DirectProvider {
+  if (!stored) return { ...fallback };
+  // 旧版本的空占位配置 → 迁移到新的默认值
+  const blank = !stored.baseUrl && !stored.model && !stored.apiKey;
+  if (blank) return { ...fallback };
+  return {
+    label: stored.label || fallback.label,
+    baseUrl: stored.baseUrl ?? '',
+    model: stored.model ?? '',
+    apiKey: stored.apiKey ?? '',
+  };
+}
 
 export function loadDirectProviders(): [DirectProvider, DirectProvider] {
-  const empty = (label: string): DirectProvider => ({ label, baseUrl: '', model: '', apiKey: '' });
   try {
-    const arr = JSON.parse(localStorage.getItem(KEY) ?? '[]') as DirectProvider[];
-    return [arr[0] ?? empty('模型A'), arr[1] ?? empty('模型B')];
+    const arr = JSON.parse(localStorage.getItem(PROVIDERS_KEY) ?? '[]') as Partial<DirectProvider>[];
+    return [mergeProvider(arr[0], DEFAULT_PROVIDERS[0]), mergeProvider(arr[1], DEFAULT_PROVIDERS[1])];
   } catch {
-    return [empty('模型A'), empty('模型B')];
+    return [{ ...DEFAULT_PROVIDERS[0] }, { ...DEFAULT_PROVIDERS[1] }];
   }
 }
 
 export function saveDirectProviders(providers: [DirectProvider, DirectProvider]): void {
-  localStorage.setItem(KEY, JSON.stringify(providers));
+  localStorage.setItem(PROVIDERS_KEY, JSON.stringify(providers));
 }
 
 export function providerReady(p: DirectProvider): boolean {
   return !!(p.baseUrl && p.model && p.apiKey);
 }
 
+/** 默认通道:直连 · 模型A(MiniMax) */
+export function loadChannel(): Channel {
+  const v = localStorage.getItem(CHANNEL_KEY);
+  return v === 'gateway' || v === 'directB' || v === 'compare' ? v : 'directA';
+}
+
+export function saveChannel(channel: Channel): void {
+  localStorage.setItem(CHANNEL_KEY, channel);
+}
+
 export interface ChatMessage {
-  role: 'system' | 'user';
+  role: 'system' | 'user' | 'assistant';
   content: string;
 }
 

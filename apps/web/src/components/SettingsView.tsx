@@ -4,13 +4,14 @@
 import { useState } from 'react';
 import { PRESETS } from '@ziwei/core';
 import {
+  DEFAULT_PROVIDERS,
   loadDirectProviders,
   providerReady,
   saveDirectProviders,
+  type Channel,
   type DirectProvider,
 } from '../lib/ai-channel.js';
 import { DAILY_LIMIT, isUnlocked, remainingToday, revokeUnlock, tryUnlock } from '../lib/usage-limit.js';
-import type { Channel } from './AIPanel.js';
 
 interface Props {
   preset: string;
@@ -46,19 +47,25 @@ export function SettingsView({ preset, onPresetChange, channel, onChannelChange 
         <label className="settings-label">
           默认通道
           <select value={channel} onChange={(e) => onChannelChange(e.target.value as Channel)}>
-            <option value="gateway">网关(Key 在服务端)</option>
-            <option value="directA">直连 · 模型A</option>
-            <option value="directB">直连 · 模型B</option>
+            <option value="directA">直连 · {providers[0].label}(默认)</option>
+            <option value="directB">直连 · {providers[1].label}</option>
             <option value="compare">双模型对比</option>
+            <option value="gateway">网关(Key 在服务端)</option>
           </select>
         </label>
         {([0, 1] as const).map((i) => (
           <fieldset key={i} className="settings-fieldset">
             <legend>
-              {providers[i].label} {providerReady(providers[i]) ? '· 已配置' : '· 未配置'}
+              模型{i === 0 ? 'A' : 'B'} · {providers[i].label}{' '}
+              {providerReady(providers[i]) ? '· 已配置' : i === 0 ? '· 填入 API Key 即可用' : '· 未配置'}
             </legend>
             <input
-              placeholder="Base URL(OpenAI 兼容,如 https://api.deepseek.com/v1)"
+              placeholder="名称(如 MiniMax / DeepSeek / Qwen)"
+              value={providers[i].label}
+              onChange={(e) => updateProvider(i, { label: e.target.value })}
+            />
+            <input
+              placeholder="Base URL(OpenAI 兼容,如 https://api.minimaxi.com/v1)"
               value={providers[i].baseUrl}
               onChange={(e) => updateProvider(i, { baseUrl: e.target.value })}
             />
@@ -73,9 +80,21 @@ export function SettingsView({ preset, onPresetChange, channel, onChannelChange 
               value={providers[i].apiKey}
               onChange={(e) => updateProvider(i, { apiKey: e.target.value })}
             />
+            {i === 0 && (
+              <button
+                type="button"
+                className="chip-btn"
+                onClick={() => updateProvider(0, { ...DEFAULT_PROVIDERS[0], apiKey: providers[0].apiKey })}
+              >
+                恢复默认:MiniMax 国内版 · MiniMax-M3
+              </button>
+            )}
           </fieldset>
         ))}
-        <p className="hint">Key 仅保存在本设备;App 内直连无浏览器 CORS 限制,亦可指向局域网 LiteLLM/Ollama 网关。</p>
+        <p className="hint">
+          默认通道为直连 · 模型A(MiniMax 国内版 api.minimaxi.com,模型 MiniMax-M3),只需填入 API Key。
+          Key 仅保存在本设备;App 内直连无浏览器 CORS 限制,亦可指向局域网 LiteLLM/Ollama 网关。
+        </p>
       </div>
 
       <div className="panel">

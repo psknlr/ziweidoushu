@@ -189,25 +189,27 @@ button.primary:disabled { opacity: 0.45; cursor: wait; }
 /* ------------------------------------------------------------------ 盘面 */
 .board-area { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 
-/* 盘面容器:铺满可用宽度,任何屏幕无需横向移动 */
-.board-scroll { border-radius: 16px; min-width: 0; }
+/* 盘面容器:铺满可用宽度(桌面居中限宽),同时是容器查询基准:cqw = 盘宽的 1% */
+.board-scroll {
+  width: 100%; max-width: 900px; margin: 0 auto; min-width: 0;
+  border-radius: 16px;
+  container-type: inline-size;
+  container-name: board;
+}
 
 .board {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  /* 行高下限 = 正方形宫格;内容更高时四行等高生长(fr 取最高内容),
+     任何屏幕都不裁切、不重叠;旧 WebView 不识别 cqw 时退回按内容自适应 */
+  grid-template-rows: repeat(4, minmax(calc((100cqw - 27px) / 4), 1fr));
   gap: 5px;
-  aspect-ratio: 1 / 1;
-  max-height: 880px;
   width: 100%;
   padding: 6px;
   border-radius: 16px;
   background: linear-gradient(160deg, rgba(212, 185, 130, 0.14), rgba(91, 94, 224, 0.1) 45%, rgba(212, 185, 130, 0.05));
   box-shadow: 0 14px 44px rgba(5, 6, 18, 0.5);
-  /* 流体排版基准:cqw = 盘面宽度的 1%,所有宫内字号随盘面实际尺寸缩放 */
-  container-type: inline-size;
-  container-name: board;
 }
 
 .cell {
@@ -221,7 +223,7 @@ button.primary:disabled { opacity: 0.45; cursor: wait; }
   font-family: var(--font-body); font-size: 12px;
   cursor: pointer;
   transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
-  overflow: hidden;
+  overflow: hidden; min-width: 0;
 }
 .cell:hover { border-color: var(--border-strong); background: linear-gradient(168deg, rgba(28, 29, 62, 0.97), rgba(17, 18, 40, 0.97)); }
 .cell.selected {
@@ -246,16 +248,12 @@ button.primary:disabled { opacity: 0.45; cursor: wait; }
 }
 .stem-branch { margin-left: auto; color: var(--text-faint); font-size: 11px; font-family: var(--font-display); letter-spacing: 1px; }
 
-.overlay-badges { position: absolute; top: 6px; right: 7px; display: flex; gap: 3px; }
-.badge {
-  font-size: 10px; border-radius: 4px; padding: 1.5px 4.5px; color: var(--ink-0); font-weight: 700;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
-}
-
-.stars-major { display: flex; flex-wrap: wrap; gap: 4px 9px; min-height: 21px; }
+.stars-major { display: flex; flex-wrap: wrap; gap: 3px 9px; min-height: 21px; align-items: baseline; }
+/* 星曜芯片:内联弹性盒 + 基线对齐 → 亮度/四化角标不下垂,换行后互不侵入 */
+.star { display: inline-flex; align-items: baseline; line-height: 1.3; white-space: nowrap; }
 .star.major { font-family: var(--font-display); font-size: 15px; font-weight: 700; letter-spacing: 0.5px; }
 .star.minor { font-size: 11.5px; color: var(--text-dim); }
-.star sub { font-size: 9px; color: var(--text-faint); margin-left: 1px; }
+.star sub { font-size: 9px; color: var(--text-faint); margin-left: 1px; line-height: 1; vertical-align: baseline; }
 /* 亮度七级配色:庙旺金亮 → 得利青蓝 → 平淡 → 不陷暖红 */
 .b-miao { color: #ffd98a !important; font-weight: 700; }
 .b-wang { color: #eac986 !important; }
@@ -273,6 +271,12 @@ button.primary:disabled { opacity: 0.45; cursor: wait; }
 .m-sihuaQuan { background: var(--quan); }
 .m-sihuaKe { background: var(--ke); }
 .m-sihuaJi { background: var(--ji); }
+/* 运限四化(限禄/年忌…):外框角标挂在星曜上,与生年四化的实心角标区分 */
+.star .mutagen.scope { background: transparent; border: 1px solid currentColor; padding: 0 3px; font-weight: 600; line-height: 1.2; }
+.mutagen.scope.m-sihuaLu { color: var(--lu); }
+.mutagen.scope.m-sihuaQuan { color: var(--quan); }
+.mutagen.scope.m-sihuaKe { color: var(--ke); }
+.mutagen.scope.m-sihuaJi { color: var(--ji); }
 
 .borrowed {
   font-size: 11px; color: var(--text-dim);
@@ -365,6 +369,55 @@ button.primary:disabled { opacity: 0.45; cursor: wait; }
 .settings-row .modal-input { flex: 1; }
 .settings-unlock { width: auto; padding: 0 22px; }
 
+/* 小型胶囊按钮(对话工具栏 / 历史 / 设置) */
+.chip-btn {
+  background: transparent; color: var(--text-dim); border: 1px solid var(--border);
+  border-radius: 999px; padding: 4px 11px; font-size: 11.5px; cursor: pointer;
+  font-family: var(--font-body); letter-spacing: 0.5px; transition: all 0.15s; white-space: nowrap;
+}
+.chip-btn:hover { color: var(--text); border-color: var(--border-strong); }
+.chip-btn:disabled { opacity: 0.45; cursor: default; }
+.chip-btn.active { color: var(--gold-bright); border-color: var(--gold); }
+.chip-btn.danger { color: var(--ji); border-color: rgba(248, 113, 113, 0.4); }
+
+/* 智能体多轮对话 */
+.chat-toolbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 10px; }
+.chat-title { flex: 1; min-width: 80px; font-size: 12px; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chat-log { display: flex; flex-direction: column; gap: 10px; max-height: 58vh; overflow-y: auto; padding: 4px 2px; }
+.chat-empty { text-align: center; color: var(--text-faint); font-size: 12.5px; padding: 26px 10px; line-height: 1.9; }
+.msg { display: flex; flex-direction: column; gap: 3px; max-width: 92%; }
+.msg.user { align-self: flex-end; align-items: flex-end; }
+.msg.assistant { align-self: flex-start; }
+.msg-meta { font-size: 10.5px; color: var(--text-faint); letter-spacing: 0.5px; padding: 0 4px; }
+.msg-body {
+  white-space: pre-wrap; word-break: break-word; line-height: 1.75; font-size: 13.5px;
+  padding: 9px 13px; border-radius: 13px; border: 1px solid var(--border); color: var(--text);
+}
+.msg.user .msg-body {
+  background: linear-gradient(135deg, rgba(91, 94, 224, 0.3), rgba(138, 99, 236, 0.22));
+  border-color: rgba(142, 145, 245, 0.45); border-bottom-right-radius: 4px;
+}
+.msg.assistant .msg-body { background: rgba(10, 11, 24, 0.7); border-bottom-left-radius: 4px; }
+.msg.assistant.error .msg-body { color: var(--ji); border-color: rgba(248, 113, 113, 0.5); }
+.msg-actions { display: flex; gap: 6px; padding: 0 2px; }
+.chat-composer { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+.chat-composer textarea { margin: 0; }
+.chat-send-row { display: flex; gap: 8px; align-items: center; }
+.chat-send-row .primary { flex: 1; margin: 0; }
+.chat-send-row .stop { width: auto; padding: 0 16px; }
+.history-panel { border: 1px dashed var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; }
+.history-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; font-size: 12px; color: var(--text-dim); }
+.history-list { display: flex; flex-direction: column; gap: 6px; max-height: 40vh; overflow-y: auto; }
+.history-item {
+  display: flex; align-items: center; gap: 8px; padding: 7px 9px; border-radius: 8px;
+  background: rgba(10, 11, 24, 0.6); border: 1px solid transparent;
+}
+.history-item.active { border-color: var(--gold); }
+.history-item .h-title { flex: 1; min-width: 0; font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
+.history-item .h-meta { font-size: 10.5px; color: var(--text-faint); white-space: nowrap; }
+.history-foot { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.toast { color: var(--lu); font-size: 12px; margin: 8px 0 0; }
+
 .modal-mask {
   position: fixed; inset: 0; z-index: 50;
   background: rgba(6, 7, 18, 0.72); backdrop-filter: blur(6px);
@@ -419,7 +472,6 @@ button.primary:disabled { opacity: 0.45; cursor: wait; }
   .borrowed { font-size: clamp(9px, 1.15cqw, 12px); }
   .stars-adj { font-size: clamp(8.5px, 1.05cqw, 11px); }
   .cell-foot { font-size: clamp(8.5px, 1.05cqw, 11px); }
-  .badge { font-size: clamp(8.5px, 1.05cqw, 11px); }
   .center-title { font-size: clamp(13px, 1.8cqw, 19px); }
   .center-lunar { font-size: clamp(10px, 1.25cqw, 13px); }
   .center-ganzhi { font-size: clamp(12px, 1.6cqw, 17px); gap: clamp(8px, 1.4cqw, 16px); }
@@ -445,14 +497,34 @@ button.primary:disabled { opacity: 0.45; cursor: wait; }
   .palace-name { font-size: clamp(9.5px, 2.4cqw, 12px); letter-spacing: 0.5px; }
   .stem-branch { font-size: clamp(8px, 2cqw, 10.5px); }
   .scope-name { font-size: clamp(7px, 1.8cqw, 9px); padding: 0 2px; }
-  .badge { font-size: clamp(7px, 1.8cqw, 9px); padding: 0.5px 3px; }
   .borrowed { font-size: clamp(7.5px, 1.9cqw, 10px); padding: 0 3px; }
   .cell-foot { font-size: clamp(7.5px, 1.9cqw, 10px); padding-top: 2px; }
-  .overlay-badges { top: 3px; right: 4px; gap: 2px; }
-  .center { padding: 8px; gap: 4px; }
-  .center-grid { gap: 2px 6px; }
+  .center { padding: 8px; gap: 4px; min-width: 0; }
+  .center-title { font-size: clamp(11px, 3.4cqw, 14px); letter-spacing: 1px; }
+  .center-lunar { font-size: clamp(8.5px, 2.4cqw, 11px); }
+  .center-ganzhi { font-size: clamp(11px, 3.2cqw, 14px); gap: clamp(5px, 1.8cqw, 10px); letter-spacing: 1px; }
+  .center-grid { gap: 2px 6px; font-size: clamp(8.5px, 2.4cqw, 11px); }
+  .tst-note, .pattern, .bright-chip { font-size: clamp(8px, 2.3cqw, 10.5px); }
   .center-patterns { gap: 3px; }
   .bright-chip { padding: 0.5px 6px; }
+}
+
+/* 折叠屏外屏 / 窄屏(盘宽 ≤ 380px):再收一档,宫头允许换行,保证十二宫完整可读 */
+@container board (max-width: 380px) {
+  .cell { padding: 3px 4px; }
+  .cell-head { flex-wrap: wrap; row-gap: 0; }
+  .palace-name, .stem-branch, .star.major { letter-spacing: 0; }
+  .star.major { font-size: 9.5px; }
+  .star.minor { font-size: 8px; }
+  .star sub, .star .mutagen { font-size: 6.5px; }
+  .star .mutagen { padding: 0 1.5px; margin-left: 1px; }
+  .body-mark { font-size: 6.5px; padding: 0 2px; margin-left: 2px; }
+  .cell-foot { font-size: 7.5px; }
+  .center { padding: 6px 5px; gap: 3px; }
+  .center::before { font-size: 13px; }
+  .center-title { font-size: 10.5px; letter-spacing: 0.5px; }
+  .center-ganzhi { font-size: 10.5px; gap: 5px; }
+  .center-grid { font-size: 8px; gap: 1px 4px; }
 }
 
 /* 三方四正 SVG */
