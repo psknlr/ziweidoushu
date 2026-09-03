@@ -16,6 +16,8 @@ export interface CacheKeyParts {
   chart: unknown;
   topics?: Topic[];
   question?: string;
+  /** 多轮对话历史(参与键计算:同问不同上下文不可共享答案) */
+  history?: unknown;
   provider: string;
   model: string;
   promptVersion: string;

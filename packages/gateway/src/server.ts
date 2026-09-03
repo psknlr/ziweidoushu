@@ -1,7 +1,7 @@
 /**
  * AI 解读网关 HTTP 服务(零外部依赖,node:http)。
  *
- * POST /api/interpret  { chart, topics?, question?, temperature? } → SSE 流
+ * POST /api/interpret  { chart, topics?, question?, history?, temperature? } → SSE 流
  *   - features 由服务端重算(不信任客户端分析结果)
  *   - RAG 检索 + 五要素 System Prompt 装配在服务端完成,Prompt 不出服务器
  * GET  /api/health     健康检查
@@ -22,8 +22,9 @@ import {
   type Topic,
 } from '@ziwei/knowledge';
 import { availableProviders, type ProviderConfig } from './providers.js';
-import { streamChat, type ChatMessage } from './stream.js';
+import { streamChat } from './stream.js';
 import { InterpretCache } from './cache.js';
+import { buildMessages, sanitizeHistory } from './history.js';
 
 export interface GatewayOptions {
   provider: ProviderConfig;
@@ -43,6 +44,8 @@ interface InterpretBody {
   skill?: string;
   topics?: Topic[];
   question?: string;
+  /** 多轮对话历史 [{role:'user'|'assistant', content}],服务端校验并截断 */
+  history?: unknown;
   temperature?: number;
 }
 
@@ -158,6 +161,7 @@ async function interpret(req: IncomingMessage, res: ServerResponse, options: Gat
   const question =
     body.question?.trim() ||
     (body.chartB ? '请依照输出结构,为两张命盘做合盘分析。' : '请依照输出结构,为这张命盘做整体解读。');
+  const history = sanitizeHistory(body.history);
 
   // 缓存键用 chart 全量内容计算(不信任客户端 meta.chartHash,防跨用户投毒)
   const cacheKey = options.cache
@@ -165,6 +169,7 @@ async function interpret(req: IncomingMessage, res: ServerResponse, options: Gat
         chart: { a: chart, b: body.chartB, skill: body.skill },
         topics: body.topics,
         question,
+        history,
         provider: options.provider.name,
         model: options.provider.model,
         promptVersion: PROMPT_VERSION,
@@ -199,10 +204,7 @@ async function interpret(req: IncomingMessage, res: ServerResponse, options: Gat
     const retrieved = retrieve(features, ALL_ENTRIES, { topics });
     system = buildSystemPrompt(chart, features, retrieved, { skill });
   }
-  const messages: ChatMessage[] = [
-    { role: 'system', content: system },
-    { role: 'user', content: question },
-  ];
+  const messages = buildMessages(system, history, question);
 
   sseHead(false);
   const parts: string[] = [];

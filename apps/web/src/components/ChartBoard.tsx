@@ -1,7 +1,8 @@
 /**
  * 星盘 4×4 宫格:外圈 12 宫 + 中央 2×2 信息区。
  * - 点击宫位 → SVG 叠加层绘制三方四正(对宫直线 + 三合三角)
- * - 运限模式 → 叠加运限宫名与运限天干四化角标(限禄/年忌…)
+ * - 运限模式 → 宫名旁标运限宫名;运限天干四化以外框角标直接挂在对应星曜上
+ *   (限禄/年忌…),不再用浮层覆盖宫内文字
  */
 import { useMemo } from 'react';
 import {
@@ -30,6 +31,12 @@ const MUTAGEN_SHORT: Record<MutagenKey, string> = {
   sihuaLu: '禄', sihuaQuan: '权', sihuaKe: '科', sihuaJi: '忌',
 };
 
+/** 运限四化标记(挂在星曜上) */
+interface ScopeMark {
+  label: string;
+  mutagen: MutagenKey;
+}
+
 interface Props {
   chart: Astrolabe;
   features: ChartFeatures;
@@ -56,13 +63,13 @@ export function ChartBoard({ chart, features, selected, onSelect, mode, horoscop
   ];
 
   const overlay = useMemo(() => {
-    const map = new Map<number, { label: string; mutagen: MutagenKey }[]>();
+    const map = new Map<number, Map<string, ScopeMark>>();
     if (!scope) return map;
     for (const hit of sihuaOverlay(chart, scope.stem)) {
       if (hit.palaceIndex === null) continue;
-      const list = map.get(hit.palaceIndex) ?? [];
-      list.push({ label: `${prefix}${MUTAGEN_SHORT[hit.mutagen]}`, mutagen: hit.mutagen });
-      map.set(hit.palaceIndex, list);
+      const marks = map.get(hit.palaceIndex) ?? new Map<string, ScopeMark>();
+      marks.set(hit.star, { label: `${prefix}${MUTAGEN_SHORT[hit.mutagen]}`, mutagen: hit.mutagen });
+      map.set(hit.palaceIndex, marks);
     }
     return map;
   }, [chart, scope, prefix]);
@@ -80,7 +87,7 @@ export function ChartBoard({ chart, features, selected, onSelect, mode, horoscop
           selected={selected === palace.index}
           inTrine={selected !== null && trineSet(selected).has(palace.index)}
           onClick={() => onSelect(palace.index)}
-          overlayBadges={overlay.get(palace.index) ?? []}
+          scopeMarks={overlay.get(palace.index)}
           scopeName={scopeNames ? scopeNames[palace.index]! : null}
         />
       ))}
@@ -99,14 +106,14 @@ function trineSet(index: number): Set<number> {
 // ------------------------------------------------------------------ 宫位卡
 
 function PalaceCell({
-  palace, pos, selected, inTrine, onClick, overlayBadges, scopeName,
+  palace, pos, selected, inTrine, onClick, scopeMarks, scopeName,
 }: {
   palace: Palace;
   pos: [number, number];
   selected: boolean;
   inTrine: boolean;
   onClick: () => void;
-  overlayBadges: { label: string; mutagen: MutagenKey }[];
+  scopeMarks?: Map<string, ScopeMark>;
   scopeName: string | null;
 }) {
   const adjectives = palace.adjectiveStars.slice(0, 6);
@@ -129,18 +136,9 @@ function PalaceCell({
           {zh(palace.branch)}
         </span>
       </div>
-      {overlayBadges.length > 0 && (
-        <div className="overlay-badges">
-          {overlayBadges.map((b) => (
-            <span key={b.label} className={`badge m-${b.mutagen}`}>
-              {b.label}
-            </span>
-          ))}
-        </div>
-      )}
       <div className="stars-major">
         {palace.majorStars.map((s) => (
-          <StarChip key={s.key} star={s} major />
+          <StarChip key={s.key} star={s} major scope={scopeMarks?.get(s.key)} />
         ))}
         {palace.borrowed && palace.majorStars.every((s) => s.type !== 'major') && (
           <span className="borrowed" title={`借对宫(${zh(palace.borrowed.fromBranch)})主星`}>
@@ -150,7 +148,7 @@ function PalaceCell({
       </div>
       <div className="stars-minor">
         {palace.minorStars.map((s) => (
-          <StarChip key={s.key} star={s} />
+          <StarChip key={s.key} star={s} scope={scopeMarks?.get(s.key)} />
         ))}
       </div>
       <div className="stars-adj">
@@ -174,7 +172,7 @@ function PalaceCell({
   );
 }
 
-function StarChip({ star, major = false }: { star: Star; major?: boolean }) {
+function StarChip({ star, major = false, scope }: { star: Star; major?: boolean; scope?: ScopeMark }) {
   // 有庙陷表者显示亮度;无庙陷表者显示古籍星性标签(恒吉/煞/驿等)
   const nature = !star.brightness ? starNature(star.key) : undefined;
   return (
@@ -187,6 +185,11 @@ function StarChip({ star, major = false }: { star: Star; major?: boolean }) {
         </sub>
       )}
       {star.mutagen && <i className={`mutagen m-${star.mutagen}`}>{zh(star.mutagen)}</i>}
+      {scope && (
+        <i className={`mutagen scope m-${scope.mutagen}`} title="运限四化">
+          {scope.label}
+        </i>
+      )}
     </span>
   );
 }

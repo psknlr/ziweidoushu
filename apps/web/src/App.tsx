@@ -3,7 +3,8 @@ import { ZiweiEngine, type Astrolabe, type BirthInput } from '@ziwei/core';
 import { ChartForm } from './components/ChartForm.js';
 import { BrightnessLegend, ChartBoard } from './components/ChartBoard.js';
 import { TimeNav, type HoroscopeMode } from './components/TimeNav.js';
-import { AIPanel, type Channel } from './components/AIPanel.js';
+import { AIPanel } from './components/AIPanel.js';
+import { loadChannel, saveChannel, type Channel } from './lib/ai-channel.js';
 import { ProfilesPanel } from './components/ProfilesPanel.js';
 import { SynastryPanel } from './components/SynastryPanel.js';
 import { SettingsView } from './components/SettingsView.js';
@@ -26,7 +27,7 @@ const NAV_ITEMS: { id: View; label: string; glyph: string }[] = [
 export function App() {
   const [view, setView] = useState<View>('profile');
   const [preset, setPreset] = useState<string>('wenmo-zhongzhou');
-  const [channel, setChannel] = useState<Channel>('gateway');
+  const [channel, setChannel] = useState<Channel>(() => loadChannel());
   const [chart, setChart] = useState<Astrolabe | null>(null);
   const [lastInput, setLastInput] = useState<BirthInput | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
@@ -151,7 +152,15 @@ export function App() {
           ))}
 
         {view === 'settings' && (
-          <SettingsView preset={preset} onPresetChange={setPreset} channel={channel} onChannelChange={setChannel} />
+          <SettingsView
+            preset={preset}
+            onPresetChange={setPreset}
+            channel={channel}
+            onChannelChange={(c) => {
+              setChannel(c);
+              saveChannel(c);
+            }}
+          />
         )}
       </main>
 
