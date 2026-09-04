@@ -57,12 +57,14 @@ export function exportChartData(chart: Astrolabe, features: ChartFeatures, expor
       gender: { key: chart.gender, name: zh(chart.gender) },
       solarDate: chart.solarDate,
       lunarDate: chart.lunarDate,
+      /** 紫微排盘所用干支(年按流派分界、月按农历月);标准节气四柱见 bazi.pillars */
       ganzhi: Object.fromEntries(
         (['year', 'month', 'day', 'hour'] as const).map((k) => [
           k,
           `${zh(chart.ganzhi[k].stem)}${zh(chart.ganzhi[k].branch)}`,
         ]),
       ),
+      ganzhiNote: '紫微排盘干支:年柱按流派年分界(默认正月初一)、月柱为农历月;标准四柱(立春/节气)见 bazi.pillars',
       fiveElementsClass: { key: chart.fiveElementsClass, name: zh(chart.fiveElementsClass) },
       soul: { key: chart.soul, name: zh(chart.soul) },
       body: { key: chart.body, name: zh(chart.body) },

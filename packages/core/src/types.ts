@@ -113,6 +113,12 @@ export interface Astrolabe {
   gender: Gender;
   solarDate: string;
   lunarDate: string;
+  /**
+   * 紫微排盘所用干支(iztro 历法):年柱按流派年分界(默认正月初一),
+   * 月柱为「农历月」干支,晚子时时柱用当日日干起遁。
+   * 这是安星与生年四化的依据,但**不是**节气意义上的标准四柱;
+   * 标准四柱(立春分年、节分月)请用 engine.bazi(chart).pillars。
+   */
   /** 干支四柱 */
   ganzhi: { year: GanzhiPillar; month: GanzhiPillar; day: GanzhiPillar; hour: GanzhiPillar };
   timeIndex: number;
