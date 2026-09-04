@@ -148,7 +148,7 @@ export function App() {
                   <ChartBoard
                     chart={chart} features={features} selected={selected}
                     onSelect={(i) => setSelected((cur) => (cur === i ? null : i))}
-                    mode={mode} horoscope={horoscope}
+                    mode={mode} horoscope={horoscope} bazi={bazi}
                   />
                   <BrightnessLegend />
                 </>

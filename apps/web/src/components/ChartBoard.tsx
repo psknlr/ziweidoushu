@@ -11,6 +11,7 @@ import {
   surroundedIndexes,
   zh,
   type Astrolabe,
+  type BaZiChart,
   type ChartFeatures,
   type HoroscopeSnapshot,
   type MutagenKey,
@@ -44,9 +45,11 @@ interface Props {
   onSelect: (index: number) => void;
   mode: HoroscopeMode;
   horoscope: HoroscopeSnapshot | null;
+  /** 标准四柱(节气分月、立春分年),中宫显示用;缺省回退到排盘干支 */
+  bazi?: BaZiChart | null;
 }
 
-export function ChartBoard({ chart, features, selected, onSelect, mode, horoscope }: Props) {
+export function ChartBoard({ chart, features, selected, onSelect, mode, horoscope, bazi }: Props) {
   // 运限四化叠加:取运限天干 → 四化星落宫(限/年/月/日前缀)
   const scope =
     mode !== 'origin' && horoscope
@@ -91,7 +94,7 @@ export function ChartBoard({ chart, features, selected, onSelect, mode, horoscop
           scopeName={scopeNames ? scopeNames[palace.index]! : null}
         />
       ))}
-      <CenterInfo chart={chart} features={features} />
+      <CenterInfo chart={chart} features={features} bazi={bazi ?? null} />
       {selected !== null && <TrineOverlay selected={selected} />}
       </div>
     </div>
@@ -219,21 +222,29 @@ export function BrightnessLegend() {
 
 // ---------------------------------------------------------------- 中央信息
 
-function CenterInfo({ chart, features }: { chart: Astrolabe; features: ChartFeatures }) {
+function CenterInfo({ chart, features, bazi }: { chart: Astrolabe; features: ChartFeatures; bazi: BaZiChart | null }) {
   const tst = chart.meta.input.trueSolarTime;
   const g = chart.ganzhi;
+  // 中宫四柱采用节气标准四柱(立春分年、节分月);紫微排盘年干按流派分界,二者不同时另注
+  const pillars = bazi
+    ? (['year', 'month', 'day', 'hour'] as const).map((k) => bazi.pillars[k])
+    : [g.year, g.month, g.day, g.hour];
+  const yearDiffers = bazi ? bazi.pillars.year.stem !== g.year.stem || bazi.pillars.year.branch !== g.year.branch : false;
   return (
     <div className="center">
       <div className="center-title">{zh(chart.gender)}命 · {chart.solarDate}</div>
       <div className="center-lunar">{chart.lunarDate}</div>
-      <div className="center-ganzhi">
-        {[g.year, g.month, g.day, g.hour].map((p, i) => (
+      <div className="center-ganzhi" title={bazi ? '标准四柱:立春分年、节气分月' : '排盘干支'}>
+        {pillars.map((p, i) => (
           <span key={i}>
             {zh(p.stem)}
             {zh(p.branch)}
           </span>
         ))}
       </div>
+      {yearDiffers && (
+        <div className="tst-note">紫微排盘年干 {zh(g.year.stem)}{zh(g.year.branch)}(流派年分界)</div>
+      )}
       <div className="center-grid">
         <span>五行局</span><b>{zh(chart.fiveElementsClass)}</b>
         <span>命主</span><b>{zh(chart.soul)}</b>

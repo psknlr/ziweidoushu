@@ -149,6 +149,45 @@ describe('端到端 /api/interpret', () => {
     }
   });
 
+  test('system=bazi / both:服务端排八字并切换 Prompt;缓存键区分体系', async () => {
+    const gateway = createGatewayServer({ provider: mockProvider() });
+    await new Promise<void>((resolve) => gateway.listen(0, '127.0.0.1', resolve));
+    const port = (gateway.address() as AddressInfo).port;
+    try {
+      const chart = new ZiweiEngine().bySolar('1990-1-15', 4, 'male');
+      const post = (body: Record<string, unknown>) =>
+        fetch(`http://127.0.0.1:${port}/api/interpret`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ chart, question: '日主旺衰如何?', ...body }),
+        });
+
+      const r1 = await post({ system: 'bazi', year: 2026, skill: 'bazi' });
+      await r1.text();
+      expect(r1.headers.get('x-cache')).toBe('miss');
+      const sysBazi = captured.body?.messages.find((m) => m.role === 'system')?.content ?? '';
+      expect(sysBazi).toContain('子平八字命理师');
+      expect(sysBazi).toContain('八字:己巳 丁丑 庚辰 庚辰');
+      expect(sysBazi).toContain('2026 流年丙午');
+      expect(sysBazi).toContain('本次解读技法:八字命理');
+      expect(sysBazi).not.toContain('命宫在');
+
+      const r2 = await post({ system: 'both', year: 2026 });
+      await r2.text();
+      expect(r2.headers.get('x-cache')).toBe('miss'); // 体系不同 → 不共享缓存
+      const sysBoth = captured.body?.messages.find((m) => m.role === 'system')?.content ?? '';
+      expect(sysBoth).toContain('双系统互参');
+      expect(sysBoth).toContain('八字(四柱)结构化事实');
+      expect(sysBoth).toContain('命宫在');
+
+      const r3 = await post({ system: 'both', year: 2026 });
+      await r3.text();
+      expect(r3.headers.get('x-cache')).toBe('hit');
+    } finally {
+      gateway.close();
+    }
+  });
+
   test('解读缓存:同盘同问命中缓存,不再请求上游', async () => {
     const gateway = createGatewayServer({ provider: mockProvider() });
     await new Promise<void>((resolve) => gateway.listen(0, '127.0.0.1', resolve));

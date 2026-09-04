@@ -39,7 +39,7 @@ export function describeChart(chart: Astrolabe, features: ChartFeatures): string
   const lines: string[] = [];
   lines.push(
     `性别:${zh(chart.gender)};阳历 ${chart.solarDate};农历 ${chart.lunarDate};` +
-      `年柱 ${zh(chart.ganzhi.year.stem)}${zh(chart.ganzhi.year.branch)};五行局:${zh(chart.fiveElementsClass)};` +
+      `排盘年干支 ${zh(chart.ganzhi.year.stem)}${zh(chart.ganzhi.year.branch)}(按流派年分界,为生年四化依据);五行局:${zh(chart.fiveElementsClass)};` +
       `命主:${zh(chart.soul)};身主:${zh(chart.body)}`,
   );
   if (chart.meta.input.trueSolarTime.enabled) {
