@@ -369,6 +369,83 @@ button.primary:disabled { opacity: 0.45; cursor: wait; }
 .settings-row .modal-input { flex: 1; }
 .settings-unlock { width: auto; padding: 0 22px; }
 
+/* ------------------------------------------------------------ 紫微 / 八字 切换 */
+.seg { display: inline-flex; gap: 4px; padding: 4px; border: 1px solid var(--border); border-radius: 999px; background: rgba(10, 11, 24, 0.6); align-self: flex-start; }
+.seg-btn {
+  background: transparent; color: var(--text-dim); border: none; border-radius: 999px;
+  padding: 6px 18px; font-family: var(--font-display); font-weight: 700; letter-spacing: 2px; font-size: 13px; cursor: pointer;
+}
+.seg-btn.active { color: var(--ink-0); background: linear-gradient(135deg, var(--gold), var(--gold-bright)); }
+
+/* ------------------------------------------------------------ 八字盘 */
+.el-wood { color: #7fcf86; } .el-fire { color: #ef8a78; } .el-earth { color: #d9b56a; } .el-metal { color: #e6e1d3; } .el-water { color: #7ea6f0; }
+.bg-wood { background: rgba(127, 207, 134, 0.85); color: #0b1a0d; } .bg-fire { background: rgba(239, 138, 120, 0.9); color: #2a0d08; }
+.bg-earth { background: rgba(217, 181, 106, 0.9); color: #2a1e08; } .bg-metal { background: rgba(230, 225, 211, 0.9); color: #23221d; } .bg-water { background: rgba(126, 166, 240, 0.9); color: #0a1430; }
+
+.bz-board { display: flex; flex-direction: column; gap: 14px; }
+.bz-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.bz-dm { display: flex; align-items: center; gap: 10px; }
+.bz-dm-stem { font-family: var(--font-display); font-size: 34px; font-weight: 700; line-height: 1; }
+.bz-dm-text { font-size: 14px; color: var(--text); letter-spacing: 1px; }
+.bz-time { font-size: 11px; color: var(--text-faint); }
+
+.bz-pillars { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.bz-pillar {
+  background: linear-gradient(168deg, rgba(23, 24, 51, 0.96), rgba(15, 16, 36, 0.96));
+  border: 1px solid rgba(43, 45, 85, 0.9); border-radius: 12px; padding: 10px 6px; text-align: center; min-width: 0;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.bz-pillar.day { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold), 0 0 18px rgba(212, 185, 130, 0.18); }
+.bz-pos { font-size: 11px; color: var(--text-faint); letter-spacing: 1px; }
+.bz-god { font-size: 12px; color: var(--violet); }
+.bz-stem, .bz-branch { font-family: var(--font-display); font-weight: 700; font-size: clamp(22px, 7vw, 34px); line-height: 1.15; }
+.bz-kong { font-size: 10px; color: var(--ji); margin-left: 2px; }
+.bz-hidden { display: flex; justify-content: center; gap: 4px; flex-wrap: wrap; font-size: 12px; }
+.bz-hidden small { display: block; font-size: 9px; color: var(--text-faint); }
+.bz-meta { font-size: 10.5px; color: var(--text-faint); }
+
+.bz-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 620px) { .bz-grid { grid-template-columns: 1fr; } }
+.bz-card {
+  background: var(--panel-bg, rgba(17, 18, 40, 0.85)); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; min-width: 0;
+}
+.bz-card h3 { margin: 0 0 8px; font-family: var(--font-display); font-size: 14px; color: var(--gold); letter-spacing: 2px; display: flex; align-items: baseline; gap: 8px; }
+.bz-card h3 small { font-size: 11px; color: var(--text-faint); letter-spacing: 0.5px; font-family: var(--font-body); font-weight: 400; }
+.bz-score { font-size: 18px; color: var(--gold-bright); }
+.bz-gauge { height: 8px; border-radius: 999px; background: rgba(10, 11, 24, 0.8); overflow: hidden; margin: 6px 0 8px; }
+.bz-gauge-fill { height: 100%; background: linear-gradient(90deg, #7ea6f0, var(--gold-bright), #ef8a78); }
+.bz-chips { display: flex; flex-wrap: wrap; gap: 5px; margin: 6px 0; }
+.bz-chip { font-size: 11px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border); color: var(--text); }
+.bz-chip small { color: var(--text-faint); margin-left: 3px; }
+.bz-chip.dim { color: var(--text-faint); }
+.bz-text { font-size: 12.5px; line-height: 1.7; color: var(--text); margin: 4px 0; }
+.bz-text.warn { color: var(--gold-bright); }
+.bz-pattern { font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--gold-bright); letter-spacing: 2px; }
+.bz-bars { display: flex; flex-direction: column; gap: 5px; }
+.bz-bar-row { display: grid; grid-template-columns: 22px 1fr 56px; align-items: center; gap: 8px; font-size: 12px; }
+.bz-bar-label { font-family: var(--font-display); font-weight: 700; }
+.bz-bar { height: 8px; border-radius: 999px; background: rgba(10, 11, 24, 0.8); overflow: hidden; }
+.bz-bar-fill { height: 100%; border-radius: 999px; }
+.bz-bar-num { text-align: right; color: var(--text-dim); }
+.bz-bar-num small { color: var(--text-faint); }
+.bz-list { margin: 4px 0; padding-left: 16px; font-size: 12px; color: var(--text-dim); line-height: 1.7; }
+.bz-yun .bz-dayun { display: flex; gap: 6px; overflow-x: auto; padding: 4px 2px 8px; scrollbar-width: thin; }
+.bz-dy {
+  flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 62px;
+  background: rgba(10, 11, 24, 0.7); border: 1px solid var(--border); border-radius: 10px; padding: 6px 8px; cursor: pointer; color: var(--text);
+}
+.bz-dy b { font-family: var(--font-display); font-size: 15px; }
+.bz-dy small { font-size: 10px; color: var(--text-faint); }
+.bz-dy i { font-style: normal; font-size: 10px; color: var(--violet); }
+.bz-dy.active { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
+.bz-liunian { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; margin-top: 4px; }
+@media (max-width: 620px) { .bz-liunian { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+.bz-ln { display: flex; flex-direction: column; align-items: center; background: transparent; border: 1px solid var(--border); border-radius: 8px; padding: 4px 2px; cursor: pointer; color: var(--text-dim); min-width: 0; }
+.bz-ln small { font-size: 9.5px; }
+.bz-ln b { font-family: var(--font-display); font-size: 12.5px; }
+.bz-ln.active { color: var(--ink-0); background: linear-gradient(135deg, var(--gold), var(--gold-bright)); border-color: transparent; }
+.bz-ln.active small { color: var(--ink-0); }
+
 /* 小型胶囊按钮(对话工具栏 / 历史 / 设置) */
 .chip-btn {
   background: transparent; color: var(--text-dim); border: 1px solid var(--border);

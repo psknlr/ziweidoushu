@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { ZiweiEngine, type Astrolabe, type BirthInput } from '@ziwei/core';
 import { ChartForm } from './components/ChartForm.js';
 import { BrightnessLegend, ChartBoard } from './components/ChartBoard.js';
+import { BaZiBoard } from './components/BaZiBoard.js';
 import { TimeNav, type HoroscopeMode } from './components/TimeNav.js';
 import { AIPanel } from './components/AIPanel.js';
 import { loadChannel, saveChannel, type Channel } from './lib/ai-channel.js';
@@ -39,9 +40,11 @@ export function App() {
   const [synastry, setSynastry] = useState<{ a: Profile; b: Profile } | null>(null);
   const [limitOpen, setLimitOpen] = useState(false);
   const [usageTick, setUsageTick] = useState(0);
+  const [boardView, setBoardView] = useState<'ziwei' | 'bazi'>('ziwei');
 
   const engine = useMemo(() => new ZiweiEngine(preset), [preset]);
   const features = useMemo(() => (chart ? engine.features(chart) : null), [engine, chart]);
+  const bazi = useMemo(() => (chart ? engine.bazi(chart) : null), [engine, chart]);
   const horoscope = useMemo(() => {
     if (!chart || mode === 'origin') return null;
     const safeDay = Math.min(day, new Date(year, month, 0).getDate());
@@ -128,18 +131,28 @@ export function App() {
         {view === 'chart' &&
           (chart && features ? (
             <div className="view-stack">
-              <TimeNav
-                mode={mode} year={year} month={month} day={day} hourIndex={hourIndex}
-                horoscope={horoscope} chart={chart}
-                onModeChange={setMode} onYearChange={setYear} onMonthChange={setMonth}
-                onDayChange={setDay} onHourChange={setHourIndex}
-              />
-              <ChartBoard
-                chart={chart} features={features} selected={selected}
-                onSelect={(i) => setSelected((cur) => (cur === i ? null : i))}
-                mode={mode} horoscope={horoscope}
-              />
-              <BrightnessLegend />
+              <div className="seg" role="tablist">
+                <button type="button" className={boardView === 'ziwei' ? 'seg-btn active' : 'seg-btn'} onClick={() => setBoardView('ziwei')}>紫微盘</button>
+                <button type="button" className={boardView === 'bazi' ? 'seg-btn active' : 'seg-btn'} onClick={() => setBoardView('bazi')}>八字盘</button>
+              </div>
+              {boardView === 'bazi' && bazi ? (
+                <BaZiBoard bazi={bazi} year={year} onYearChange={setYear} />
+              ) : (
+                <>
+                  <TimeNav
+                    mode={mode} year={year} month={month} day={day} hourIndex={hourIndex}
+                    horoscope={horoscope} chart={chart}
+                    onModeChange={setMode} onYearChange={setYear} onMonthChange={setMonth}
+                    onDayChange={setDay} onHourChange={setHourIndex}
+                  />
+                  <ChartBoard
+                    chart={chart} features={features} selected={selected}
+                    onSelect={(i) => setSelected((cur) => (cur === i ? null : i))}
+                    mode={mode} horoscope={horoscope}
+                  />
+                  <BrightnessLegend />
+                </>
+              )}
               {synastry && synastryCharts && (
                 <SynastryPanel
                   nameA={synastry.a.name} nameB={synastry.b.name}
@@ -154,7 +167,7 @@ export function App() {
 
         {view === 'agent' &&
           (chart ? (
-            <AIPanel chart={chart} channel={channel} horoscope={horoscope} mode={mode} onModeChange={setMode} />
+            <AIPanel chart={chart} bazi={bazi} year={year} channel={channel} horoscope={horoscope} mode={mode} onModeChange={setMode} />
           ) : (
             needChart('智能体需要一张命盘')
           ))}

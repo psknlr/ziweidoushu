@@ -4,8 +4,11 @@
  * 通道与 Key 在「设置」页配置;Prompt 由本地知识库装配,与网关同源同规则。
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { analyze, exportChartData, zh, type Astrolabe, type HoroscopeSnapshot } from '@ziwei/core';
-import { ALL_ENTRIES, ALL_SKILLS, buildSystemPrompt, retrieve } from '@ziwei/knowledge';
+import {
+  analyze, baziSignals, describeBaZi, exportChartData, zh,
+  type Astrolabe, type BaZiChart, type HoroscopeSnapshot,
+} from '@ziwei/core';
+import { ALL_ENTRIES, ALL_SKILLS, buildBaZiPrompt, buildSystemPrompt, retrieveSignals } from '@ziwei/knowledge';
 import {
   loadDirectProviders,
   providerReady,
@@ -32,14 +35,25 @@ export type { Channel } from '../lib/ai-channel.js';
 
 interface Props {
   chart: Astrolabe;
+  bazi: BaZiChart | null;
+  /** 当前关注的流年(与星盘页共享) */
+  year: number;
   channel: Channel;
   horoscope: HoroscopeSnapshot | null;
   mode: HoroscopeMode;
   onModeChange: (mode: HoroscopeMode) => void;
 }
 
+type SystemMode = 'ziwei' | 'bazi' | 'both';
+const SYSTEM_OPTIONS: { id: SystemMode; label: string }[] = [
+  { id: 'ziwei', label: '紫微斗数' },
+  { id: 'bazi', label: '八字(四柱)' },
+  { id: 'both', label: '紫微 + 八字互参' },
+];
+
 const SKILL_OPTIONS: { id: string; label: string }[] = [
   { id: '', label: '通用解读' },
+  { id: 'bazi', label: '八字命理' }, { id: 'bazi-dayun', label: '八字大运流年' },
   { id: 'overall', label: '整体命格' }, { id: 'marriage', label: '姻缘婚恋' },
   { id: 'career', label: '事业官禄' }, { id: 'business', label: '生意财运' },
   { id: 'wealth', label: '财帛理财' }, { id: 'education', label: '学业考运' },
@@ -58,8 +72,9 @@ const modeLabel = (id?: string) => MODE_OPTIONS.find((m) => m.id === id)?.label 
 
 const today = () => new Date().toISOString().slice(0, 10);
 
-export function AIPanel({ chart, channel, horoscope, mode, onModeChange }: Props) {
+export function AIPanel({ chart, bazi, year, channel, horoscope, mode, onModeChange }: Props) {
   const store = useMemo(() => new ChatStore(), []);
+  const [system, setSystem] = useState<SystemMode>('ziwei');
   const chartHash = chart.meta.chartHash;
   const chartLabel = `${zh(chart.gender)}命 ${chart.solarDate}`;
 
@@ -117,8 +132,11 @@ export function AIPanel({ chart, channel, horoscope, mode, onModeChange }: Props
   const send = async () => {
     if (busy) return;
     const skillLabel = SKILL_OPTIONS.find((s) => s.id === skillId)?.label ?? '通用解读';
-    const q = question.trim() || `请依照输出结构,为这张命盘做${skillId ? skillLabel : '解读'}。`;
-    const context = horoscope && mode !== 'origin' ? horoscopeDigest(chart, horoscope, mode) : '';
+    const useBazi = system !== 'ziwei' && bazi !== null;
+    const sys: SystemMode = useBazi ? system : 'ziwei';
+    const q = question.trim() || `请依照输出结构,为这张${sys === 'bazi' ? '八字' : sys === 'both' ? '紫微与八字' : '命盘'}做${skillId ? skillLabel : '解读'}。`;
+    // 紫微运限上下文只在含紫微的体系下附带;八字流年由 year 参数在 Prompt 内定位
+    const context = sys !== 'bazi' && horoscope && mode !== 'origin' ? horoscopeDigest(chart, horoscope, mode) : '';
     const sent = context ? `${q}\n\n${context}` : q;
 
     const controller = new AbortController();
@@ -128,7 +146,7 @@ export function AIPanel({ chart, channel, horoscope, mode, onModeChange }: Props
     if (channel === 'gateway') {
       targets.push({
         label: '网关',
-        run: (hist) => streamGateway({ chart, skill: skillId || undefined, question: sent, history: hist }, controller.signal),
+        run: (hist) => streamGateway({ chart, skill: skillId || undefined, question: sent, history: hist, system: sys, year }, controller.signal),
       });
     } else {
       const picks = channel === 'compare' ? [0, 1] : channel === 'directA' ? [0] : [1];
@@ -141,9 +159,14 @@ export function AIPanel({ chart, channel, horoscope, mode, onModeChange }: Props
         targets.push({
           label: p.label,
           run: (hist) => {
-            const retrieved = retrieve(features, ALL_ENTRIES, { topics: skill?.topics });
-            const system = buildSystemPrompt(chart, features, retrieved, { skill });
-            return streamDirect(p, [{ role: 'system', content: system }, ...hist, { role: 'user', content: sent }], controller.signal);
+            const signals =
+              sys === 'bazi' ? baziSignals(bazi!) : sys === 'both' ? [...features.signals, ...baziSignals(bazi!)] : features.signals;
+            const retrieved = retrieveSignals(signals, ALL_ENTRIES, { topics: skill?.topics, limit: sys === 'both' ? 12 : 8 });
+            const systemPrompt =
+              sys === 'bazi'
+                ? buildBaZiPrompt(bazi!, retrieved, { skill, year })
+                : buildSystemPrompt(chart, features, retrieved, { skill, ...(sys === 'both' ? { bazi: bazi!, year } : {}) });
+            return streamDirect(p, [{ role: 'system', content: systemPrompt }, ...hist, { role: 'user', content: sent }], controller.signal);
           },
         });
       }
@@ -153,7 +176,7 @@ export function AIPanel({ chart, channel, horoscope, mode, onModeChange }: Props
     const base = convRef.current ?? newConversation(chartHash, chartLabel);
     const userTurn: ChatTurn = {
       role: 'user', content: q, at: now,
-      ...(context ? { context } : {}), ...(skillId ? { skill: skillId } : {}), mode,
+      ...(context ? { context } : {}), ...(skillId ? { skill: skillId } : {}), mode, system: sys,
     };
     const startIndex = base.turns.length + 1;
     const next: Conversation = {
@@ -243,7 +266,10 @@ export function AIPanel({ chart, channel, horoscope, mode, onModeChange }: Props
   };
 
   // ---- 命盘参数导出 ----
-  const exportJson = useMemo(() => JSON.stringify(exportChartData(chart, features), null, 2), [chart, features]);
+  const exportJson = useMemo(
+    () => JSON.stringify(exportChartData(chart, features, undefined, bazi ?? undefined), null, 2),
+    [chart, features, bazi],
+  );
   const exportDigest = useMemo(() => {
     const lines = [
       `【紫微斗数命盘 · IMPF-AI】${zh(chart.gender)}命 ${chart.solarDate}(${chart.lunarDate})`,
@@ -257,8 +283,9 @@ export function AIPanel({ chart, channel, horoscope, mode, onModeChange }: Props
       `格局:${features.patterns.map((p) => p.name + (p.brokenBy.length > 0 ? '(破)' : '')).join('、') || '无'}`,
     ];
     if (horoscope && mode !== 'origin') lines.push(horoscopeDigest(chart, horoscope, mode));
+    if (bazi) lines.push('', describeBaZi(bazi, year));
     return lines.join('\n');
-  }, [chart, features, horoscope, mode]);
+  }, [chart, features, horoscope, mode, bazi, year]);
 
   const channelText =
     channel === 'gateway' ? '网关' : channel === 'compare' ? '双模型对比' : `直连 · ${loadDirectProviders()[channel === 'directA' ? 0 : 1].label}`;
@@ -324,7 +351,8 @@ export function AIPanel({ chart, channel, horoscope, mode, onModeChange }: Props
               <div key={i} className={`msg ${t.role}${t.error ? ' error' : ''}`}>
                 <div className="msg-meta">
                   {t.role === 'user' ? '问' : `答 · ${t.label ?? ''}`} · {t.at.slice(11, 16)}
-                  {t.role === 'user' && t.mode && t.mode !== 'origin' ? ` · 携${modeLabel(t.mode)}上下文` : ''}
+                  {t.role === 'user' && t.system && t.system !== 'ziwei' ? ` · ${t.system === 'bazi' ? '八字' : '紫微+八字'}` : ''}
+                  {t.role === 'user' && t.mode && t.mode !== 'origin' && t.system !== 'bazi' ? ` · 携${modeLabel(t.mode)}上下文` : ''}
                   {t.role === 'user' && t.skill ? ` · ${SKILL_OPTIONS.find((s) => s.id === t.skill)?.label ?? ''}` : ''}
                 </div>
                 <div className="msg-body">{t.content || (busy ? '…' : '')}</div>
@@ -340,6 +368,14 @@ export function AIPanel({ chart, channel, horoscope, mode, onModeChange }: Props
 
         <div className="chat-composer">
           <div className="row">
+            <label>
+              命理体系
+              <select value={system} onChange={(e) => setSystem(e.target.value as SystemMode)}>
+                {SYSTEM_OPTIONS.map((s) => (
+                  <option key={s.id} value={s.id}>{s.label}</option>
+                ))}
+              </select>
+            </label>
             <label>
               技法
               <select value={skillId} onChange={(e) => setSkillId(e.target.value)}>
@@ -357,8 +393,11 @@ export function AIPanel({ chart, channel, horoscope, mode, onModeChange }: Props
               </select>
             </label>
           </div>
-          {mode !== 'origin' && horoscope && (
+          {system !== 'bazi' && mode !== 'origin' && horoscope && (
             <p className="hint">将随问题携带 {horoscope.solarDate} 的{modeLabel(mode)}四化上下文(在「星盘」页调整具体年月日时)。</p>
+          )}
+          {system !== 'ziwei' && bazi && (
+            <p className="hint">八字事实(四柱十神、旺衰格局用神、大运)随 Prompt 注入,流年定位 {year} 年(在「星盘 › 八字盘」页点选大运/流年调整)。</p>
           )}
           <textarea
             value={question}

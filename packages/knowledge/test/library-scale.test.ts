@@ -32,7 +32,9 @@ describe('知识库规模', () => {
           MUTAGEN_KEY_SET.has(entity) ||
           BRIGHTNESS_KEY_SET.has(entity) ||
           KNOWN_EXTRA.has(entity) ||
-          (e.domain === 'pattern' && /^[a-z0-9-]+$/.test(entity));
+          (e.domain === 'pattern' && /^[a-z0-9-]+$/.test(entity)) ||
+          // 八字域实体:['bazi', <维度>, <key>],与 baziSignals 约定一致
+          (e.domain === 'bazi' && /^[A-Za-z0-9-]+$/.test(entity));
         expect(ok, `条目 ${e.id} 含非法实体 "${entity}"`).toBe(true);
       }
     }

@@ -14,6 +14,8 @@ export interface ChatTurn {
   context?: string;
   skill?: string;
   mode?: string;
+  /** 命理体系:ziwei / bazi / both */
+  system?: string;
   error?: boolean;
 }
 

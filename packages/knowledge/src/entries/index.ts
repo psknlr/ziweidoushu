@@ -20,6 +20,7 @@ import { PATTERN_EXTRA_ENTRIES } from './pattern-entries.js';
 import { PATTERN_JIA_ENTRIES } from './pattern-jia.js';
 import { CLASSIC_ENTRIES } from './classics.js';
 import { BRIGHTNESS_ENTRIES } from './brightness.js';
+import { BAZI_ENTRIES } from './bazi-entries.js';
 
 export { CURATED_ENTRIES };
 
@@ -37,6 +38,7 @@ export const RAW_ENTRIES: KnowledgeEntry[] = [
   ...PATTERN_JIA_ENTRIES,
   ...CLASSIC_ENTRIES,
   ...BRIGHTNESS_ENTRIES,
+  ...BAZI_ENTRIES,
 ];
 
 export const REVIEW_LEDGER = ledgerJson as ReviewLedger;

@@ -43,9 +43,9 @@ describe('赋文条目与技法集成', () => {
     }
   });
 
-  test('全量技法 15 个(基础 7 + 进阶 8)', () => {
+  test('全量技法 17 个(基础 7 + 进阶 8 + 八字 2)', () => {
     expect(Object.keys(READING_SKILLS)).toHaveLength(7);
-    expect(Object.keys(ALL_SKILLS)).toHaveLength(15);
+    expect(Object.keys(ALL_SKILLS)).toHaveLength(17);
     for (const id of ['children', 'parents', 'siblings', 'friends', 'relocation', 'spirit', 'decadal', 'annual']) {
       expect(ALL_SKILLS[id], `缺进阶技法 ${id}`).toBeDefined();
       expect(ALL_SKILLS[id]!.method.length).toBeGreaterThanOrEqual(3);

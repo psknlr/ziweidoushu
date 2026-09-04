@@ -32,6 +32,7 @@ export {
 export { READING_SKILLS, buildSkillBlock, type ReadingSkill, type SkillId } from './skills.js';
 export { ADVANCED_SKILLS, type AdvancedSkillId } from './skills-advanced.js';
 export { ALL_SKILLS } from './skills-all.js';
+export { BAZI_SKILLS, type BaZiSkillId } from './skills-bazi.js';
 export {
   compareCharts,
   branchRelation,
@@ -40,9 +41,10 @@ export {
   type SihuaFlight,
   type BranchRelation,
 } from './synastry.js';
-export { retrieve, type RetrievalOptions, type RetrievedEntry } from './retrieval.js';
+export { retrieve, retrieveSignals, type RetrievalOptions, type RetrievedEntry } from './retrieval.js';
 export {
   buildSystemPrompt,
+  buildBaZiPrompt,
   buildGuidanceBlock,
   describeChart,
   DISCLAIMER,

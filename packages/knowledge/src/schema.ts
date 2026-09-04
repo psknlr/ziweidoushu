@@ -18,7 +18,7 @@ export type ReviewStatus = (typeof REVIEW_STATUSES)[number];
 
 export const KnowledgeEntrySchema = z.object({
   id: z.string().min(1),
-  domain: z.enum(['star', 'palace', 'mutagen', 'pattern', 'combination', 'horoscope']),
+  domain: z.enum(['star', 'palace', 'mutagen', 'pattern', 'combination', 'horoscope', 'bazi']),
   /** 关联实体 key 组合(与 ChartFeatures.signals[].entities 对齐做交集匹配) */
   entities: z.array(z.string().min(1)).min(1),
   topics: z.array(z.enum(TOPICS)).min(1),

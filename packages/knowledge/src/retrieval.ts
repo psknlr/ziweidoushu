@@ -32,13 +32,22 @@ export function retrieve(
   entries: readonly KnowledgeEntry[],
   options: RetrievalOptions = {},
 ): RetrievedEntry[] {
+  return retrieveSignals(features.signals, entries, options);
+}
+
+/** 以任意信号集检索(紫微信号、八字信号或二者合并) */
+export function retrieveSignals(
+  signals: readonly Signal[],
+  entries: readonly KnowledgeEntry[],
+  options: RetrievalOptions = {},
+): RetrievedEntry[] {
   const { topics, school, limit = 8, minScore = 10 } = options;
 
   const results: RetrievedEntry[] = [];
   for (const entry of entries) {
     if (topics && !entry.topics.some((t) => topics.includes(t))) continue;
 
-    const matchedSignals = features.signals.filter((signal) => overlap(signal, entry) > 0);
+    const matchedSignals = signals.filter((signal) => overlap(signal, entry) > 0);
     if (matchedSignals.length === 0) continue;
 
     const best = Math.max(...matchedSignals.map((s) => s.weight * overlap(s, entry)));

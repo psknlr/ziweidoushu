@@ -1,7 +1,7 @@
 /**
  * AI 解读网关 HTTP 服务(零外部依赖,node:http)。
  *
- * POST /api/interpret  { chart, topics?, question?, history?, temperature? } → SSE 流
+ * POST /api/interpret  { chart, topics?, question?, history?, system?, year?, temperature? } → SSE 流
  *   - features 由服务端重算(不信任客户端分析结果)
  *   - RAG 检索 + 五要素 System Prompt 装配在服务端完成,Prompt 不出服务器
  * GET  /api/health     健康检查
@@ -10,15 +10,16 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import { createReadStream, existsSync, statSync } from 'node:fs';
 import { extname, join, normalize } from 'node:path';
-import { analyze, type Astrolabe } from '@ziwei/core';
+import { analyze, baziFromAstrolabe, baziSignals, type Astrolabe } from '@ziwei/core';
 import {
   ALL_ENTRIES,
   ALL_SKILLS,
   buildSynastryPrompt,
   buildSystemPrompt,
+  buildBaZiPrompt,
   compareCharts,
   PROMPT_VERSION,
-  retrieve,
+  retrieveSignals,
   type Topic,
 } from '@ziwei/knowledge';
 import { availableProviders, type ProviderConfig } from './providers.js';
@@ -46,6 +47,10 @@ interface InterpretBody {
   question?: string;
   /** 多轮对话历史 [{role:'user'|'assistant', content}],服务端校验并截断 */
   history?: unknown;
+  /** 命理体系:紫微(默认)/ 八字 / 双系统互参 */
+  system?: 'ziwei' | 'bazi' | 'both';
+  /** 关注的流年(八字流年与大运定位) */
+  year?: number;
   temperature?: number;
 }
 
@@ -166,7 +171,7 @@ async function interpret(req: IncomingMessage, res: ServerResponse, options: Gat
   // 缓存键用 chart 全量内容计算(不信任客户端 meta.chartHash,防跨用户投毒)
   const cacheKey = options.cache
     ? InterpretCache.key({
-        chart: { a: chart, b: body.chartB, skill: body.skill },
+        chart: { a: chart, b: body.chartB, skill: body.skill, system: body.system ?? 'ziwei', year: body.year },
         topics: body.topics,
         question,
         history,
@@ -195,16 +200,28 @@ async function interpret(req: IncomingMessage, res: ServerResponse, options: Gat
   }
 
   // 服务端重算分析与检索:确定性部分不信任客户端
-  let system: string;
+  let systemPrompt: string;
   if (body.chartB) {
-    system = buildSynastryPrompt(chart, body.chartB, compareCharts(chart, body.chartB));
+    systemPrompt = buildSynastryPrompt(chart, body.chartB, compareCharts(chart, body.chartB));
   } else {
-    const features = analyze(chart);
+    const mode = body.system === 'bazi' || body.system === 'both' ? body.system : 'ziwei';
+    const year = typeof body.year === 'number' && Number.isFinite(body.year) ? Math.trunc(body.year) : undefined;
     const topics = body.topics ?? skill?.topics;
-    const retrieved = retrieve(features, ALL_ENTRIES, { topics });
-    system = buildSystemPrompt(chart, features, retrieved, { skill });
+    const features = analyze(chart);
+    if (mode === 'bazi') {
+      const bazi = baziFromAstrolabe(chart);
+      const retrieved = retrieveSignals(baziSignals(bazi), ALL_ENTRIES, { topics });
+      systemPrompt = buildBaZiPrompt(bazi, retrieved, { skill, year });
+    } else if (mode === 'both') {
+      const bazi = baziFromAstrolabe(chart);
+      const retrieved = retrieveSignals([...features.signals, ...baziSignals(bazi)], ALL_ENTRIES, { topics, limit: 12 });
+      systemPrompt = buildSystemPrompt(chart, features, retrieved, { skill, bazi, year });
+    } else {
+      const retrieved = retrieveSignals(features.signals, ALL_ENTRIES, { topics });
+      systemPrompt = buildSystemPrompt(chart, features, retrieved, { skill });
+    }
   }
-  const messages = buildMessages(system, history, question);
+  const messages = buildMessages(systemPrompt, history, question);
 
   sseHead(false);
   const parts: string[] = [];
