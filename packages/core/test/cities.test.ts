@@ -5,9 +5,9 @@ import { describe, expect, test } from 'vitest';
 import { CITIES, cityLabel, lookupCity, searchCities, ZiweiEngine } from '@ziwei/core';
 
 describe('中国全量城市库', () => {
-  test('规模 ≥ 3000,覆盖 31 省级行政区', () => {
+  test('规模 ≥ 3000,覆盖 31 省级行政区 + 港澳台', () => {
     expect(CITIES.length).toBeGreaterThanOrEqual(3000);
-    expect(new Set(CITIES.map((c) => c.province)).size).toBe(31);
+    expect(new Set(CITIES.map((c) => c.province)).size).toBe(34);
   });
 
   test('「北京」命中北京市本级,而非区县', () => {
