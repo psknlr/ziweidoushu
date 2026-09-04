@@ -1,7 +1,7 @@
 /**
  * 中国全量城市经纬度库(L2)。
  *
- * 数据:3337 条省/市/区县级条目(源自开源 88250/city-geo 数据集,
+ * 数据:3339 条省/市/区县级条目(源自开源 88250/city-geo 数据集,
  * 经 scripts 压缩为 [名称, 省, 市, 经度, 纬度],坐标保留两位小数,
  * 误差 ≈1km,对真太阳时影响 <4 秒)。
  * 海外城市仍由应用层接地理编码 API 兜底(本地优先、网络兜底策略)。
@@ -21,13 +21,10 @@ export interface City {
 
 type Row = [string, string, string, number, number];
 
-export const CITIES: readonly City[] = (rows as Row[]).map(([name, province, city, longitude, latitude]) => ({
-  name,
-  province,
-  city,
-  longitude,
-  latitude,
-}));
+export const CITIES: readonly City[] = (rows as Row[])
+  .map(([name, province, city, longitude, latitude]) => ({ name, province, city, longitude, latitude }))
+  // 防御:坐标缺失(0,0)的条目绝不能进入真太阳时计算(会造成 -8 小时的错误偏移)
+  .filter((c) => !(c.longitude === 0 && c.latitude === 0));
 
 /** 展示用全名:省·市·区县(去重相邻重复段) */
 export function cityLabel(c: City): string {

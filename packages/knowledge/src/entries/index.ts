@@ -17,8 +17,10 @@ import { COMBO_SOUL_ENTRIES } from './combo-soul.js';
 import { MINOR_SOUL_ENTRIES } from './minor-soul.js';
 import { STAR_OVERVIEW_ENTRIES } from './star-overview.js';
 import { PATTERN_EXTRA_ENTRIES } from './pattern-entries.js';
+import { PATTERN_JIA_ENTRIES } from './pattern-jia.js';
 import { CLASSIC_ENTRIES } from './classics.js';
 import { BRIGHTNESS_ENTRIES } from './brightness.js';
+import { BAZI_ENTRIES } from './bazi-entries.js';
 
 export { CURATED_ENTRIES };
 
@@ -33,8 +35,10 @@ export const RAW_ENTRIES: KnowledgeEntry[] = [
   ...MINOR_SOUL_ENTRIES,
   ...STAR_OVERVIEW_ENTRIES,
   ...PATTERN_EXTRA_ENTRIES,
+  ...PATTERN_JIA_ENTRIES,
   ...CLASSIC_ENTRIES,
   ...BRIGHTNESS_ENTRIES,
+  ...BAZI_ENTRIES,
 ];
 
 export const REVIEW_LEDGER = ledgerJson as ReviewLedger;

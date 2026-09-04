@@ -34,13 +34,16 @@ export {
 export { STARTER_PATTERNS } from './data/patterns.js';
 export { STAR_NATURE, starNature, type StarNature, type StarEnergyKind } from './data/star-energy.js';
 export { exportChartData } from './export.js';
+export * from './bazi/index.js';
 export { CLASSIC_PATTERNS } from './data/patterns-classic.js';
+export { JIA_PATTERNS } from './data/patterns-jia.js';
 export { ALL_PATTERNS } from './analyzer/index.js';
 export {
   equationOfTimeMinutes,
   toTrueSolarTime,
   timeIndexFromHour,
   normalizeBirth,
+  chinaDstMinutes,
   dayOfYear,
   type TrueSolarTimeInput,
   type TrueSolarTimeOutput,

@@ -35,7 +35,7 @@ export function resolveProvider(name: ProviderName, env: Env = process.env): Pro
         baseVar: 'MINIMAX_BASE_URL',
         modelVar: 'MINIMAX_MODEL',
         defaultBase: 'https://api.minimaxi.com/v1',
-        defaultModel: 'MiniMax-Text-01',
+        defaultModel: 'MiniMax-M3',
       });
     case 'poe':
       return openaiCompatible(name, env, {

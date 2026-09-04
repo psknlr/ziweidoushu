@@ -518,6 +518,12 @@ export const ZH_CN: Record<string, string> = {
   // 性别
   male: '男',
   female: '女',
+  // 八字:五行 / 十神 / 旺衰 / 格局
+  wood: '木', fire: '火', earth: '土', metal: '金', water: '水',
+  biJian: '比肩', jieCai: '劫财', shiShen: '食神', shangGuan: '伤官', pianCai: '偏财',
+  zhengCai: '正财', qiSha: '七杀', zhengGuan: '正官', pianYin: '偏印', zhengYin: '正印',
+  veryStrong: '极旺', strong: '身强', balanced: '中和', weak: '身弱', veryWeak: '极弱',
+  jianLu: '建禄格', yangRen: '羊刃格', yueJie: '月劫格',
 };
 
 const ALL_STAR_KEYS: ReadonlySet<string> = new Set<string>([

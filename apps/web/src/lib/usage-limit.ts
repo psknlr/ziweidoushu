@@ -14,7 +14,10 @@ const UNLOCK_DIGEST = '9aa01f131cd6d400377a4185b11bc58dea94829550912ac08d69a7edf
 const COUNT_KEY = 'ziwei.usage.v1';
 const UNLOCK_KEY = 'ziwei.unlock.v1';
 
-const today = (): string => new Date().toISOString().slice(0, 10);
+/** 本地日历日期(YYYY-MM-DD);按设备时区而非 UTC 计日,避免东八区早 8 点才刷新 */
+export const localDateKey = (d: Date = new Date()): string =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const today = (): string => localDateKey();
 
 interface UsageRecord {
   date: string;

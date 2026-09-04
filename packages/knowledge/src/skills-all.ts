@@ -4,8 +4,10 @@
  */
 import { READING_SKILLS, type ReadingSkill } from './skills.js';
 import { ADVANCED_SKILLS } from './skills-advanced.js';
+import { BAZI_SKILLS } from './skills-bazi.js';
 
 export const ALL_SKILLS: Record<string, ReadingSkill> = {
   ...READING_SKILLS,
   ...(ADVANCED_SKILLS as Record<string, ReadingSkill>),
+  ...(BAZI_SKILLS as Record<string, ReadingSkill>),
 };

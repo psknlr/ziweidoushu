@@ -228,14 +228,21 @@ export const CLASSIC_PATTERNS: readonly PatternDef[] = [
       { kind: 'trineHasAll', stars: ['tiankuiMin', 'tianyueMin'], desc: '天魁、天钺俱会于命宫三方四正' },
     ],
     bonus: [
-      { kind: 'soulHasOne', stars: ['tiankuiMin', 'tianyueMin'], desc: '魁钺坐命,近「坐贵向贵」之义' },
+      {
+        kind: 'allOf',
+        conds: [
+          { kind: 'soulHasOne', stars: ['tiankuiMin', 'tianyueMin'], desc: '魁钺之一坐命' },
+          { kind: 'oppositeHasOne', stars: ['tiankuiMin', 'tianyueMin'], desc: '魁钺之一在对宫' },
+        ],
+        desc: '魁钺分守命宫与对宫,坐贵向贵',
+      },
       { kind: 'trineHasOne', stars: ['wenchangMin', 'wenquMin'], desc: '昌曲会照,贵而有文' },
       { kind: 'trineHasMutagen', mutagen: 'sihuaKe', desc: '化科会照,科名贵人相得' },
     ],
     broken: [
       { kind: 'soulHasOne', stars: [...SHA_STARS, ...KONG_JIE], desc: '煞空入命,贵人之力打折' },
     ],
-    note: '「坐贵向贵」(魁钺分守命宫与对宫)因 DSL 无对宫专用条件,以 bonus「魁钺坐命且双星会齐」近似表达。',
+    note: '「坐贵向贵」以 allOf(命宫见其一 + 对宫见其一)严格判定。',
   },
   {
     id: 'wengui-wenhua',
@@ -284,7 +291,14 @@ export const CLASSIC_PATTERNS: readonly PatternDef[] = [
       { kind: 'trineHasMutagen', mutagen: 'sihuaLu', desc: '化禄会于三方四正' },
     ],
     bonus: [
-      { kind: 'soulHasOne', stars: ['lucunMin'], desc: '禄存坐命,近「禄合鸳鸯」之义' },
+      {
+        kind: 'allOf',
+        conds: [
+          { kind: 'soulHasOne', stars: ['lucunMin'], desc: '禄存坐命' },
+          { kind: 'soulHasMutagen', mutagen: 'sihuaLu', desc: '命宫见化禄' },
+        ],
+        desc: '禄存与化禄同守命宫,禄合鸳鸯',
+      },
       { kind: 'trineHasOne', stars: ['tianmaMin'], desc: '再会天马,禄马交驰兼得' },
       { kind: 'trineHasOne', stars: ['zuofuMin', 'youbiMin', 'wenchangMin', 'wenquMin'], desc: '吉星护禄,方为正格' },
     ],
@@ -292,7 +306,7 @@ export const CLASSIC_PATTERNS: readonly PatternDef[] = [
       { kind: 'soulHasOne', stars: [...KONG_JIE], desc: '空劫入命,双禄成虚(古诀最忌)' },
       { kind: 'trineHasOne', stars: [...KONG_JIE], desc: '空劫会照,禄有漏卮' },
     ],
-    note: '「禄合鸳鸯」(禄存与化禄同守命宫)因 DSL 无「命宫见四化」条件,以 bonus「禄存坐命」近似;source 末句陶朱语出全书格局论。',
+    note: '「禄合鸳鸯」以 allOf(禄存坐命 + 命宫见化禄)严格判定;source 末句陶朱语出全书格局论。',
   },
   {
     id: 'luma-jiaochi',

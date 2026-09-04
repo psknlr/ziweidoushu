@@ -9,8 +9,8 @@ describe('古籍格局库集成', () => {
   test('全量格局 = 起步 10 + 古籍 24,id 唯一', () => {
     expect(STARTER_PATTERNS.length).toBe(10);
     expect(CLASSIC_PATTERNS.length).toBe(24);
-    expect(ALL_PATTERNS.length).toBe(34);
-    expect(new Set(ALL_PATTERNS.map((p) => p.id)).size).toBe(34);
+    expect(ALL_PATTERNS.length).toBe(39);
+    expect(new Set(ALL_PATTERNS.map((p) => p.id)).size).toBe(39);
   });
 
   test('每个古籍格局都引用古籍出处', () => {
@@ -43,9 +43,9 @@ describe('赋文条目与技法集成', () => {
     }
   });
 
-  test('全量技法 15 个(基础 7 + 进阶 8)', () => {
+  test('全量技法 17 个(基础 7 + 进阶 8 + 八字 2)', () => {
     expect(Object.keys(READING_SKILLS)).toHaveLength(7);
-    expect(Object.keys(ALL_SKILLS)).toHaveLength(15);
+    expect(Object.keys(ALL_SKILLS)).toHaveLength(17);
     for (const id of ['children', 'parents', 'siblings', 'friends', 'relocation', 'spirit', 'decadal', 'annual']) {
       expect(ALL_SKILLS[id], `缺进阶技法 ${id}`).toBeDefined();
       expect(ALL_SKILLS[id]!.method.length).toBeGreaterThanOrEqual(3);

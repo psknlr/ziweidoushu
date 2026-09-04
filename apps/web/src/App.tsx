@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { ZiweiEngine, type Astrolabe, type BirthInput } from '@ziwei/core';
 import { ChartForm } from './components/ChartForm.js';
 import { BrightnessLegend, ChartBoard } from './components/ChartBoard.js';
+import { BaZiBoard } from './components/BaZiBoard.js';
 import { TimeNav, type HoroscopeMode } from './components/TimeNav.js';
 import { AIPanel } from './components/AIPanel.js';
 import { loadChannel, saveChannel, type Channel } from './lib/ai-channel.js';
@@ -39,16 +40,20 @@ export function App() {
   const [synastry, setSynastry] = useState<{ a: Profile; b: Profile } | null>(null);
   const [limitOpen, setLimitOpen] = useState(false);
   const [usageTick, setUsageTick] = useState(0);
+  const [boardView, setBoardView] = useState<'ziwei' | 'bazi'>('ziwei');
 
   const engine = useMemo(() => new ZiweiEngine(preset), [preset]);
   const features = useMemo(() => (chart ? engine.features(chart) : null), [engine, chart]);
+  const bazi = useMemo(() => (chart ? engine.bazi(chart) : null), [engine, chart]);
   const horoscope = useMemo(() => {
     if (!chart || mode === 'origin') return null;
     const safeDay = Math.min(day, new Date(year, month, 0).getDate());
+    // 大限/流年取该年 12-31:虚岁按「当年所达之岁」计(生日分界流派下不受生日前后影响),
+    // 且 12-31 必在该流年(正月初一/立春分界)之内
     const target =
       mode === 'monthly' || mode === 'daily' || mode === 'hourly'
         ? `${year}-${month}-${safeDay} 12:00`
-        : `${year}-6-15 12:00`;
+        : `${year}-12-31 12:00`;
     return engine.horoscope(chart, target, mode === 'hourly' ? hourIndex : undefined);
   }, [engine, chart, mode, year, month, day, hourIndex]);
 
@@ -57,16 +62,22 @@ export function App() {
     return { a: engine.fromBirth(synastry.a.input), b: engine.fromBirth(synastry.b.input) };
   }, [engine, synastry]);
 
+  /** 打开一张盘(不计防沉迷次数:档案重开/合盘属回看) */
+  const openChart = (input: BirthInput) => {
+    setChart(engine.fromBirth(input));
+    setLastInput(input);
+    setSelected(null);
+    setView('chart');
+  };
+
+  /** 新排盘:计入每日次数 */
   const handleSubmit = (input: BirthInput) => {
     if (!consumeUsage()) {
       setLimitOpen(true);
       return;
     }
     setUsageTick((t) => t + 1);
-    setChart(engine.fromBirth(input));
-    setLastInput(input);
-    setSelected(null);
-    setView('chart');
+    openChart(input);
   };
   void usageTick;
 
@@ -108,7 +119,7 @@ export function App() {
             <ChartForm onSubmit={handleSubmit} remaining={isUnlocked() ? null : remainingToday()} />
             <ProfilesPanel
               currentInput={lastInput}
-              onLoad={handleSubmit}
+              onLoad={openChart}
               onSynastry={(a, b) => {
                 setSynastry({ a, b });
                 setView('chart');
@@ -120,18 +131,28 @@ export function App() {
         {view === 'chart' &&
           (chart && features ? (
             <div className="view-stack">
-              <TimeNav
-                mode={mode} year={year} month={month} day={day} hourIndex={hourIndex}
-                horoscope={horoscope} chart={chart}
-                onModeChange={setMode} onYearChange={setYear} onMonthChange={setMonth}
-                onDayChange={setDay} onHourChange={setHourIndex}
-              />
-              <ChartBoard
-                chart={chart} features={features} selected={selected}
-                onSelect={(i) => setSelected((cur) => (cur === i ? null : i))}
-                mode={mode} horoscope={horoscope}
-              />
-              <BrightnessLegend />
+              <div className="seg" role="tablist">
+                <button type="button" className={boardView === 'ziwei' ? 'seg-btn active' : 'seg-btn'} onClick={() => setBoardView('ziwei')}>紫微盘</button>
+                <button type="button" className={boardView === 'bazi' ? 'seg-btn active' : 'seg-btn'} onClick={() => setBoardView('bazi')}>八字盘</button>
+              </div>
+              {boardView === 'bazi' && bazi ? (
+                <BaZiBoard bazi={bazi} year={year} onYearChange={setYear} />
+              ) : (
+                <>
+                  <TimeNav
+                    mode={mode} year={year} month={month} day={day} hourIndex={hourIndex}
+                    horoscope={horoscope} chart={chart}
+                    onModeChange={setMode} onYearChange={setYear} onMonthChange={setMonth}
+                    onDayChange={setDay} onHourChange={setHourIndex}
+                  />
+                  <ChartBoard
+                    chart={chart} features={features} selected={selected}
+                    onSelect={(i) => setSelected((cur) => (cur === i ? null : i))}
+                    mode={mode} horoscope={horoscope}
+                  />
+                  <BrightnessLegend />
+                </>
+              )}
               {synastry && synastryCharts && (
                 <SynastryPanel
                   nameA={synastry.a.name} nameB={synastry.b.name}
@@ -146,7 +167,7 @@ export function App() {
 
         {view === 'agent' &&
           (chart ? (
-            <AIPanel chart={chart} channel={channel} horoscope={horoscope} mode={mode} onModeChange={setMode} />
+            <AIPanel chart={chart} bazi={bazi} year={year} channel={channel} horoscope={horoscope} mode={mode} onModeChange={setMode} />
           ) : (
             needChart('智能体需要一张命盘')
           ))}

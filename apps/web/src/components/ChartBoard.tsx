@@ -243,7 +243,13 @@ function CenterInfo({ chart, features }: { chart: Astrolabe; features: ChartFeat
       {tst.enabled && (
         <div className={`tst-note${tst.timeIndexChanged ? ' changed' : ''}`}>
           真太阳时 {tst.totalOffsetMinutes! > 0 ? '+' : ''}
-          {tst.totalOffsetMinutes} 分{tst.timeIndexChanged ? ' · 时辰已改变' : ''}
+          {tst.totalOffsetMinutes} 分{tst.dstMinutes ? '(含扣夏令时 1 小时)' : ''}
+          {tst.timeIndexChanged ? ' · 时辰已改变' : ''}
+        </div>
+      )}
+      {!tst.enabled && tst.dstMinutes && (
+        <div className={`tst-note${tst.timeIndexChanged ? ' changed' : ''}`}>
+          已扣除 1986-1991 夏令时 1 小时{tst.timeIndexChanged ? ' · 时辰已改变' : ''}
         </div>
       )}
       <div className="center-bright">

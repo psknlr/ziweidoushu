@@ -16,10 +16,11 @@ import { resolveSchool, type SchoolConfig } from './config.js';
 import { ZH_CN, type Gender } from './keys.js';
 import { analyze } from './analyzer/index.js';
 import { fillBorrowedStars } from './analyzer/borrow.js';
-import { normalizeBirth, timeIndexFromHour } from './solar-time.js';
+import { normalizeBirth } from './solar-time.js';
 import { lookupCity } from './cities.js';
 import type { Astrolabe, ChartFeatures, HoroscopeSnapshot, NormalizedInput } from './types.js';
 import type { PatternDef } from './analyzer/patterns.js';
+import { baziFromAstrolabe, type BaZiChart } from './bazi/index.js';
 
 export interface BirthInput {
   /** 公历出生时刻(本地时区标准时) */
@@ -37,6 +38,8 @@ export interface BirthInput {
   useTrueSolarTime?: boolean;
   /** 闰月修正(闰月十五之后算下月),默认 true */
   fixLeap?: boolean;
+  /** 扣除中国 1986-1991 夏令时(钟表时快 1 小时),默认 true */
+  applyChinaDst?: boolean;
 }
 
 export class ZiweiEngine {
@@ -72,20 +75,16 @@ export class ZiweiEngine {
       input.longitude ?? (input.city !== undefined ? lookupCity(input.city)?.longitude : undefined);
     const useTst = input.useTrueSolarTime ?? longitude !== undefined;
 
-    const normalized = useTst
-      ? normalizeBirth({
-          year: input.year,
-          month: input.month,
-          day: input.day,
-          hour: input.hour,
-          minute: input.minute,
-          longitude,
-        })
-      : {
-          solarDate: `${input.year}-${input.month}-${input.day}`,
-          timeIndex: timeIndexFromHour(input.hour),
-          record: { enabled: false as const },
-        };
+    // 夏令时扣除与真太阳时校正统一在 normalizeBirth 完成(不做 TST 时不传经度)
+    const normalized = normalizeBirth({
+      year: input.year,
+      month: input.month,
+      day: input.day,
+      hour: input.hour,
+      minute: input.minute,
+      ...(useTst ? { longitude } : {}),
+      applyChinaDst: input.applyChinaDst ?? true,
+    });
 
     const normalizedInput: NormalizedInput = {
       solarDate: normalized.solarDate,
@@ -118,6 +117,21 @@ export class ZiweiEngine {
   features(chart: Astrolabe, patternDefs?: readonly PatternDef[]): ChartFeatures {
     return analyze(chart, patternDefs);
   }
+
+  /**
+   * 八字(四柱):与紫微盘共用同一归一化出生时刻(夏令时/真太阳时已处理),
+   * 晚子时日柱归属沿用流派 dayDivide;按 chartHash 缓存。
+   */
+  bazi(chart: Astrolabe): BaZiChart {
+    const cached = this.baziCache.get(chart.meta.chartHash);
+    if (cached) return cached;
+    const out = baziFromAstrolabe(chart);
+    if (this.baziCache.size > 64) this.baziCache.clear();
+    this.baziCache.set(chart.meta.chartHash, out);
+    return out;
+  }
+
+  private readonly baziCache = new Map<string, BaZiChart>();
 
   private computeChart(input: NormalizedInput, gender: Gender): Astrolabe {
     applySchool(this.school);
