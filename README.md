@@ -272,7 +272,7 @@ const systemPrompt = buildSystemPrompt(
 ```dotenv
 ZIWEI_PROVIDER=minimax
 MINIMAX_API_KEY=your_api_key
-MINIMAX_MODEL=MiniMax-Text-01
+MINIMAX_MODEL=MiniMax-M3
 ```
 
 启动：

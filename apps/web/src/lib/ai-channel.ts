@@ -94,7 +94,8 @@ export async function* streamDirect(
   for (;;) {
     const { done, value } = await reader.read();
     if (done) break;
-    buffer += decoder.decode(value, { stream: true });
+    // CRLF → LF,避免以 \r\n 分行的端点永不切分事件
+    buffer += decoder.decode(value, { stream: true }).replace(/\r\n/g, '\n');
     let sep: number;
     while ((sep = buffer.indexOf('\n\n')) !== -1) {
       const event = buffer.slice(0, sep);
@@ -133,7 +134,7 @@ export async function* streamGateway(body: unknown, signal?: AbortSignal): Async
   for (;;) {
     const { done, value } = await reader.read();
     if (done) break;
-    buffer += decoder.decode(value, { stream: true });
+    buffer += decoder.decode(value, { stream: true }).replace(/\r\n/g, '\n');
     let sep: number;
     while ((sep = buffer.indexOf('\n\n')) !== -1) {
       const event = buffer.slice(0, sep);

@@ -43,7 +43,8 @@ export async function* streamChat(provider: ProviderConfig, request: ChatRequest
     for (;;) {
       const { done, value } = await reader.read();
       if (done) break;
-      buffer += decoder.decode(value, { stream: true });
+      // 统一 CRLF → LF(部分代理/供应商以 \r\n 分行,否则事件永不切分)
+      buffer += decoder.decode(value, { stream: true }).replace(/\r\n/g, '\n');
       // SSE 事件以空行分隔;逐事件切分,残段留在 buffer
       let sep: number;
       while ((sep = buffer.indexOf('\n\n')) !== -1) {
@@ -63,18 +64,20 @@ export async function* streamChat(provider: ProviderConfig, request: ChatRequest
 
 const DONE = Symbol('done');
 
+/** 解析一个 SSE 事件;一个事件内若有多条 data 行,增量按序拼接 */
 function parseSseEvent(event: string): string | typeof DONE | undefined {
+  let out = '';
   for (const line of event.split('\n')) {
     if (!line.startsWith('data:')) continue;
     const data = line.slice(5).trim();
-    if (data === '[DONE]') return DONE;
+    if (data === '[DONE]') return out || DONE;
     try {
       const parsed = JSON.parse(data) as { choices?: { delta?: { content?: string } }[] };
       const content = parsed.choices?.[0]?.delta?.content;
-      if (content) return content;
+      if (content) out += content;
     } catch {
       // 非 JSON 的注释/心跳行,忽略
     }
   }
-  return undefined;
+  return out || undefined;
 }
