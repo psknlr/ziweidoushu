@@ -5,6 +5,7 @@
 import { zh } from './keys.js';
 import { starNature } from './data/star-energy.js';
 import type { Astrolabe, ChartFeatures, Star } from './types.js';
+import type { BaZiChart } from './bazi/types.js';
 
 interface ExportedStar {
   key: string;
@@ -41,9 +42,10 @@ function ringStar(key: string): ExportedStar {
   };
 }
 
-/** 导出完整命盘参数(可 JSON.stringify 直接落盘) */
-export function exportChartData(chart: Astrolabe, features: ChartFeatures, exportedAt?: string) {
+/** 导出完整命盘参数(可 JSON.stringify 直接落盘);传入 bazi 时附带八字全量参数 */
+export function exportChartData(chart: Astrolabe, features: ChartFeatures, exportedAt?: string, bazi?: BaZiChart) {
   return {
+    ...(bazi ? { bazi } : {}),
     generator: '紫微斗数工作台 · 医哲未来人工智能研究院(IMPF-AI)',
     engine: chart.meta.engine,
     kernel: chart.meta.kernel,

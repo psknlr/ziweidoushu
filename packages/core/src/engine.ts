@@ -20,6 +20,7 @@ import { normalizeBirth } from './solar-time.js';
 import { lookupCity } from './cities.js';
 import type { Astrolabe, ChartFeatures, HoroscopeSnapshot, NormalizedInput } from './types.js';
 import type { PatternDef } from './analyzer/patterns.js';
+import { baziFromAstrolabe, type BaZiChart } from './bazi/index.js';
 
 export interface BirthInput {
   /** 公历出生时刻(本地时区标准时) */
@@ -116,6 +117,21 @@ export class ZiweiEngine {
   features(chart: Astrolabe, patternDefs?: readonly PatternDef[]): ChartFeatures {
     return analyze(chart, patternDefs);
   }
+
+  /**
+   * 八字(四柱):与紫微盘共用同一归一化出生时刻(夏令时/真太阳时已处理),
+   * 晚子时日柱归属沿用流派 dayDivide;按 chartHash 缓存。
+   */
+  bazi(chart: Astrolabe): BaZiChart {
+    const cached = this.baziCache.get(chart.meta.chartHash);
+    if (cached) return cached;
+    const out = baziFromAstrolabe(chart);
+    if (this.baziCache.size > 64) this.baziCache.clear();
+    this.baziCache.set(chart.meta.chartHash, out);
+    return out;
+  }
+
+  private readonly baziCache = new Map<string, BaZiChart>();
 
   private computeChart(input: NormalizedInput, gender: Gender): Astrolabe {
     applySchool(this.school);
