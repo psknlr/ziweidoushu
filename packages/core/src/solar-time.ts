@@ -85,8 +85,34 @@ export function timeIndexFromHour(hour: number): number {
   return hour === 23 ? 12 : Math.floor((hour + 1) / 2);
 }
 
+/**
+ * 中国夏令时(1986-1991):每年四月中旬首个周日 02:00 拨快一小时,
+ * 九月中旬首个周日 02:00(夏令时)拨回;1986 年首年自 5 月 4 日起。
+ * 区间内的钟表时间比北京标准时快 1 小时,排盘须先扣回。
+ * 依据:国务院 1986 年夏时制通知及历年实施日期(公开档案)。
+ */
+const CHINA_DST: Record<number, [[number, number], [number, number]]> = {
+  1986: [[5, 4], [9, 14]],
+  1987: [[4, 12], [9, 13]],
+  1988: [[4, 10], [9, 11]],
+  1989: [[4, 16], [9, 17]],
+  1990: [[4, 15], [9, 16]],
+  1991: [[4, 14], [9, 15]],
+};
+
+/** 该钟表时刻是否处于中国夏令时区间;是则返回 60(分钟),否则 0 */
+export function chinaDstMinutes(year: number, month: number, day: number, hour: number, minute = 0): number {
+  const range = CHINA_DST[year];
+  if (!range) return 0;
+  const [[sm, sd], [em, ed]] = range;
+  const t = Date.UTC(year, month - 1, day, hour, minute);
+  const start = Date.UTC(year, sm - 1, sd, 2, 0);
+  const end = Date.UTC(year, em - 1, ed, 2, 0);
+  return t >= start && t < end ? 60 : 0;
+}
+
 export interface NormalizeBirthInput {
-  /** 本地出生时刻 */
+  /** 本地(钟表)出生时刻 */
   year: number;
   month: number;
   day: number;
@@ -95,6 +121,8 @@ export interface NormalizeBirthInput {
   /** 出生地经度;缺省则不做真太阳时校正 */
   longitude?: number;
   standardMeridian?: number;
+  /** 是否扣除中国 1986-1991 夏令时(默认 true;仅对区间内时刻生效) */
+  applyChinaDst?: boolean;
 }
 
 export interface NormalizedBirth {
@@ -107,31 +135,46 @@ const pad = (n: number) => String(n).padStart(2, '0');
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
 /**
- * 出生时刻归一化:可选真太阳时校正 → 排盘输入(solarDate + timeIndex)。
- * 校正过程完整记录在 record 中;若时辰因此改变,UI 必须显著提示用户。
+ * 出生时刻归一化:钟表时 → (扣夏令时)标准时 → (可选)真太阳时 → 排盘输入。
+ * 校正过程完整记录在 record 中;若时辰/日期因此改变,UI 必须显著提示用户。
  */
 export function normalizeBirth(input: NormalizeBirthInput): NormalizedBirth {
   const minute = input.minute ?? 0;
   const original = `${input.year}-${pad(input.month)}-${pad(input.day)} ${pad(input.hour)}:${pad(minute)}`;
+  const beforeIndex = timeIndexFromHour(input.hour);
+
+  // ① 夏令时:钟表时比标准时快 1 小时,先扣回
+  const dst = input.applyChinaDst === false ? 0 : chinaDstMinutes(input.year, input.month, input.day, input.hour, minute);
+  const std = new Date(Date.UTC(input.year, input.month - 1, input.day, input.hour, minute) - dst * 60_000);
+  const s = {
+    year: std.getUTCFullYear(),
+    month: std.getUTCMonth() + 1,
+    day: std.getUTCDate(),
+    hour: std.getUTCHours(),
+    minute: std.getUTCMinutes(),
+  };
 
   if (input.longitude === undefined) {
+    const afterIndex = timeIndexFromHour(s.hour);
     return {
-      solarDate: `${input.year}-${input.month}-${input.day}`,
-      timeIndex: timeIndexFromHour(input.hour),
-      record: { enabled: false, originalLocal: original },
+      solarDate: `${s.year}-${s.month}-${s.day}`,
+      timeIndex: afterIndex,
+      record: {
+        enabled: false,
+        originalLocal: original,
+        ...(dst
+          ? {
+              dstMinutes: dst,
+              correctedLocal: `${s.year}-${pad(s.month)}-${pad(s.day)} ${pad(s.hour)}:${pad(s.minute)}`,
+              timeIndexChanged: beforeIndex !== afterIndex || s.day !== input.day,
+            }
+          : {}),
+      },
     };
   }
 
-  const t = toTrueSolarTime({
-    year: input.year,
-    month: input.month,
-    day: input.day,
-    hour: input.hour,
-    minute,
-    longitude: input.longitude,
-    standardMeridian: input.standardMeridian,
-  });
-  const beforeIndex = timeIndexFromHour(input.hour);
+  // ② 真太阳时
+  const t = toTrueSolarTime({ ...s, longitude: input.longitude, standardMeridian: input.standardMeridian });
   const afterIndex = timeIndexFromHour(t.hour);
   return {
     solarDate: `${t.year}-${t.month}-${t.day}`,
@@ -141,7 +184,8 @@ export function normalizeBirth(input: NormalizeBirthInput): NormalizedBirth {
       longitude: input.longitude,
       eotMinutes: t.eotMinutes,
       longitudeMinutes: t.longitudeMinutes,
-      totalOffsetMinutes: t.totalOffsetMinutes,
+      totalOffsetMinutes: round2(t.totalOffsetMinutes - dst),
+      ...(dst ? { dstMinutes: dst } : {}),
       originalLocal: original,
       correctedLocal: `${t.year}-${pad(t.month)}-${pad(t.day)} ${pad(t.hour)}:${pad(t.minute)}`,
       timeIndexChanged:

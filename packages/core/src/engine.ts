@@ -16,7 +16,7 @@ import { resolveSchool, type SchoolConfig } from './config.js';
 import { ZH_CN, type Gender } from './keys.js';
 import { analyze } from './analyzer/index.js';
 import { fillBorrowedStars } from './analyzer/borrow.js';
-import { normalizeBirth, timeIndexFromHour } from './solar-time.js';
+import { normalizeBirth } from './solar-time.js';
 import { lookupCity } from './cities.js';
 import type { Astrolabe, ChartFeatures, HoroscopeSnapshot, NormalizedInput } from './types.js';
 import type { PatternDef } from './analyzer/patterns.js';
@@ -37,6 +37,8 @@ export interface BirthInput {
   useTrueSolarTime?: boolean;
   /** 闰月修正(闰月十五之后算下月),默认 true */
   fixLeap?: boolean;
+  /** 扣除中国 1986-1991 夏令时(钟表时快 1 小时),默认 true */
+  applyChinaDst?: boolean;
 }
 
 export class ZiweiEngine {
@@ -72,20 +74,16 @@ export class ZiweiEngine {
       input.longitude ?? (input.city !== undefined ? lookupCity(input.city)?.longitude : undefined);
     const useTst = input.useTrueSolarTime ?? longitude !== undefined;
 
-    const normalized = useTst
-      ? normalizeBirth({
-          year: input.year,
-          month: input.month,
-          day: input.day,
-          hour: input.hour,
-          minute: input.minute,
-          longitude,
-        })
-      : {
-          solarDate: `${input.year}-${input.month}-${input.day}`,
-          timeIndex: timeIndexFromHour(input.hour),
-          record: { enabled: false as const },
-        };
+    // 夏令时扣除与真太阳时校正统一在 normalizeBirth 完成(不做 TST 时不传经度)
+    const normalized = normalizeBirth({
+      year: input.year,
+      month: input.month,
+      day: input.day,
+      hour: input.hour,
+      minute: input.minute,
+      ...(useTst ? { longitude } : {}),
+      applyChinaDst: input.applyChinaDst ?? true,
+    });
 
     const normalizedInput: NormalizedInput = {
       solarDate: normalized.solarDate,

@@ -10,6 +10,12 @@ import type { BranchKey, BrightnessKey, MutagenKey, StarKey } from '../keys.js';
 import type { Astrolabe, MatchedPattern, Palace } from '../types.js';
 import { soulPalaceIndex, trineIndexes } from './surround.js';
 
+/** 宫位内容匹配规格(夹宫条件用):任一列出星曜在宫,和/或宫内有某四化星 */
+export interface PalaceSpec {
+  stars?: StarKey[];
+  mutagen?: MutagenKey;
+}
+
 export type Condition =
   | { kind: 'soulHasAll'; stars: StarKey[]; desc: string }
   | { kind: 'soulHasOne'; stars: StarKey[]; desc: string }
@@ -19,7 +25,14 @@ export type Condition =
   | { kind: 'soulStarBrightnessIn'; star: StarKey; brightness: BrightnessKey[]; desc: string }
   | { kind: 'starHasMutagen'; star: StarKey; mutagen: MutagenKey; desc: string }
   | { kind: 'trineHasMutagen'; mutagen: MutagenKey; desc: string }
-  | { kind: 'anyOf'; conds: Condition[]; desc: string };
+  /** 命宫内见某四化(禄合鸳鸯、羊陀夹忌等需「命宫见忌/禄」) */
+  | { kind: 'soulHasMutagen'; mutagen: MutagenKey; desc: string }
+  /** 对宫(迁移位)见星(坐贵向贵等) */
+  | { kind: 'oppositeHasOne'; stars: StarKey[]; desc: string }
+  /** 夹宫:命宫左右两邻宫各满足一个规格(不分左右) */
+  | { kind: 'neighborsHaveBoth'; first: PalaceSpec; second: PalaceSpec; desc: string }
+  | { kind: 'anyOf'; conds: Condition[]; desc: string }
+  | { kind: 'allOf'; conds: Condition[]; desc: string };
 
 export interface PatternDef {
   id: string;
@@ -37,12 +50,22 @@ interface Ctx {
   chart: Astrolabe;
   soul: Palace;
   trine: Palace[];
+  opposite: Palace;
+  /** 命宫两邻宫(索引 -1 / +1) */
+  neighbors: [Palace, Palace];
 }
 
 const cellStars = (p: Palace): { key: StarKey; brightness?: BrightnessKey; mutagen?: MutagenKey }[] => [
   ...p.majorStars,
   ...p.minorStars,
 ];
+
+function palaceMatches(p: Palace, spec: PalaceSpec): boolean {
+  const cell = cellStars(p);
+  const starOk = spec.stars ? spec.stars.some((s) => cell.some((x) => x.key === s)) : true;
+  const mutOk = spec.mutagen ? cell.some((x) => x.mutagen === spec.mutagen) : true;
+  return starOk && mutOk;
+}
 
 function evalCond(cond: Condition, ctx: Ctx): boolean {
   switch (cond.kind) {
@@ -64,8 +87,21 @@ function evalCond(cond: Condition, ctx: Ctx): boolean {
       return ctx.chart.palaces.some((p) => cellStars(p).some((x) => x.key === cond.star && x.mutagen === cond.mutagen));
     case 'trineHasMutagen':
       return ctx.trine.some((p) => cellStars(p).some((x) => x.mutagen === cond.mutagen));
+    case 'soulHasMutagen':
+      return cellStars(ctx.soul).some((x) => x.mutagen === cond.mutagen);
+    case 'oppositeHasOne':
+      return cond.stars.some((s) => cellStars(ctx.opposite).some((x) => x.key === s));
+    case 'neighborsHaveBoth': {
+      const [l, r] = ctx.neighbors;
+      return (
+        (palaceMatches(l, cond.first) && palaceMatches(r, cond.second)) ||
+        (palaceMatches(l, cond.second) && palaceMatches(r, cond.first))
+      );
+    }
     case 'anyOf':
       return cond.conds.some((c) => evalCond(c, ctx));
+    case 'allOf':
+      return cond.conds.every((c) => evalCond(c, ctx));
   }
 }
 
@@ -74,12 +110,19 @@ export function evaluatePatterns(chart: Astrolabe, defs: readonly PatternDef[]):
   const soulIdx = soulPalaceIndex(chart);
   const soul = chart.palaces[soulIdx];
   if (!soul) throw new Error('[@ziwei/core] 命宫索引越界');
-  const trine = trineIndexes(soulIdx).map((i) => {
-    const p = chart.palaces[i];
-    if (!p) throw new Error('[@ziwei/core] 三方四正索引越界');
+  const at = (i: number): Palace => {
+    const p = chart.palaces[((i % 12) + 12) % 12];
+    if (!p) throw new Error('[@ziwei/core] 宫位索引越界');
     return p;
-  });
-  const ctx: Ctx = { chart, soul, trine };
+  };
+  const trine = trineIndexes(soulIdx).map(at);
+  const ctx: Ctx = {
+    chart,
+    soul,
+    trine,
+    opposite: at(soulIdx + 6),
+    neighbors: [at(soulIdx - 1), at(soulIdx + 1)],
+  };
 
   const matched: MatchedPattern[] = [];
   for (const def of defs) {

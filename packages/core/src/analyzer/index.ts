@@ -5,11 +5,12 @@
 import type { Astrolabe, ChartFeatures } from '../types.js';
 import { STARTER_PATTERNS } from '../data/patterns.js';
 import { CLASSIC_PATTERNS } from '../data/patterns-classic.js';
+import { JIA_PATTERNS } from '../data/patterns-jia.js';
 import { evaluatePatterns, type PatternDef } from './patterns.js';
 import { buildFeatures } from './signals.js';
 
-/** 全量格局库:起步 10 格 + 古籍 24 格(吉格/凶格/中性格) */
-export const ALL_PATTERNS: readonly PatternDef[] = [...STARTER_PATTERNS, ...CLASSIC_PATTERNS];
+/** 全量格局库:起步 10 格 + 古籍 24 格 + 夹宫 5 格(吉格/凶格/中性格) */
+export const ALL_PATTERNS: readonly PatternDef[] = [...STARTER_PATTERNS, ...CLASSIC_PATTERNS, ...JIA_PATTERNS];
 
 export { surroundedIndexes, trineIndexes, soulPalaceIndex } from './surround.js';
 export { fillBorrowedStars } from './borrow.js';

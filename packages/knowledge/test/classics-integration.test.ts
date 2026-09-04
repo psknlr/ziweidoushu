@@ -9,8 +9,8 @@ describe('古籍格局库集成', () => {
   test('全量格局 = 起步 10 + 古籍 24,id 唯一', () => {
     expect(STARTER_PATTERNS.length).toBe(10);
     expect(CLASSIC_PATTERNS.length).toBe(24);
-    expect(ALL_PATTERNS.length).toBe(34);
-    expect(new Set(ALL_PATTERNS.map((p) => p.id)).size).toBe(34);
+    expect(ALL_PATTERNS.length).toBe(39);
+    expect(new Set(ALL_PATTERNS.map((p) => p.id)).size).toBe(39);
   });
 
   test('每个古籍格局都引用古籍出处', () => {

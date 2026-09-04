@@ -45,10 +45,12 @@ export function App() {
   const horoscope = useMemo(() => {
     if (!chart || mode === 'origin') return null;
     const safeDay = Math.min(day, new Date(year, month, 0).getDate());
+    // 大限/流年取该年 12-31:虚岁按「当年所达之岁」计(生日分界流派下不受生日前后影响),
+    // 且 12-31 必在该流年(正月初一/立春分界)之内
     const target =
       mode === 'monthly' || mode === 'daily' || mode === 'hourly'
         ? `${year}-${month}-${safeDay} 12:00`
-        : `${year}-6-15 12:00`;
+        : `${year}-12-31 12:00`;
     return engine.horoscope(chart, target, mode === 'hourly' ? hourIndex : undefined);
   }, [engine, chart, mode, year, month, day, hourIndex]);
 
@@ -57,16 +59,22 @@ export function App() {
     return { a: engine.fromBirth(synastry.a.input), b: engine.fromBirth(synastry.b.input) };
   }, [engine, synastry]);
 
+  /** 打开一张盘(不计防沉迷次数:档案重开/合盘属回看) */
+  const openChart = (input: BirthInput) => {
+    setChart(engine.fromBirth(input));
+    setLastInput(input);
+    setSelected(null);
+    setView('chart');
+  };
+
+  /** 新排盘:计入每日次数 */
   const handleSubmit = (input: BirthInput) => {
     if (!consumeUsage()) {
       setLimitOpen(true);
       return;
     }
     setUsageTick((t) => t + 1);
-    setChart(engine.fromBirth(input));
-    setLastInput(input);
-    setSelected(null);
-    setView('chart');
+    openChart(input);
   };
   void usageTick;
 
@@ -108,7 +116,7 @@ export function App() {
             <ChartForm onSubmit={handleSubmit} remaining={isUnlocked() ? null : remainingToday()} />
             <ProfilesPanel
               currentInput={lastInput}
-              onLoad={handleSubmit}
+              onLoad={openChart}
               onSynastry={(a, b) => {
                 setSynastry({ a, b });
                 setView('chart');

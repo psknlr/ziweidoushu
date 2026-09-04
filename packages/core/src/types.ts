@@ -77,8 +77,10 @@ export interface TrueSolarTimeRecord {
   eotMinutes?: number;
   /** 经度差修正,分钟 */
   longitudeMinutes?: number;
-  /** 校正总偏移,分钟 */
+  /** 校正总偏移,分钟(含夏令时扣除) */
   totalOffsetMinutes?: number;
+  /** 扣除的中国夏令时(1986-1991)分钟数;未扣除时缺省 */
+  dstMinutes?: number;
   /** 校正前/后的本地时间(ISO 字符串) */
   originalLocal?: string;
   correctedLocal?: string;

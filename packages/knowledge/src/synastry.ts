@@ -69,6 +69,16 @@ const RELATION_DESC: Record<BranchRelation, string> = {
   none: '无特殊刑冲合害,平缓之局,靠后天经营',
 };
 
+/** 自刑之支:辰午酉亥同支相见为自刑(同宫时提示) */
+const ZI_XING: ReadonlySet<BranchKey> = new Set(['chenEarthly', 'wuEarthly', 'youEarthly', 'haiEarthly']);
+
+export function relationDesc(rel: BranchRelation, a: BranchKey): string {
+  if (rel === 'same' && ZI_XING.has(a)) {
+    return '同宫且为自刑之支(辰午酉亥),气场同频亦易自我消耗、互相较劲,须留独处与缓冲空间';
+  }
+  return RELATION_DESC[rel];
+}
+
 function pairIn(list: [BranchKey, BranchKey][], a: BranchKey, b: BranchKey): boolean {
   return list.some(([x, y]) => (x === a && y === b) || (x === b && y === a));
 }
@@ -131,8 +141,8 @@ export function compareCharts(a: Astrolabe, b: Astrolabe): SynastryFeatures {
   const sb = spouseMajors(b);
 
   const notes: string[] = [];
-  notes.push(`命宫:${zh(aSoul)} × ${zh(bSoul)} —— ${RELATION_DESC[soulRel]}`);
-  notes.push(`年支:${zh(a.ganzhi.year.branch)} × ${zh(b.ganzhi.year.branch)} —— ${RELATION_DESC[yearRel]}`);
+  notes.push(`命宫:${zh(aSoul)} × ${zh(bSoul)} —— ${relationDesc(soulRel, aSoul)}`);
+  notes.push(`年支:${zh(a.ganzhi.year.branch)} × ${zh(b.ganzhi.year.branch)} —— ${relationDesc(yearRel, a.ganzhi.year.branch)}`);
   for (const f of flights) {
     if (!f.palaceInOther) continue;
     const who = f.from === 'a' ? '甲方' : '乙方';
@@ -145,12 +155,12 @@ export function compareCharts(a: Astrolabe, b: Astrolabe): SynastryFeatures {
     }
   }
   return {
-    soulRelation: { a: aSoul, b: bSoul, relation: soulRel, desc: RELATION_DESC[soulRel] },
+    soulRelation: { a: aSoul, b: bSoul, relation: soulRel, desc: relationDesc(soulRel, aSoul) },
     yearRelation: {
       a: a.ganzhi.year.branch,
       b: b.ganzhi.year.branch,
       relation: yearRel,
-      desc: RELATION_DESC[yearRel],
+      desc: relationDesc(yearRel, a.ganzhi.year.branch),
     },
     flights,
     spouseStars: { a: sa.stars, aBorrowed: sa.borrowed, b: sb.stars, bBorrowed: sb.borrowed },
