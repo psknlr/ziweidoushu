@@ -131,7 +131,7 @@ function flightsFrom(giver: Astrolabe, receiver: Astrolabe, from: 'a' | 'b'): Si
   });
 }
 
-export function compareCharts(a: Astrolabe, b: Astrolabe): SynastryFeatures {
+export function compareCharts(a: Astrolabe, b: Astrolabe, labels: [string, string] = ['甲方', '乙方']): SynastryFeatures {
   const aSoul = a.palaces[soulPalaceIndex(a)]!.branch;
   const bSoul = b.palaces[soulPalaceIndex(b)]!.branch;
   const soulRel = branchRelation(aSoul, bSoul);
@@ -145,8 +145,8 @@ export function compareCharts(a: Astrolabe, b: Astrolabe): SynastryFeatures {
   notes.push(`年支:${zh(a.ganzhi.year.branch)} × ${zh(b.ganzhi.year.branch)} —— ${relationDesc(yearRel, a.ganzhi.year.branch)}`);
   for (const f of flights) {
     if (!f.palaceInOther) continue;
-    const who = f.from === 'a' ? '甲方' : '乙方';
-    const target = f.from === 'a' ? '乙方' : '甲方';
+    const who = f.from === 'a' ? labels[0] : labels[1];
+    const target = f.from === 'a' ? labels[1] : labels[0];
     if (f.mutagen === 'sihuaLu' && (f.palaceInOther === 'soulPalace' || f.palaceInOther === 'spousePalace')) {
       notes.push(`${who}化禄(${zh(f.star)})入${target}${zh(f.palaceInOther)}:主动给予缘分与资源,情缘助力`);
     }

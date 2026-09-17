@@ -43,6 +43,16 @@ export {
 } from './synastry.js';
 export { retrieve, retrieveSignals, type RetrievalOptions, type RetrievedEntry } from './retrieval.js';
 export {
+  analyzeGroup,
+  buildGroupPrompt,
+  relationMatrix,
+  MAX_GROUP_MEMBERS,
+  type GroupMember,
+  type GroupFacts,
+  type GroupPair,
+  type GroupPromptOptions,
+} from './group.js';
+export {
   buildSystemPrompt,
   buildBaZiPrompt,
   buildGuidanceBlock,

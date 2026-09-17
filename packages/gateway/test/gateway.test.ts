@@ -188,6 +188,39 @@ describe('端到端 /api/interpret', () => {
     }
   });
 
+  test('members:服务端装配群盘 Prompt(称谓、关系矩阵),超员拒绝', async () => {
+    const gateway = createGatewayServer({ provider: mockProvider() });
+    await new Promise<void>((resolve) => gateway.listen(0, '127.0.0.1', resolve));
+    const port = (gateway.address() as AddressInfo).port;
+    try {
+      const engine = new ZiweiEngine();
+      const me = engine.bySolar('1990-1-15', 4, 'male');
+      const dad = engine.bySolar('1962-5-20', 3, 'male');
+      const mom = engine.bySolar('1965-9-8', 7, 'female');
+      const post = (body: Record<string, unknown>) =>
+        fetch(`http://127.0.0.1:${port}/api/interpret`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+      const r = await post({ chart: me, label: '我', members: [{ label: '父亲', chart: dad }, { label: '母亲', chart: mom }], question: '家庭关系?', skill: 'parents' });
+      await r.text();
+      expect(r.status).toBe(200);
+      const system = captured.body?.messages.find((m) => m.role === 'system')?.content ?? '';
+      expect(system).toContain('3 人群盘分析(我、父亲、母亲)');
+      expect(system).toContain('| | 我 | 父亲 | 母亲 |');
+      expect(system).toContain('### 我 × 父亲');
+      expect(system).toContain('本次解读技法:父母孝亲');
+
+      const tooMany = await post({ chart: me, members: Array.from({ length: 6 }, () => ({ chart: dad })) });
+      expect(tooMany.status).toBe(400);
+      const bad = await post({ chart: me, members: [{ chart: { palaces: [] } }] });
+      expect(bad.status).toBe(400);
+    } finally {
+      gateway.close();
+    }
+  });
+
   test('解读缓存:同盘同问命中缓存,不再请求上游', async () => {
     const gateway = createGatewayServer({ provider: mockProvider() });
     await new Promise<void>((resolve) => gateway.listen(0, '127.0.0.1', resolve));

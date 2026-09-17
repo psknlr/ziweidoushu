@@ -9,6 +9,8 @@
  * - 默认预置 MiniMax 国内版(api.minimaxi.com)+ MiniMax-M3,用户只需填 Key。
  */
 
+import { deltasFromJson, ThinkTagSplitter, type StreamDelta } from './reasoning.js';
+
 export interface DirectProvider {
   label: string;
   baseUrl: string;
@@ -72,12 +74,15 @@ export interface ChatMessage {
   content: string;
 }
 
-/** 浏览器直连 OpenAI 兼容端点的流式调用(SSE) */
+export type { StreamDelta } from './reasoning.js';
+
+/** 浏览器直连 OpenAI 兼容端点的流式调用(SSE);产出 { text } / { reasoning } 结构化增量 */
 export async function* streamDirect(
   provider: DirectProvider,
   messages: ChatMessage[],
   signal?: AbortSignal,
-): AsyncGenerator<string> {
+): AsyncGenerator<StreamDelta> {
+  const splitter = new ThinkTagSplitter();
   const response = await fetch(`${provider.baseUrl.replace(/\/$/, '')}/chat/completions`, {
     method: 'POST',
     headers: { authorization: `Bearer ${provider.apiKey}`, 'content-type': 'application/json' },
@@ -103,21 +108,23 @@ export async function* streamDirect(
       for (const line of event.split('\n')) {
         if (!line.startsWith('data:')) continue;
         const data = line.slice(5).trim();
-        if (data === '[DONE]') return;
+        if (data === '[DONE]') {
+          yield* splitter.flush();
+          return;
+        }
         try {
-          const parsed = JSON.parse(data) as { choices?: { delta?: { content?: string } }[] };
-          const content = parsed.choices?.[0]?.delta?.content;
-          if (content) yield content;
+          yield* deltasFromJson(data, splitter);
         } catch {
           /* 心跳行忽略 */
         }
       }
     }
   }
+  yield* splitter.flush();
 }
 
-/** 网关流式调用 */
-export async function* streamGateway(body: unknown, signal?: AbortSignal): AsyncGenerator<string> {
+/** 网关流式调用;产出 { text } / { reasoning } 结构化增量 */
+export async function* streamGateway(body: unknown, signal?: AbortSignal): AsyncGenerator<StreamDelta> {
   const base = (import.meta.env.VITE_GATEWAY_URL as string | undefined)?.replace(/\/$/, '') ?? '';
   const response = await fetch(`${base}/api/interpret`, {
     method: 'POST',
@@ -141,9 +148,10 @@ export async function* streamGateway(body: unknown, signal?: AbortSignal): Async
       buffer = buffer.slice(sep + 2);
       const data = event.replace(/^data: /, '').trim();
       if (data === '[DONE]') return;
-      const parsed = JSON.parse(data) as { delta?: string; error?: string };
+      const parsed = JSON.parse(data) as { delta?: string; reasoning?: string; error?: string };
       if (parsed.error) throw new Error(parsed.error);
-      if (parsed.delta) yield parsed.delta;
+      if (parsed.reasoning) yield { reasoning: parsed.reasoning };
+      if (parsed.delta) yield { text: parsed.delta };
     }
   }
 }

@@ -1,7 +1,8 @@
 /**
  * AI 解读网关 HTTP 服务(零外部依赖,node:http)。
  *
- * POST /api/interpret  { chart, topics?, question?, history?, system?, year?, temperature? } → SSE 流
+ * POST /api/interpret  { chart, members?, label?, topics?, question?, history?, system?, year?, temperature? } → SSE 流
+ *   - 事件:{delta} 正文增量、{reasoning} 思考增量(推理型模型)、{error}、[DONE]
  *   - features 由服务端重算(不信任客户端分析结果)
  *   - RAG 检索 + 五要素 System Prompt 装配在服务端完成,Prompt 不出服务器
  * GET  /api/health     健康检查
@@ -17,13 +18,17 @@ import {
   buildSynastryPrompt,
   buildSystemPrompt,
   buildBaZiPrompt,
+  buildGroupPrompt,
+  analyzeGroup,
   compareCharts,
+  MAX_GROUP_MEMBERS,
   PROMPT_VERSION,
   retrieveSignals,
+  type GroupMember,
   type Topic,
 } from '@ziwei/knowledge';
 import { availableProviders, type ProviderConfig } from './providers.js';
-import { streamChat } from './stream.js';
+import { streamChatDeltas } from './stream.js';
 import { InterpretCache } from './cache.js';
 import { buildMessages, sanitizeHistory } from './history.js';
 
@@ -41,6 +46,10 @@ interface InterpretBody {
   chart: Astrolabe;
   /** 传入第二张盘即为合盘模式 */
   chartB?: Astrolabe;
+  /** 群盘:主盘 + 若干成员(带称谓),2~6 人任意组合 */
+  members?: { label?: string; chart: Astrolabe }[];
+  /** 主盘称谓(群盘用) */
+  label?: string;
   /** 解读技法(单盘模式),15 技法之一,见 @ziwei/knowledge ALL_SKILLS */
   skill?: string;
   topics?: Topic[];
@@ -157,6 +166,17 @@ async function interpret(req: IncomingMessage, res: ServerResponse, options: Gat
     json(res, 400, { error: 'chartB 不是合法星盘' });
     return;
   }
+  const members = Array.isArray(body.members) ? body.members : [];
+  if (members.length > MAX_GROUP_MEMBERS - 1) {
+    json(res, 400, { error: `群盘最多 ${MAX_GROUP_MEMBERS} 人(含主盘)` });
+    return;
+  }
+  for (const m of members) {
+    if (!m?.chart?.palaces || m.chart.palaces.length !== 12 || !m.chart.meta?.school) {
+      json(res, 400, { error: 'members 中含不合法星盘' });
+      return;
+    }
+  }
   const skill = body.skill ? ALL_SKILLS[body.skill] : undefined;
   if (body.skill && !skill) {
     json(res, 400, { error: `未知技法: ${body.skill}(可用: ${Object.keys(ALL_SKILLS).join(', ')})` });
@@ -165,13 +185,25 @@ async function interpret(req: IncomingMessage, res: ServerResponse, options: Gat
 
   const question =
     body.question?.trim() ||
-    (body.chartB ? '请依照输出结构,为两张命盘做合盘分析。' : '请依照输出结构,为这张命盘做整体解读。');
+    (members.length > 0
+      ? '请依照输出结构,为这组人物做群盘分析。'
+      : body.chartB
+        ? '请依照输出结构,为两张命盘做合盘分析。'
+        : '请依照输出结构,为这张命盘做整体解读。');
   const history = sanitizeHistory(body.history);
 
   // 缓存键用 chart 全量内容计算(不信任客户端 meta.chartHash,防跨用户投毒)
   const cacheKey = options.cache
     ? InterpretCache.key({
-        chart: { a: chart, b: body.chartB, skill: body.skill, system: body.system ?? 'ziwei', year: body.year },
+        chart: {
+          a: chart,
+          b: body.chartB,
+          members: members.map((m) => ({ label: String(m.label ?? ''), chart: m.chart })),
+          label: body.label,
+          skill: body.skill,
+          system: body.system ?? 'ziwei',
+          year: body.year,
+        },
         topics: body.topics,
         question,
         history,
@@ -201,12 +233,29 @@ async function interpret(req: IncomingMessage, res: ServerResponse, options: Gat
 
   // 服务端重算分析与检索:确定性部分不信任客户端
   let systemPrompt: string;
-  if (body.chartB) {
+  const mode = body.system === 'bazi' || body.system === 'both' ? body.system : 'ziwei';
+  const year = typeof body.year === 'number' && Number.isFinite(body.year) ? Math.trunc(body.year) : undefined;
+  const topics = body.topics ?? skill?.topics;
+  if (members.length > 0) {
+    const withBazi = mode !== 'ziwei';
+    const labelOf = (raw: unknown, fallback: string) => {
+      const s = typeof raw === 'string' ? raw.trim().slice(0, 24) : '';
+      return s || fallback;
+    };
+    const group: GroupMember[] = [
+      { label: labelOf(body.label, '主盘'), chart, ...(withBazi ? { bazi: baziFromAstrolabe(chart) } : {}) },
+      ...members.map((m, i) => ({
+        label: labelOf(m.label, `成员${i + 1}`),
+        chart: m.chart,
+        ...(withBazi ? { bazi: baziFromAstrolabe(m.chart) } : {}),
+      })),
+    ];
+    const facts = analyzeGroup(group);
+    const retrieved = retrieveSignals(facts.signals, ALL_ENTRIES, { topics, limit: 12 });
+    systemPrompt = buildGroupPrompt(facts, retrieved, { skill, withBazi, year });
+  } else if (body.chartB) {
     systemPrompt = buildSynastryPrompt(chart, body.chartB, compareCharts(chart, body.chartB));
   } else {
-    const mode = body.system === 'bazi' || body.system === 'both' ? body.system : 'ziwei';
-    const year = typeof body.year === 'number' && Number.isFinite(body.year) ? Math.trunc(body.year) : undefined;
-    const topics = body.topics ?? skill?.topics;
     const features = analyze(chart);
     if (mode === 'bazi') {
       const bazi = baziFromAstrolabe(chart);
@@ -226,9 +275,12 @@ async function interpret(req: IncomingMessage, res: ServerResponse, options: Gat
   sseHead(false);
   const parts: string[] = [];
   try {
-    for await (const delta of streamChat(options.provider, { messages, temperature: body.temperature })) {
-      parts.push(delta);
-      res.write(`data: ${JSON.stringify({ delta })}\n\n`);
+    for await (const d of streamChatDeltas(options.provider, { messages, temperature: body.temperature })) {
+      if (d.reasoning) res.write(`data: ${JSON.stringify({ reasoning: d.reasoning })}\n\n`);
+      if (d.text) {
+        parts.push(d.text);
+        res.write(`data: ${JSON.stringify({ delta: d.text })}\n\n`);
+      }
     }
     res.write('data: [DONE]\n\n');
     // 仅完整成功的流才入缓存
