@@ -368,6 +368,10 @@ button.primary:disabled { opacity: 0.45; cursor: wait; }
 .settings-row { display: flex; gap: 8px; }
 .settings-row .modal-input { flex: 1; }
 .settings-unlock { width: auto; padding: 0 22px; }
+.file-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; }
+.file-btn input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.file-btn.danger { border-color: rgba(248, 113, 113, 0.5); color: var(--ji); }
+.link { color: var(--violet); text-decoration: underline; }
 
 /* ------------------------------------------------------------ 紫微 / 八字 切换 */
 .seg { display: inline-flex; gap: 4px; padding: 4px; border: 1px solid var(--border); border-radius: 999px; background: rgba(10, 11, 24, 0.6); align-self: flex-start; }
