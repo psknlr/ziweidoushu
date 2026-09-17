@@ -2,7 +2,7 @@
  * SSE 解析鲁棒性:CRLF 分行、分块切割、单事件多 data 行。
  */
 import { afterEach, describe, expect, test, vi } from 'vitest';
-import { streamChat } from '../src/stream.js';
+import { streamChat, streamChatDeltas } from '../src/stream.js';
 import type { ProviderConfig } from '../src/providers.js';
 
 const provider: ProviderConfig = {
@@ -57,5 +57,16 @@ describe('streamChat SSE 解析', () => {
   test('单事件多 data 行按序拼接;心跳注释行忽略', async () => {
     vi.stubGlobal('fetch', fakeFetch([`: keep-alive\n${chunk('甲')}\n${chunk('乙')}\n\n${chunk('丙')}\n\n`]));
     expect(await collect()).toBe('甲乙丙');
+  });
+
+  test('推理增量分流:reasoning_content 与 <think> 均归入 reasoning,streamChat 只吐正文', async () => {
+    const r = (reasoning_content: string) => `data: ${JSON.stringify({ choices: [{ delta: { reasoning_content } }] })}`;
+    vi.stubGlobal('fetch', fakeFetch([`${r('先想')}\n\n${chunk('<think>再想</think>正')}\n\n${chunk('文')}\n\ndata: [DONE]\n\n`]));
+    const deltas: { text?: string; reasoning?: string }[] = [];
+    for await (const d of streamChatDeltas(provider, { messages: [{ role: 'user', content: 'hi' }] })) deltas.push(d);
+    expect(deltas.map((d) => d.reasoning ?? '').join('')).toBe('先想再想');
+    expect(deltas.map((d) => d.text ?? '').join('')).toBe('正文');
+    vi.stubGlobal('fetch', fakeFetch([`${r('先想')}\n\n${chunk('<think>再想</think>正文')}\n\ndata: [DONE]\n\n`]));
+    expect(await collect()).toBe('正文');
   });
 });

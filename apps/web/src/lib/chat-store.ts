@@ -16,7 +16,16 @@ export interface ChatTurn {
   mode?: string;
   /** 命理体系:ziwei / bazi / both */
   system?: string;
+  /** 模型思考过程(推理型模型),与正文分开呈现,不进入历史上下文 */
+  reasoning?: string;
   error?: boolean;
+}
+
+export interface ConversationMember {
+  /** 档案 id(当前盘为 'current') */
+  id: string;
+  name: string;
+  chartHash: string;
 }
 
 export interface Conversation {
@@ -28,6 +37,8 @@ export interface Conversation {
   createdAt: string;
   updatedAt: string;
   turns: ChatTurn[];
+  /** 群盘成员(单人对话缺省) */
+  members?: ConversationMember[];
 }
 
 export interface KeyValueStorage {
@@ -52,7 +63,7 @@ function defaultStorage(): KeyValueStorage {
   return typeof localStorage !== 'undefined' ? localStorage : createMemoryStorage();
 }
 
-export function newConversation(chartHash: string, chartLabel: string, now = new Date()): Conversation {
+export function newConversation(chartHash: string, chartLabel: string, now = new Date(), members?: ConversationMember[]): Conversation {
   const at = now.toISOString();
   return {
     id: `${now.getTime().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
@@ -62,7 +73,14 @@ export function newConversation(chartHash: string, chartLabel: string, now = new
     createdAt: at,
     updatedAt: at,
     turns: [],
+    ...(members?.length ? { members } : {}),
   };
+}
+
+/** 群盘对话键:主盘 + 成员哈希(排序,顺序无关) */
+export function groupKey(primaryHash: string, memberHashes: string[]): string {
+  if (memberHashes.length === 0) return primaryHash;
+  return [primaryHash, ...[...memberHashes].sort()].join('+');
 }
 
 /** 对话标题:取首问前 24 字;空问题用技法名兜底 */
@@ -99,9 +117,14 @@ export function conversationToMarkdown(conv: Conversation): string {
     '- 出品:紫微斗数工作台 · 医哲未来人工智能研究院(IMPF-AI)',
     '',
   ];
+  if (conv.members?.length) lines.splice(3, 0, `- 参与人物:${conv.members.map((m) => m.name).join('、')}`);
   for (const t of conv.turns) {
     const who = t.role === 'user' ? '**问**' : `**答${t.label ? `(${t.label})` : ''}**`;
-    lines.push(`${who}:`, '', t.content.trim(), '');
+    lines.push(`${who}:`, '');
+    if (t.role === 'assistant' && t.reasoning?.trim()) {
+      lines.push('<details><summary>思考过程</summary>', '', t.reasoning.trim(), '', '</details>', '');
+    }
+    lines.push(t.content.trim(), '');
     if (t.role === 'user' && t.context) lines.push('> ' + t.context.split('\n').join('\n> '), '');
   }
   lines.push('---', '命理内容仅供文化研究与自我认知参考,不构成医疗/投资/重大决策建议。');

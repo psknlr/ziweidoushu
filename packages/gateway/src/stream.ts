@@ -4,6 +4,9 @@
  * OpenAI 兼容协议,归一点只剩 URL/鉴权,已在 providers.ts 处理。)
  */
 import { upstreamRequest, type ProviderConfig } from './providers.js';
+import { deltasFromJson, ThinkTagSplitter, type StreamDelta } from './reasoning.js';
+
+export type { StreamDelta } from './reasoning.js';
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -16,8 +19,15 @@ export interface ChatRequest {
   maxTokens?: number;
 }
 
-/** 调用上游并以异步生成器逐段产出文本增量 */
+/** 调用上游并以异步生成器逐段产出文本增量(仅正文;思考被丢弃) */
 export async function* streamChat(provider: ProviderConfig, request: ChatRequest): AsyncGenerator<string> {
+  for await (const d of streamChatDeltas(provider, request)) {
+    if (d.text) yield d.text;
+  }
+}
+
+/** 调用上游并产出结构化增量:{ text } 正文 / { reasoning } 思考过程 */
+export async function* streamChatDeltas(provider: ProviderConfig, request: ChatRequest): AsyncGenerator<StreamDelta> {
   const { url, headers } = upstreamRequest(provider);
   const response = await fetch(url, {
     method: 'POST',
@@ -38,6 +48,7 @@ export async function* streamChat(provider: ProviderConfig, request: ChatRequest
 
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
+  const splitter = new ThinkTagSplitter();
   let buffer = '';
   try {
     for (;;) {
@@ -50,34 +61,34 @@ export async function* streamChat(provider: ProviderConfig, request: ChatRequest
       while ((sep = buffer.indexOf('\n\n')) !== -1) {
         const event = buffer.slice(0, sep);
         buffer = buffer.slice(sep + 2);
-        const delta = parseSseEvent(event);
-        if (delta === DONE) return;
-        if (delta) yield delta;
+        const { deltas, done: finished } = parseSseEvent(event, splitter);
+        yield* deltas;
+        if (finished) {
+          yield* splitter.flush();
+          return;
+        }
       }
     }
-    const tail = parseSseEvent(buffer);
-    if (tail && tail !== DONE) yield tail;
+    const tail = parseSseEvent(buffer, splitter);
+    yield* tail.deltas;
+    yield* splitter.flush();
   } finally {
     reader.releaseLock();
   }
 }
 
-const DONE = Symbol('done');
-
-/** 解析一个 SSE 事件;一个事件内若有多条 data 行,增量按序拼接 */
-function parseSseEvent(event: string): string | typeof DONE | undefined {
-  let out = '';
+/** 解析一个 SSE 事件;一个事件内若有多条 data 行,增量按序输出 */
+function parseSseEvent(event: string, splitter: ThinkTagSplitter): { deltas: StreamDelta[]; done: boolean } {
+  const deltas: StreamDelta[] = [];
   for (const line of event.split('\n')) {
     if (!line.startsWith('data:')) continue;
     const data = line.slice(5).trim();
-    if (data === '[DONE]') return out || DONE;
+    if (data === '[DONE]') return { deltas, done: true };
     try {
-      const parsed = JSON.parse(data) as { choices?: { delta?: { content?: string } }[] };
-      const content = parsed.choices?.[0]?.delta?.content;
-      if (content) out += content;
+      deltas.push(...deltasFromJson(data, splitter));
     } catch {
       // 非 JSON 的注释/心跳行,忽略
     }
   }
-  return out || undefined;
+  return { deltas, done: false };
 }

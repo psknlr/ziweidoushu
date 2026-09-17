@@ -167,7 +167,10 @@ export function App() {
 
         {view === 'agent' &&
           (chart ? (
-            <AIPanel chart={chart} bazi={bazi} year={year} channel={channel} horoscope={horoscope} mode={mode} onModeChange={setMode} />
+            <AIPanel
+              engine={engine} chart={chart} bazi={bazi} year={year} channel={channel}
+              horoscope={horoscope} mode={mode} onModeChange={setMode} lastInput={lastInput}
+            />
           ) : (
             needChart('智能体需要一张命盘')
           ))}
