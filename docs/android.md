@@ -20,14 +20,35 @@ npx cap open android               # 打开工程,Run ▶ 即装机调试,Build 
 
 # 方式二:命令行
 cd android
-./gradlew assembleDebug            # 产物: app/build/outputs/apk/debug/app-debug.apk
-./gradlew bundleRelease            # AAB(上架用,需配置签名)
+./gradlew assembleRelease          # 产物: app/build/outputs/apk/release/app-release.apk(内置分发密钥签名)
+./gradlew assembleDebug            # 调试包同样用分发密钥签名,可与 CI 产物互相覆盖安装
+./gradlew bundleRelease            # AAB(上架用,需用 Secrets/环境变量提供私有密钥)
 ```
 
-## 签名发布(release)
+## 签名与覆盖安装升级(不丢数据)
 
-在 `android/app/build.gradle` 的 `signingConfigs` 配置 keystore,或使用
-Android Studio → Build → Generate Signed Bundle/APK 向导。
+Android 只允许**同一签名密钥**且 **versionCode 递增**的 APK 覆盖安装;满足这两点,
+档案/对话/设置(均在 WebView localStorage)在升级后原样保留。本仓库的做法:
+
+| 项目 | 机制 |
+|---|---|
+| 签名 | `app/build.gradle` 的 `signingConfigs.dist`:优先读环境变量 `ZIWEI_KEYSTORE_FILE / ZIWEI_KEYSTORE_PASSWORD / ZIWEI_KEY_ALIAS / ZIWEI_KEY_PASSWORD`;未提供时回退到仓库内置分发密钥 `android/keystore/ziwei-dist.jks`(别名 `ziwei`,口令 `ziwei-dist-2026`) |
+| 版本号 | `ZIWEI_VERSION_CODE`(CI 取 `1000 + GITHUB_RUN_NUMBER`)与 `ZIWEI_VERSION_NAME`(`包版本.构建号`,同时注入 `VITE_APP_VERSION` 显示在「设置 → 关于」) |
+| CI | `.github/workflows/build-android.yml` 构建 `assembleRelease`,用 `apksigner` 校验签名后发布到 `apk-latest` |
+
+内置分发密钥在公开仓库中,**只适用于侧载分发**(任何人都能用它签名)。正式上架请在 GitHub
+仓库 Settings → Secrets 添加 `ANDROID_KEYSTORE_BASE64`(`base64 -w0 your.jks`)、
+`ANDROID_KEYSTORE_PASSWORD`、`ANDROID_KEY_ALIAS`、`ANDROID_KEY_PASSWORD`,CI 会自动改用私有密钥;
+注意换密钥后已装机的用户需卸载重装一次(可先用「设置 → 数据备份」导出再恢复)。
+
+**从旧版升级**:2026-09-17 之前的 CI 产物每次构建用随机 debug 密钥签名,首次升级到稳定签名版本
+必须先卸载旧版;旧版可在「智能体 → 历史 → 导出全部历史」保存对话,档案需重新录入。此后所有版本
+均可直接覆盖安装。
+
+## 数据备份
+
+「设置 → 数据备份」可导出/导入全部本机数据(档案、对话、模型配置、通道与流派、研究权限)为 JSON;
+移动端走系统分享面板保存到文件或云盘,导入支持「合并」(按 id 去重)与「整体替换」。
 
 ## App 内的 AI 通道
 

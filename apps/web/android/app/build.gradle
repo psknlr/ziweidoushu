@@ -1,14 +1,36 @@
 apply plugin: 'com.android.application'
 
+// ---- 稳定签名与版本号(覆盖安装升级、数据保留的前提) ----
+// 1. 签名:同一密钥签名的 APK 才能覆盖安装。优先读环境变量(CI Secrets / 本机正式密钥),
+//    否则回退到仓库内置的分发密钥 keystore/ziwei-dist.jks(公开仓库,仅用于侧载分发;
+//    正式上架请用 Secrets 提供私有密钥,见 docs/android.md)。
+// 2. versionCode 必须单调递增(CI 用 GITHUB_RUN_NUMBER),否则 Android 拒绝更新。
+def env = System.getenv()
+def distKeystore = rootProject.file('keystore/ziwei-dist.jks')
+def signingFile = env['ZIWEI_KEYSTORE_FILE'] ? file(env['ZIWEI_KEYSTORE_FILE']) : distKeystore
+def signingStorePassword = env['ZIWEI_KEYSTORE_PASSWORD'] ?: 'ziwei-dist-2026'
+def signingKeyAlias = env['ZIWEI_KEY_ALIAS'] ?: 'ziwei'
+def signingKeyPassword = env['ZIWEI_KEY_PASSWORD'] ?: signingStorePassword
+def ziweiVersionCode = (env['ZIWEI_VERSION_CODE'] ?: '1').toInteger()
+def ziweiVersionName = env['ZIWEI_VERSION_NAME'] ?: '0.1.0-local'
+
 android {
     namespace "com.ziwei.workbench"
     compileSdk rootProject.ext.compileSdkVersion
+    signingConfigs {
+        dist {
+            storeFile signingFile
+            storePassword signingStorePassword
+            keyAlias signingKeyAlias
+            keyPassword signingKeyPassword
+        }
+    }
     defaultConfig {
         applicationId "com.ziwei.workbench"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode ziweiVersionCode
+        versionName ziweiVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -20,6 +42,11 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.dist
+        }
+        debug {
+            // 本机调试也用同一分发密钥,便于与 CI 产物互相覆盖安装
+            signingConfig signingConfigs.dist
         }
     }
 }
