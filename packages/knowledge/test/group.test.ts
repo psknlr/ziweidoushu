@@ -58,6 +58,18 @@ describe('relationMatrix / buildGroupPrompt', () => {
     expect(prompt).not.toContain('八字:');
   });
 
+  test('群盘技法:沿用其完整输出结构;单盘技法:前后补各人定位与关系矩阵', () => {
+    const couple = analyzeGroup([{ label: '甲', chart: a }, { label: '乙', chart: b }]);
+    const p1 = buildGroupPrompt(couple, [], { skill: ALL_SKILLS['group-couple'] });
+    expect(p1).toContain('本次解读技法:伴侣合盘');
+    expect(p1).toContain('1. 缘分总论(150字内)');
+    expect(p1).toContain('当前运限的同步与错位(如有)');
+    expect(p1).not.toContain('各人定位(甲、乙)');
+    const p2 = buildGroupPrompt(couple, [], { skill: ALL_SKILLS['career'] });
+    expect(p2).toContain('1. 各人定位(甲、乙)');
+    expect(p2).toContain('关系矩阵与经营建议');
+  });
+
   test('withBazi 时附各人八字', () => {
     const withBazi = analyzeGroup([
       { label: '甲', chart: a, bazi: engine.bazi(a) },

@@ -92,9 +92,13 @@ export function relationMatrix(facts: GroupFacts): string {
 export function buildGroupPrompt(facts: GroupFacts, retrieved: RetrievedEntry[], options: GroupPromptOptions = {}): string {
   const persona = options.personaName ?? '星衡先生';
   const names = facts.members.map((m) => m.label);
-  const structure = options.skill
-    ? [`各人定位(${names.join('、')})`, ...options.skill.outputStructure.slice(0, -1), '关系矩阵与经营建议', options.skill.outputStructure.at(-1) ?? '一句收束']
-    : ['各人定位(逐人 60 字内)', '两两关系矩阵(表格)', '群体互动动力(谁付出、谁在意、谁主导)', '磨合课题与经营之道', '一句收束'];
+  // 群盘专用技法自带完整输出结构;单盘技法套用时在前后补上各人定位与关系矩阵
+  const isGroupSkill = options.skill?.id.startsWith('group-') ?? false;
+  const structure = !options.skill
+    ? ['各人定位(逐人 60 字内)', '两两关系矩阵(表格)', '群体互动动力(谁付出、谁在意、谁主导)', '磨合课题与经营之道', '一句收束']
+    : isGroupSkill
+      ? options.skill.outputStructure
+      : [`各人定位(${names.join('、')})`, ...options.skill.outputStructure.slice(0, -1), '关系矩阵与经营建议', options.skill.outputStructure.at(-1) ?? '一句收束'];
 
   const memberBlocks = facts.members.flatMap((m) => [
     `## ${m.label}`,
