@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { ZiweiEngine, type Astrolabe, type BirthInput } from '@ziwei/core';
 import { ChartForm } from './components/ChartForm.js';
 import { BrightnessLegend, ChartBoard } from './components/ChartBoard.js';
@@ -45,17 +45,20 @@ export function App() {
   const engine = useMemo(() => new ZiweiEngine(preset), [preset]);
   const features = useMemo(() => (chart ? engine.features(chart) : null), [engine, chart]);
   const bazi = useMemo(() => (chart ? engine.bazi(chart) : null), [engine, chart]);
-  const horoscope = useMemo(() => {
-    if (!chart || mode === 'origin') return null;
+  // 运限目标时刻:大限/流年取该年 12-31(虚岁按「当年所达之岁」计,生日分界流派下不受生日前后影响,
+  // 且 12-31 必在该流年之内);流月/流日/流时取具体日期
+  const horoscopeTarget = useMemo(() => {
     const safeDay = Math.min(day, new Date(year, month, 0).getDate());
-    // 大限/流年取该年 12-31:虚岁按「当年所达之岁」计(生日分界流派下不受生日前后影响),
-    // 且 12-31 必在该流年(正月初一/立春分界)之内
-    const target =
-      mode === 'monthly' || mode === 'daily' || mode === 'hourly'
-        ? `${year}-${month}-${safeDay} 12:00`
-        : `${year}-12-31 12:00`;
-    return engine.horoscope(chart, target, mode === 'hourly' ? hourIndex : undefined);
-  }, [engine, chart, mode, year, month, day, hourIndex]);
+    return mode === 'monthly' || mode === 'daily' || mode === 'hourly'
+      ? `${year}-${month}-${safeDay} 12:00`
+      : `${year}-12-31 12:00`;
+  }, [mode, year, month, day]);
+  /** 任意一张盘在当前运限设置下的快照(群盘各成员共用同一目标时刻) */
+  const horoscopeFor = useCallback(
+    (c: Astrolabe) => (mode === 'origin' ? null : engine.horoscope(c, horoscopeTarget, mode === 'hourly' ? hourIndex : undefined)),
+    [engine, mode, horoscopeTarget, hourIndex],
+  );
+  const horoscope = useMemo(() => (chart ? horoscopeFor(chart) : null), [chart, horoscopeFor]);
 
   const synastryCharts = useMemo(() => {
     if (!synastry) return null;
@@ -168,8 +171,11 @@ export function App() {
         {view === 'agent' &&
           (chart ? (
             <AIPanel
-              engine={engine} chart={chart} bazi={bazi} year={year} channel={channel}
-              horoscope={horoscope} mode={mode} onModeChange={setMode} lastInput={lastInput}
+              engine={engine} chart={chart} bazi={bazi} channel={channel} lastInput={lastInput}
+              horoscope={horoscope} horoscopeFor={horoscopeFor}
+              mode={mode} onModeChange={setMode}
+              year={year} month={month} day={day} hourIndex={hourIndex}
+              onYearChange={setYear} onMonthChange={setMonth} onDayChange={setDay} onHourChange={setHourIndex}
             />
           ) : (
             needChart('智能体需要一张命盘')

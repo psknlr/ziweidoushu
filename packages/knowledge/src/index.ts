@@ -33,6 +33,7 @@ export { READING_SKILLS, buildSkillBlock, type ReadingSkill, type SkillId } from
 export { ADVANCED_SKILLS, type AdvancedSkillId } from './skills-advanced.js';
 export { ALL_SKILLS } from './skills-all.js';
 export { BAZI_SKILLS, type BaZiSkillId } from './skills-bazi.js';
+export { GROUP_SKILLS, type GroupSkillId } from './skills-group.js';
 export {
   compareCharts,
   branchRelation,

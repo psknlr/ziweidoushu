@@ -539,6 +539,17 @@ button.primary:disabled { opacity: 0.45; cursor: wait; }
 .member-chip button { background: none; border: none; color: var(--text-faint); cursor: pointer; font-size: 12px; padding: 0 2px; line-height: 1; }
 .member-chip button:hover { color: var(--ji); }
 .members-add { font-size: 12px; background: rgba(10, 11, 24, 0.75); color: var(--text-dim); border: 1px dashed var(--border-strong); border-radius: 999px; padding: 4px 10px; max-width: 200px; }
+.presets-row { margin-top: -4px; }
+.preset-name { font-size: 12px; background: rgba(10, 11, 24, 0.75); color: var(--text); border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px; width: 150px; }
+.presets-manage { position: relative; }
+.presets-manage summary { list-style: none; }
+.presets-manage summary::-webkit-details-marker { display: none; }
+.presets-manage ul { list-style: none; margin: 6px 0 0; padding: 8px 10px; border: 1px dashed var(--border); border-radius: 10px; display: flex; flex-direction: column; gap: 6px; min-width: 240px; }
+.presets-manage li { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.presets-manage li small { flex: 1; color: var(--text-faint); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ai-panel .time-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.time-row label { flex: 0 0 auto; min-width: 84px; }
+.time-row input[type="number"] { width: 96px; background: rgba(10, 11, 24, 0.75); color: var(--text); border: 1px solid var(--border); border-radius: 9px; padding: 8px 10px; font-size: 13px; display: block; margin-top: 5px; }
 .chat-composer { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
 .chat-composer textarea { margin: 0; }
 .chat-send-row { display: flex; gap: 8px; align-items: center; }

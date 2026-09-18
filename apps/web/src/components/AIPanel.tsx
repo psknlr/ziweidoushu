@@ -35,10 +35,11 @@ import {
 } from '../lib/chat-store.js';
 import { copyText } from '../lib/clipboard.js';
 import { saveTextFile } from '../lib/export-file.js';
+import { deleteGroupPreset, loadGroupPresets, saveGroupPreset, type GroupPreset } from '../lib/groups.js';
 import { horoscopeDigest } from '../lib/horoscope-text.js';
 import { Markdown } from '../lib/markdown.js';
 import { loadProfiles, type Profile } from '../lib/profiles.js';
-import type { HoroscopeMode } from './TimeNav.js';
+import { HOUR_NAMES, type HoroscopeMode } from './TimeNav.js';
 
 export type { Channel } from '../lib/ai-channel.js';
 
@@ -48,12 +49,21 @@ interface Props {
   bazi: BaZiChart | null;
   /** 当前盘的出生输入(用于识别其档案名) */
   lastInput: BirthInput | null;
-  /** 当前关注的流年(与星盘页共享) */
-  year: number;
   channel: Channel;
   horoscope: HoroscopeSnapshot | null;
+  /** 任意一张盘在当前运限设置下的快照(群盘各成员共用同一目标时刻) */
+  horoscopeFor: (chart: Astrolabe) => HoroscopeSnapshot | null;
   mode: HoroscopeMode;
   onModeChange: (mode: HoroscopeMode) => void;
+  /** 运限目标时刻(与星盘页共享) */
+  year: number;
+  month: number;
+  day: number;
+  hourIndex: number;
+  onYearChange: (y: number) => void;
+  onMonthChange: (m: number) => void;
+  onDayChange: (d: number) => void;
+  onHourChange: (h: number) => void;
 }
 
 type SystemMode = 'ziwei' | 'bazi' | 'both';
@@ -63,8 +73,13 @@ const SYSTEM_OPTIONS: { id: SystemMode; label: string }[] = [
   { id: 'both', label: '紫微 + 八字互参' },
 ];
 
+const GROUP_SKILL_OPTIONS: { id: string; label: string }[] = [
+  { id: 'group-couple', label: '伴侣合盘' }, { id: 'group-family', label: '家庭群盘' }, { id: 'group-team', label: '合伙团队' },
+];
+
 const SKILL_OPTIONS: { id: string; label: string }[] = [
   { id: '', label: '通用解读' },
+  ...GROUP_SKILL_OPTIONS,
   { id: 'bazi', label: '八字命理' }, { id: 'bazi-dayun', label: '八字大运流年' },
   { id: 'overall', label: '整体命格' }, { id: 'marriage', label: '姻缘婚恋' },
   { id: 'career', label: '事业官禄' }, { id: 'business', label: '生意财运' },
@@ -110,14 +125,19 @@ function ThinkingBlock({ reasoning, streaming, hasText }: { reasoning: string; s
   );
 }
 
-export function AIPanel({ engine, chart, bazi, lastInput, year, channel, horoscope, mode, onModeChange }: Props) {
+export function AIPanel({
+  engine, chart, bazi, lastInput, channel, horoscope, horoscopeFor, mode, onModeChange,
+  year, month, day, hourIndex, onYearChange, onMonthChange, onDayChange, onHourChange,
+}: Props) {
   const store = useMemo(() => new ChatStore(), []);
   const [system, setSystem] = useState<SystemMode>('ziwei');
   const chartHash = chart.meta.chartHash;
 
-  // ---- 群盘成员(档案组合) ----
+  // ---- 群盘成员(档案组合)与组合方案 ----
   const [profiles, setProfiles] = useState<Profile[]>(() => loadProfiles());
   const [memberIds, setMemberIds] = useState<string[]>([]);
+  const [presets, setPresets] = useState<GroupPreset[]>(() => loadGroupPresets());
+  const [presetName, setPresetName] = useState('');
   const primaryProfile = lastInput ? profiles.find((p) => sameInput(p.input, lastInput)) : undefined;
   const primaryLabel = primaryProfile?.name ?? '当前盘';
   const chartLabel = `${zh(chart.gender)}命 ${chart.solarDate}`;
@@ -205,6 +225,20 @@ export function AIPanel({ engine, chart, bazi, lastInput, year, channel, horosco
     })),
   ];
 
+  /** 运限上下文:单盘为当前盘摘要;群盘为各成员在同一目标时刻的摘要(便于看四化互相引动) */
+  const buildContext = (sys: SystemMode): string => {
+    if (sys === 'bazi' || mode === 'origin') return '';
+    if (!isGroup) return horoscope ? horoscopeDigest(chart, horoscope, mode) : '';
+    const blocks: string[] = [];
+    for (const m of [{ label: primaryLabel, chart }, ...memberCharts.map((x) => ({ label: x.profile.name, chart: x.chart }))]) {
+      const h = horoscopeFor(m.chart);
+      if (!h) continue;
+      blocks.push(`【${m.label}】\n${horoscopeDigest(m.chart, h, mode).replace(/\n请结合以上运限四化对本命盘的引动作答。$/, '')}`);
+    }
+    if (blocks.length === 0) return '';
+    return `${blocks.join('\n')}\n请结合各人同一时段的运限四化,分析彼此的引动、共振与错位后作答。`;
+  };
+
   const send = async () => {
     if (busy) return;
     const skillLabel = SKILL_OPTIONS.find((s) => s.id === skillId)?.label ?? '通用解读';
@@ -215,8 +249,7 @@ export function AIPanel({ engine, chart, bazi, lastInput, year, channel, horosco
       (isGroup
         ? `请依照输出结构,为 ${convLabel} 这组人物做${skillId ? skillLabel : '群盘解读'}。`
         : `请依照输出结构,为这张${sys === 'bazi' ? '八字' : sys === 'both' ? '紫微与八字' : '命盘'}做${skillId ? skillLabel : '解读'}。`);
-    // 紫微运限上下文只在含紫微的单盘体系下附带;八字流年由 year 参数在 Prompt 内定位
-    const context = !isGroup && sys !== 'bazi' && horoscope && mode !== 'origin' ? horoscopeDigest(chart, horoscope, mode) : '';
+    const context = buildContext(sys);
     const sent = context ? `${q}\n\n${context}` : q;
 
     const controller = new AbortController();
@@ -377,6 +410,32 @@ export function AIPanel({ engine, chart, bazi, lastInput, year, channel, horosco
   };
   const removeMember = (id: string) => setMemberIds((ids) => ids.filter((x) => x !== id));
 
+  const savePreset = () => {
+    if (!isGroup) return;
+    setPresets(saveGroupPreset(presetName || convLabel, primaryProfile?.id ?? 'current', memberIds));
+    setPresetName('');
+    showToast('组合方案已保存');
+  };
+  const applyPreset = (id: string) => {
+    const g = presets.find((p) => p.id === id);
+    if (!g) return;
+    const ids = [...g.memberIds, ...(g.primaryId !== 'current' && g.primaryId !== primaryProfile?.id ? [g.primaryId] : [])]
+      .filter((x, i, arr) => arr.indexOf(x) === i)
+      .filter((x) => profiles.some((p) => p.id === x) && x !== primaryProfile?.id)
+      .slice(0, MAX_GROUP_MEMBERS - 1);
+    if (ids.length === 0) {
+      showToast('方案中的档案已不存在');
+      return;
+    }
+    stop();
+    setConv(null);
+    setMemberIds(ids);
+    showToast(`已载入方案「${g.name}」`);
+  };
+  const removePreset = (id: string) => setPresets(deleteGroupPreset(id));
+
+  const daysInMonth = new Date(year, month, 0).getDate();
+
   // ---- 命盘参数导出 ----
   const exportJson = useMemo(
     () =>
@@ -412,7 +471,7 @@ export function AIPanel({ engine, chart, bazi, lastInput, year, channel, horosco
       }),
       `格局:${features.patterns.map((p) => p.name + (p.brokenBy.length > 0 ? '(破)' : '')).join('、') || '无'}`,
     ];
-    if (horoscope && mode !== 'origin') lines.push(horoscopeDigest(chart, horoscope, mode));
+    if (!isGroup && horoscope && mode !== 'origin') lines.push(horoscopeDigest(chart, horoscope, mode));
     if (bazi) lines.push('', describeBaZi(bazi, year));
     if (isGroup) {
       const facts = analyzeGroup(groupMembers(false));
@@ -421,11 +480,13 @@ export function AIPanel({ engine, chart, bazi, lastInput, year, channel, horosco
       }
       lines.push('', '【两两关系】');
       for (const p of facts.pairs) lines.push(`${p.a} × ${p.b}:`, ...p.features.notes.map((n) => `  - ${n}`));
+      const ctx = buildContext('ziwei');
+      if (ctx) lines.push('', '【各人运限上下文】', ctx);
     }
     return lines.join('\n');
-    // groupMembers 依赖的值均在依赖列表中
+    // groupMembers / buildContext 依赖的值均在依赖列表中
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chart, features, horoscope, mode, bazi, year, isGroup, primaryLabel, memberCharts]);
+  }, [chart, features, horoscope, horoscopeFor, mode, bazi, year, isGroup, primaryLabel, memberCharts]);
 
   const channelText =
     channel === 'gateway' ? '网关' : channel === 'compare' ? '双模型对比' : `直连 · ${loadDirectProviders()[channel === 'directA' ? 0 : 1].label}`;
@@ -474,6 +535,44 @@ export function AIPanel({ engine, chart, bazi, lastInput, year, channel, horosco
           )}
           {profiles.length === 0 && <span className="hint">到「档案」页保存人物后,可在此组合多人群盘</span>}
         </div>
+        {(isGroup || presets.length > 0) && (
+          <div className="members-row presets-row">
+            <span className="members-label">方案</span>
+            {presets.length > 0 && (
+              <select className="members-add" value="" disabled={busy} onChange={(e) => applyPreset(e.target.value)}>
+                <option value="">载入组合方案…</option>
+                {presets.map((g) => (
+                  <option key={g.id} value={g.id}>{g.name}({g.memberIds.length + 1}人)</option>
+                ))}
+              </select>
+            )}
+            {isGroup && (
+              <>
+                <input
+                  className="preset-name"
+                  placeholder={`方案名(默认:${convLabel})`}
+                  value={presetName}
+                  onChange={(e) => setPresetName(e.target.value)}
+                />
+                <button type="button" className="chip-btn" onClick={savePreset}>存为方案</button>
+              </>
+            )}
+            {presets.length > 0 && (
+              <details className="presets-manage">
+                <summary className="chip-btn">管理</summary>
+                <ul>
+                  {presets.map((g) => (
+                    <li key={g.id}>
+                      <span>{g.name}</span>
+                      <small>{g.memberIds.map((id) => profiles.find((p) => p.id === id)?.name ?? '?').join('、')}</small>
+                      <button type="button" className="chip-btn danger" onClick={() => removePreset(g.id)}>删除</button>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            )}
+          </div>
+        )}
 
         {historyOpen && (
           <div className="history-panel">
@@ -528,7 +627,7 @@ export function AIPanel({ engine, chart, bazi, lastInput, year, channel, horosco
                   <div className="msg-meta">
                     {t.role === 'user' ? '问' : `答 · ${t.label ?? ''}`} · {t.at.slice(11, 16)}
                     {t.role === 'user' && t.system && t.system !== 'ziwei' ? ` · ${t.system === 'bazi' ? '八字' : '紫微+八字'}` : ''}
-                    {t.role === 'user' && t.mode && t.mode !== 'origin' && t.system !== 'bazi' && t.context ? ` · 携${modeLabel(t.mode)}上下文` : ''}
+                    {t.role === 'user' && t.mode && t.mode !== 'origin' && t.system !== 'bazi' && t.context ? ` · 携${modeLabel(t.mode)}上下文${conv.members ? '(各人)' : ''}` : ''}
                     {t.role === 'user' && t.skill ? ` · ${SKILL_OPTIONS.find((s) => s.id === t.skill)?.label ?? ''}` : ''}
                   </div>
                   {t.role === 'assistant' && t.reasoning && (
@@ -563,25 +662,72 @@ export function AIPanel({ engine, chart, bazi, lastInput, year, channel, horosco
             <label>
               技法
               <select value={skillId} onChange={(e) => setSkillId(e.target.value)}>
-                {SKILL_OPTIONS.map((s) => (
-                  <option key={s.id} value={s.id}>{s.label}</option>
-                ))}
+                {isGroup ? (
+                  <>
+                    <option value="">通用群盘解读</option>
+                    <optgroup label="群盘技法">
+                      {GROUP_SKILL_OPTIONS.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
+                    </optgroup>
+                    <optgroup label="单盘技法(逐人套用)">
+                      {SKILL_OPTIONS.filter((s) => s.id && !s.id.startsWith('group-')).map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
+                    </optgroup>
+                  </>
+                ) : (
+                  SKILL_OPTIONS.filter((s) => !s.id.startsWith('group-')).map((s) => (
+                    <option key={s.id} value={s.id}>{s.label}</option>
+                  ))
+                )}
               </select>
             </label>
             <label>
               运限上下文
-              <select value={mode} onChange={(e) => onModeChange(e.target.value as HoroscopeMode)} disabled={isGroup}>
+              <select value={mode} onChange={(e) => onModeChange(e.target.value as HoroscopeMode)} disabled={system === 'bazi'}>
                 {MODE_OPTIONS.map((m) => (
                   <option key={m.id} value={m.id}>{m.label}</option>
                 ))}
               </select>
             </label>
           </div>
+          {mode !== 'origin' && system !== 'bazi' && (
+            <div className="row time-row">
+              <label>
+                年
+                <input type="number" value={year} min={1900} max={2100} onChange={(e) => onYearChange(Number(e.target.value) || year)} />
+              </label>
+              {(mode === 'monthly' || mode === 'daily' || mode === 'hourly') && (
+                <label>
+                  月
+                  <select value={month} onChange={(e) => onMonthChange(Number(e.target.value))}>
+                    {Array.from({ length: 12 }, (_, i) => <option key={i + 1} value={i + 1}>{i + 1}</option>)}
+                  </select>
+                </label>
+              )}
+              {(mode === 'daily' || mode === 'hourly') && (
+                <label>
+                  日
+                  <select value={Math.min(day, daysInMonth)} onChange={(e) => onDayChange(Number(e.target.value))}>
+                    {Array.from({ length: daysInMonth }, (_, i) => <option key={i + 1} value={i + 1}>{i + 1}</option>)}
+                  </select>
+                </label>
+              )}
+              {mode === 'hourly' && (
+                <label>
+                  时辰
+                  <select value={hourIndex} onChange={(e) => onHourChange(Number(e.target.value))}>
+                    {HOUR_NAMES.map((h, i) => <option key={i} value={i}>{h}时</option>)}
+                  </select>
+                </label>
+              )}
+            </div>
+          )}
           {isGroup && (
-            <p className="hint">群盘模式:{convLabel}。Prompt 含逐人结构化事实与两两关系矩阵{system !== 'ziwei' ? '(附各人八字)' : ''};运限上下文在群盘下不附带。</p>
+            <p className="hint">
+              群盘模式:{convLabel}。Prompt 含逐人结构化事实与两两关系矩阵{system !== 'ziwei' ? '(附各人八字)' : ''}
+              {mode !== 'origin' && system !== 'bazi' ? `;各成员 ${horoscope?.solarDate ?? ''} 的${modeLabel(mode)}四化摘要随问题携带` : ''}。
+            </p>
           )}
           {!isGroup && system !== 'bazi' && mode !== 'origin' && horoscope && (
-            <p className="hint">将随问题携带 {horoscope.solarDate} 的{modeLabel(mode)}四化上下文(在「星盘」页调整具体年月日时)。</p>
+            <p className="hint">将随问题携带 {horoscope.solarDate} 的{modeLabel(mode)}四化上下文。</p>
           )}
           {!isGroup && system !== 'ziwei' && bazi && (
             <p className="hint">八字事实(四柱十神、旺衰格局用神、大运)随 Prompt 注入,流年定位 {year} 年(在「星盘 › 八字盘」页点选大运/流年调整)。</p>
