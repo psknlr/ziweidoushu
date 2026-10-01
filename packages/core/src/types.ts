@@ -109,6 +109,10 @@ export interface Astrolabe {
     /** 归一化输入+配置 的稳定哈希,用于缓存与档案去重 */
     chartHash: string;
     generatedAt?: string;
+    /** 出生地经纬度(城市库或显式输入;不参与 chartHash)。星座盘上升/天顶与宫位依赖此项 */
+    location?: { latitude: number; longitude: number };
+    /** 民用时区偏移(分钟),星座盘换算 UTC 用;缺省 480(UTC+8) */
+    utcOffsetMinutes?: number;
   };
   gender: Gender;
   solarDate: string;
@@ -191,7 +195,7 @@ export interface Signal {
   entities: string[];
   /** 0-100 */
   weight: number;
-  kind: 'star-palace' | 'star-mutagen-palace' | 'combo' | 'pattern' | 'borrowed' | 'brightness' | 'bazi';
+  kind: 'star-palace' | 'star-mutagen-palace' | 'combo' | 'pattern' | 'borrowed' | 'brightness' | 'bazi' | 'astro';
   note?: string;
 }
 

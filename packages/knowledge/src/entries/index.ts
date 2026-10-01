@@ -1,8 +1,8 @@
 /**
- * 知识库总索引(318 条)。
+ * 知识库总索引(紫微 + 八字 + 星座)。
  *
  * - CURATED_ENTRIES(7):人工精修,reviewed/verified
- * - 分域批量条目(311):初稿(draft),升级 reviewed/verified 须经人工审核;
+ * - 分域批量条目:初稿(draft),升级 reviewed/verified 须经人工审核;
  *   规模、zod 合法性、星×宫/四化×宫全覆盖由 library-scale.test.ts 在 CI 强校验
  */
 import type { KnowledgeEntry } from '../schema.js';
@@ -21,6 +21,7 @@ import { PATTERN_JIA_ENTRIES } from './pattern-jia.js';
 import { CLASSIC_ENTRIES } from './classics.js';
 import { BRIGHTNESS_ENTRIES } from './brightness.js';
 import { BAZI_ENTRIES } from './bazi-entries.js';
+import { ASTRO_ENTRIES } from './astro-entries.js';
 
 export { CURATED_ENTRIES };
 
@@ -39,6 +40,7 @@ export const RAW_ENTRIES: KnowledgeEntry[] = [
   ...CLASSIC_ENTRIES,
   ...BRIGHTNESS_ENTRIES,
   ...BAZI_ENTRIES,
+  ...ASTRO_ENTRIES,
 ];
 
 export const REVIEW_LEDGER = ledgerJson as ReviewLedger;

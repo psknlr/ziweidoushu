@@ -4,7 +4,8 @@
  * → 技法方法论 → 断语纪律 → 固定输出结构。确定性比较在此完成,LLM 只消费结果。
  */
 import {
-  analyze, describeBaZi, type Astrolabe, type BaZiChart, type ChartFeatures, type Signal, zh,
+  analyze, compareAstro, describeAstro, describeBaZi, type Astrolabe, type AstroChart, type AstroSynastry, type BaZiChart,
+  type ChartFeatures, type Signal, zh,
 } from '@ziwei/core';
 import { describeChart, DISCLAIMER } from './prompt.js';
 import { buildGuidanceBlock } from './prompt.js';
@@ -18,12 +19,15 @@ export interface GroupMember {
   chart: Astrolabe;
   features?: ChartFeatures;
   bazi?: BaZiChart;
+  astro?: AstroChart;
 }
 
 export interface GroupPair {
   a: string;
   b: string;
   features: SynastryFeatures;
+  /** 双方均提供星座盘时的星座比较 */
+  astro?: AstroSynastry;
 }
 
 export interface GroupFacts {
@@ -45,7 +49,11 @@ export function analyzeGroup(members: GroupMember[]): GroupFacts {
     for (let j = i + 1; j < full.length; j++) {
       const a = full[i]!;
       const b = full[j]!;
-      pairs.push({ a: a.label, b: b.label, features: compareCharts(a.chart, b.chart, [a.label, b.label]) });
+      pairs.push({
+        a: a.label, b: b.label,
+        features: compareCharts(a.chart, b.chart, [a.label, b.label]),
+        ...(a.astro && b.astro ? { astro: compareAstro(a.astro, b.astro, [a.label, b.label]) } : {}),
+      });
     }
   }
   // 信号并集:同实体组合只保留最高权重,避免重复条目霸榜
@@ -65,6 +73,8 @@ export interface GroupPromptOptions {
   skill?: ReadingSkill;
   /** 附带八字事实(成员需提供 bazi) */
   withBazi?: boolean;
+  /** 附带星座事实与两两星座比较(成员需提供 astro) */
+  withAstro?: boolean;
   year?: number;
 }
 
@@ -104,6 +114,7 @@ export function buildGroupPrompt(facts: GroupFacts, retrieved: RetrievedEntry[],
     `## ${m.label}`,
     describeChart(m.chart, m.features),
     ...(options.withBazi && m.bazi ? ['八字:', describeBaZi(m.bazi, options.year)] : []),
+    ...(options.withAstro && m.astro ? ['星座:', describeAstro(m.astro, options.year)] : []),
     ``,
   ]);
   const pairBlocks = facts.pairs.flatMap((p) => [
@@ -112,11 +123,13 @@ export function buildGroupPrompt(facts: GroupFacts, retrieved: RetrievedEntry[],
     `- 四化互飞:${p.features.flights
       .map((f) => `${f.from === 'a' ? p.a : p.b}${zh(f.star)}化${zh(f.mutagen)}→${f.palaceInOther ? `${f.from === 'a' ? p.b : p.a}${zh(f.palaceInOther)}` : '对方盘无此星'}`)
       .join(';')}`,
+    ...(options.withAstro && p.astro ? p.astro.notes.map((n) => `- 星座:${n}`) : []),
   ]);
+  const extra = [options.withBazi ? '兼通子平八字' : '', options.withAstro ? '兼通西洋占星' : ''].filter(Boolean).join('、');
 
   return [
     `# 角色`,
-    `你是${persona},一位严谨的紫微斗数命理师${options.withBazi ? ',兼通子平八字' : ''}。本次为 ${names.length} 人群盘分析(${names.join('、')}),三合为体、四化为用。`,
+    `你是${persona},一位严谨的紫微斗数命理师${extra ? `,${extra}` : ''}。本次为 ${names.length} 人群盘分析(${names.join('、')}),三合为体、四化为用。`,
     ``,
     `# 各人结构化事实(排盘引擎输出,不得臆造;称谓以此为准)`,
     ...memberBlocks,
@@ -141,6 +154,7 @@ export function buildGroupPrompt(facts: GroupFacts, retrieved: RetrievedEntry[],
     `- 逐人称谓必须使用给定名称,不得混淆;涉及第三方只讲互动模式,不作道德评判`,
     `- 关系矩阵与对照请用 Markdown 表格呈现;断语强度与置信度匹配`,
     ...(options.withBazi ? [`- 紫微定「舞台与角色」,八字定「体质与动力」;相合处加重,相悖处并陈`] : []),
+    ...(options.withAstro ? [`- 星座以双方日月金火上升的元素关系与跨盘相位定「心理契合与摩擦点」;与紫微合冲刑害相合处加重,相悖处并陈,不混用术语`] : []),
     ``,
     `# 输出结构(严格遵循)`,
     ...structure.map((s, i) => `${i + 1}. ${s}`),

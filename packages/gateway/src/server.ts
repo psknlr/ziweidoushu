@@ -2,6 +2,7 @@
  * AI 解读网关 HTTP 服务(零外部依赖,node:http)。
  *
  * POST /api/interpret  { chart, members?, label?, topics?, question?, history?, system?, year?, temperature? } → SSE 流
+ *   - system: ziwei | bazi | both | astro | all(星座盘由服务端依 chart.meta.location 重算)
  *   - 事件:{delta} 正文增量、{reasoning} 思考增量(推理型模型)、{error}、[DONE]
  *   - features 由服务端重算(不信任客户端分析结果)
  *   - RAG 检索 + 五要素 System Prompt 装配在服务端完成,Prompt 不出服务器
@@ -11,13 +12,14 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import { createReadStream, existsSync, statSync } from 'node:fs';
 import { extname, join, normalize } from 'node:path';
-import { analyze, baziFromAstrolabe, baziSignals, type Astrolabe } from '@ziwei/core';
+import { analyze, astroFromAstrolabe, astroSignals, baziFromAstrolabe, baziSignals, type Astrolabe } from '@ziwei/core';
 import {
   ALL_ENTRIES,
   ALL_SKILLS,
   buildSynastryPrompt,
   buildSystemPrompt,
   buildBaZiPrompt,
+  buildAstroPrompt,
   buildGroupPrompt,
   analyzeGroup,
   compareCharts,
@@ -56,9 +58,9 @@ interface InterpretBody {
   question?: string;
   /** 多轮对话历史 [{role:'user'|'assistant', content}],服务端校验并截断 */
   history?: unknown;
-  /** 命理体系:紫微(默认)/ 八字 / 双系统互参 */
-  system?: 'ziwei' | 'bazi' | 'both';
-  /** 关注的流年(八字流年与大运定位) */
+  /** 命理体系:紫微(默认)/ 八字 / 紫微+八字 / 星座 / 三系统互参 */
+  system?: 'ziwei' | 'bazi' | 'both' | 'astro' | 'all';
+  /** 关注的流年(八字流年与大运定位;星座小限与过境) */
   year?: number;
   temperature?: number;
 }
@@ -233,26 +235,29 @@ async function interpret(req: IncomingMessage, res: ServerResponse, options: Gat
 
   // 服务端重算分析与检索:确定性部分不信任客户端
   let systemPrompt: string;
-  const mode = body.system === 'bazi' || body.system === 'both' ? body.system : 'ziwei';
+  const SYSTEMS = ['ziwei', 'bazi', 'both', 'astro', 'all'] as const;
+  const mode = (SYSTEMS as readonly string[]).includes(body.system ?? '') ? (body.system as (typeof SYSTEMS)[number]) : 'ziwei';
+  const withBazi = mode === 'bazi' || mode === 'both' || mode === 'all';
+  const withAstro = mode === 'astro' || mode === 'all';
   const year = typeof body.year === 'number' && Number.isFinite(body.year) ? Math.trunc(body.year) : undefined;
   const topics = body.topics ?? skill?.topics;
   if (members.length > 0) {
-    const withBazi = mode !== 'ziwei';
     const labelOf = (raw: unknown, fallback: string) => {
       const s = typeof raw === 'string' ? raw.trim().slice(0, 24) : '';
       return s || fallback;
     };
+    const enrich = (c: Astrolabe) => ({
+      ...(withBazi ? { bazi: baziFromAstrolabe(c) } : {}),
+      ...(withAstro ? { astro: astroFromAstrolabe(c) } : {}),
+    });
     const group: GroupMember[] = [
-      { label: labelOf(body.label, '主盘'), chart, ...(withBazi ? { bazi: baziFromAstrolabe(chart) } : {}) },
-      ...members.map((m, i) => ({
-        label: labelOf(m.label, `成员${i + 1}`),
-        chart: m.chart,
-        ...(withBazi ? { bazi: baziFromAstrolabe(m.chart) } : {}),
-      })),
+      { label: labelOf(body.label, '主盘'), chart, ...enrich(chart) },
+      ...members.map((m, i) => ({ label: labelOf(m.label, `成员${i + 1}`), chart: m.chart, ...enrich(m.chart) })),
     ];
     const facts = analyzeGroup(group);
-    const retrieved = retrieveSignals(facts.signals, ALL_ENTRIES, { topics, limit: 12 });
-    systemPrompt = buildGroupPrompt(facts, retrieved, { skill, withBazi, year });
+    const extraSignals = withAstro ? group.flatMap((m) => (m.astro ? astroSignals(m.astro) : [])) : [];
+    const retrieved = retrieveSignals([...facts.signals, ...extraSignals], ALL_ENTRIES, { topics, limit: withAstro ? 16 : 12 });
+    systemPrompt = buildGroupPrompt(facts, retrieved, { skill, withBazi, withAstro, year });
   } else if (body.chartB) {
     systemPrompt = buildSynastryPrompt(chart, body.chartB, compareCharts(chart, body.chartB));
   } else {
@@ -261,10 +266,16 @@ async function interpret(req: IncomingMessage, res: ServerResponse, options: Gat
       const bazi = baziFromAstrolabe(chart);
       const retrieved = retrieveSignals(baziSignals(bazi), ALL_ENTRIES, { topics });
       systemPrompt = buildBaZiPrompt(bazi, retrieved, { skill, year });
-    } else if (mode === 'both') {
+    } else if (mode === 'astro') {
+      const astro = astroFromAstrolabe(chart);
+      const retrieved = retrieveSignals(astroSignals(astro), ALL_ENTRIES, { topics, limit: 10 });
+      systemPrompt = buildAstroPrompt(astro, retrieved, { skill, year });
+    } else if (mode === 'both' || mode === 'all') {
       const bazi = baziFromAstrolabe(chart);
-      const retrieved = retrieveSignals([...features.signals, ...baziSignals(bazi)], ALL_ENTRIES, { topics, limit: 12 });
-      systemPrompt = buildSystemPrompt(chart, features, retrieved, { skill, bazi, year });
+      const astro = mode === 'all' ? astroFromAstrolabe(chart) : undefined;
+      const signals = [...features.signals, ...baziSignals(bazi), ...(astro ? astroSignals(astro) : [])];
+      const retrieved = retrieveSignals(signals, ALL_ENTRIES, { topics, limit: astro ? 16 : 12 });
+      systemPrompt = buildSystemPrompt(chart, features, retrieved, { skill, bazi, year, ...(astro ? { astro } : {}) });
     } else {
       const retrieved = retrieveSignals(features.signals, ALL_ENTRIES, { topics });
       systemPrompt = buildSystemPrompt(chart, features, retrieved, { skill });
