@@ -826,3 +826,103 @@ button.primary:disabled { opacity: 0.45; cursor: wait; }
 ::-webkit-scrollbar { width: 9px; height: 9px; }
 ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
+
+/* ------------------------------------------------------------ 星座盘(西洋占星) */
+.as-fire { color: #f0937e; } .as-earth { color: #d9b56a; } .as-air { color: #a7b6f5; } .as-water { color: #7fc8e8; }
+.as-bg-fire { background: rgba(240, 147, 126, 0.85); } .as-bg-earth { background: rgba(217, 181, 106, 0.85); }
+.as-bg-air { background: rgba(167, 182, 245, 0.85); } .as-bg-water { background: rgba(127, 200, 232, 0.85); }
+.as-bg-mod { background: linear-gradient(90deg, var(--violet-deep), var(--violet)); }
+
+.as-board { display: flex; flex-direction: column; gap: 14px; }
+.as-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.as-bigthree { display: flex; gap: 6px; flex-wrap: wrap; }
+.as-chip {
+  font-family: var(--font-display); font-weight: 700; font-size: 14px; letter-spacing: 1px;
+  padding: 4px 12px; border-radius: 999px; border: 1px solid currentColor; background: rgba(10, 11, 24, 0.55);
+}
+.as-chip.dim { color: var(--text-faint); font-weight: 400; font-size: 12px; font-family: var(--font-body); border-style: dashed; }
+.as-time { font-size: 11px; color: var(--text-faint); }
+
+.as-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 720px) { .as-grid { grid-template-columns: 1fr; } }
+.as-card {
+  background: var(--panel-bg, rgba(17, 18, 40, 0.85)); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; min-width: 0;
+}
+.as-card h3 { margin: 0 0 8px; font-family: var(--font-display); font-size: 14px; color: var(--gold); letter-spacing: 2px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.as-card h3 small { font-size: 11px; color: var(--text-faint); letter-spacing: 0.5px; font-family: var(--font-body); font-weight: 400; }
+.as-wheel-card { display: flex; flex-direction: column; align-items: center; }
+.as-wheel-svg { width: 100%; max-width: 420px; height: auto; display: block; }
+.as-ring-outer { fill: rgba(10, 11, 24, 0.7); stroke: var(--gold); stroke-width: 1.2; }
+.as-ring { fill: none; stroke: rgba(69, 72, 119, 0.9); stroke-width: 0.8; }
+.as-ring-inner { fill: rgba(16, 17, 36, 0.9); stroke: rgba(69, 72, 119, 0.9); stroke-width: 0.8; }
+.as-seg { stroke: rgba(10, 11, 24, 0.9); stroke-width: 1; opacity: 0.28; }
+.as-seg.as-fire { fill: #f0937e; } .as-seg.as-earth { fill: #d9b56a; } .as-seg.as-air { fill: #a7b6f5; } .as-seg.as-water { fill: #7fc8e8; }
+.as-sign-glyph { font-size: 15px; fill: var(--text); }
+.as-house-no { font-size: 9px; fill: var(--text-faint); }
+.as-axis { stroke: var(--gold); stroke-width: 1; opacity: 0.7; stroke-dasharray: 3 3; }
+.as-axis-label { font-size: 9px; fill: var(--gold-bright); font-weight: 700; }
+.as-tick { stroke: var(--gold-bright); stroke-width: 1; }
+.as-planet-glyph { font-size: 14px; fill: var(--gold-bright); }
+.as-planet-glyph.retro { fill: #f0937e; }
+.as-planet-deg { font-size: 7.5px; fill: var(--text-dim); }
+.as-center { font-family: var(--font-display); font-size: 13px; fill: var(--text); letter-spacing: 1px; }
+.as-center-sub { font-size: 10px; fill: var(--text-dim); }
+
+.as-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.as-table th { text-align: left; font-weight: 400; color: var(--text-faint); font-size: 11px; padding: 2px 4px 6px; letter-spacing: 1px; }
+.as-table td { padding: 4px 4px; border-top: 1px solid rgba(43, 45, 85, 0.6); white-space: nowrap; }
+.as-glyph { display: inline-block; width: 20px; color: var(--gold-bright); font-size: 14px; }
+.as-row.cls-outer td { color: var(--text-dim); }
+.as-tag { font-size: 10px; padding: 1px 6px; border-radius: 999px; border: 1px solid var(--border); margin-right: 4px; color: var(--text-dim); }
+.as-tag.retro { color: #f0937e; border-color: rgba(240, 147, 126, 0.5); }
+.as-tag.dig-domicile, .as-tag.dig-exaltation { color: #ffd98a; border-color: rgba(255, 217, 138, 0.45); }
+.as-tag.dig-detriment, .as-tag.dig-fall { color: #a7b6f5; border-color: rgba(167, 182, 245, 0.45); }
+
+.as-aspects { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+.as-aspect {
+  display: inline-flex; flex-direction: column; align-items: center; font-size: 14px; padding: 3px 9px;
+  border-radius: 9px; border: 1px solid var(--border); background: rgba(10, 11, 24, 0.5); color: var(--text); min-width: 68px;
+}
+.as-aspect small { font-size: 9.5px; color: var(--text-faint); white-space: nowrap; }
+.as-aspect.harmonious { border-color: rgba(126, 166, 240, 0.5); }
+.as-aspect.challenging { border-color: rgba(248, 113, 113, 0.5); }
+.as-aspect.neutral { border-color: rgba(236, 217, 168, 0.5); }
+
+.as-year h3 { justify-content: flex-start; }
+.as-year-nav { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; }
+.as-year-nav input { width: 76px; background: rgba(10, 11, 24, 0.75); color: var(--text); border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px; font-size: 13px; text-align: center; }
+.as-year-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 720px) { .as-year-grid { grid-template-columns: 1fr; } }
+.as-year-block { border: 1px dashed var(--border); border-radius: 10px; padding: 8px 10px; }
+.as-year-title { font-size: 11px; color: var(--text-faint); letter-spacing: 1px; margin-bottom: 4px; }
+
+/* ------------------------------------------------------------ 人物组合点选 */
+button.member-chip { cursor: pointer; font-family: var(--font-body); }
+button.member-chip i { font-style: normal; color: var(--gold-bright); font-size: 11px; }
+button.member-chip.off { opacity: 0.55; border-style: dashed; background: transparent; }
+button.member-chip.off i { color: var(--text-faint); }
+button.member-chip:disabled { cursor: default; }
+button.members-add { cursor: pointer; }
+button.members-add.active { color: var(--gold-bright); border-color: var(--gold); border-style: solid; }
+.members-picker {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 6px;
+  border: 1px dashed var(--border); border-radius: 10px; padding: 10px; margin: -4px 0 10px;
+}
+.picker-item {
+  display: flex; align-items: center; gap: 7px; font-size: 12.5px; padding: 6px 9px; border-radius: 8px;
+  border: 1px solid var(--border); background: rgba(10, 11, 24, 0.5); cursor: pointer; min-width: 0;
+}
+.picker-item.on { border-color: var(--gold); background: rgba(212, 185, 130, 0.08); }
+.picker-item input { margin: 0; accent-color: var(--violet-deep); flex: 0 0 auto; }
+.picker-name { color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.picker-item small { color: var(--text-faint); margin-left: auto; white-space: nowrap; }
+.picker-item b { color: var(--ink-0); background: var(--gold); border-radius: 999px; font-size: 10px; width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+.picker-foot { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.picker-foot .hint { margin: 0; }
+
+.profile-list li.selected { background: rgba(212, 185, 130, 0.05); border-radius: 8px; }
+.profile-list .pick[aria-pressed="true"] { min-width: 28px; }
+.profile-combo { border-top: 1px dashed var(--border); padding-top: 10px; margin-top: 4px; display: flex; flex-direction: column; gap: 8px; }
+.profile-combo-names { font-size: 12.5px; color: var(--text-dim); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.profile-combo-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.profile-combo-actions .primary { width: auto; flex: 1; min-width: 160px; letter-spacing: 1px; font-size: 13px; padding: 9px 10px; margin: 0; }

@@ -45,7 +45,8 @@ describe('赋文条目与技法集成', () => {
 
   test('全量技法 20 个(基础 7 + 进阶 8 + 八字 2 + 群盘 3)', () => {
     expect(Object.keys(READING_SKILLS)).toHaveLength(7);
-    expect(Object.keys(ALL_SKILLS)).toHaveLength(20);
+    expect(Object.keys(ALL_SKILLS)).toHaveLength(22);
+    for (const id of ['astro', 'astro-year']) expect(ALL_SKILLS[id], `缺星座技法 ${id}`).toBeDefined();
     for (const id of ['group-couple', 'group-family', 'group-team']) expect(ALL_SKILLS[id], `缺群盘技法 ${id}`).toBeDefined();
     for (const id of ['children', 'parents', 'siblings', 'friends', 'relocation', 'spirit', 'decadal', 'annual']) {
       expect(ALL_SKILLS[id], `缺进阶技法 ${id}`).toBeDefined();

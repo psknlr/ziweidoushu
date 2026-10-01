@@ -14,7 +14,7 @@ export interface ChatTurn {
   context?: string;
   skill?: string;
   mode?: string;
-  /** 命理体系:ziwei / bazi / both */
+  /** 命理体系:ziwei / bazi / both / astro / all */
   system?: string;
   /** 模型思考过程(推理型模型),与正文分开呈现,不进入历史上下文 */
   reasoning?: string;
@@ -77,10 +77,10 @@ export function newConversation(chartHash: string, chartLabel: string, now = new
   };
 }
 
-/** 群盘对话键:主盘 + 成员哈希(排序,顺序无关) */
-export function groupKey(primaryHash: string, memberHashes: string[]): string {
-  if (memberHashes.length === 0) return primaryHash;
-  return [primaryHash, ...[...memberHashes].sort()].join('+');
+/** 群盘对话键:全体成员哈希排序后拼接(与点选顺序无关);单人即其 chartHash */
+export function groupKey(hashes: string[]): string {
+  if (hashes.length <= 1) return hashes[0] ?? '';
+  return [...new Set(hashes)].sort().join('+');
 }
 
 /** 对话标题:取首问前 24 字;空问题用技法名兜底 */

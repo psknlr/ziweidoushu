@@ -188,6 +188,54 @@ describe('端到端 /api/interpret', () => {
     }
   });
 
+  test('system=astro / all:服务端依 chart.meta.location 排星座盘;群盘附星座', async () => {
+    const gateway = createGatewayServer({ provider: mockProvider() });
+    await new Promise<void>((resolve) => gateway.listen(0, '127.0.0.1', resolve));
+    const port = (gateway.address() as AddressInfo).port;
+    try {
+      const engine = new ZiweiEngine();
+      const chart = engine.fromBirth({ year: 1990, month: 1, day: 15, hour: 8, minute: 30, gender: 'male', city: '北京' });
+      const post = (body: Record<string, unknown>) =>
+        fetch(`http://127.0.0.1:${port}/api/interpret`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ chart, question: '我的性格底色?', ...body }),
+        });
+      const sys = () => captured.body?.messages.find((m) => m.role === 'system')?.content ?? '';
+
+      const r1 = await post({ system: 'astro', year: 2026, skill: 'astro' });
+      await r1.text();
+      expect(r1.status).toBe(200);
+      expect(sys()).toContain('西洋占星师');
+      expect(sys()).toContain('太阳摩羯座');
+      expect(sys()).toContain('上升'); // 城市库给出纬度 → 有上升
+      expect(sys()).toContain('2026 流年:小限');
+      expect(sys()).not.toContain('命宫在');
+
+      const r2 = await post({ system: 'all', year: 2026 });
+      await r2.text();
+      expect(r2.headers.get('x-cache')).toBe('miss');
+      expect(sys()).toContain('兼通子平八字、兼通西洋占星');
+      expect(sys()).toContain('# 星座(西洋占星)结构化事实');
+      expect(sys()).toContain('# 八字(四柱)结构化事实');
+      expect(sys()).toContain('命宫在');
+
+      const other = engine.fromBirth({ year: 1992, month: 8, day: 16, hour: 11, gender: 'female', city: '上海' });
+      const r3 = await post({ system: 'astro', label: '我', members: [{ label: '她', chart: other }] });
+      await r3.text();
+      expect(sys()).toContain('兼通西洋占星');
+      expect(sys()).toContain('- 星座:太阳:我摩羯座 × 她狮子座');
+      expect(sys()).not.toContain('八字:');
+
+      // 未知 system 回退紫微
+      await post({ system: 'nope' }).then((r) => r.text());
+      expect(sys()).toContain('紫微斗数命理师');
+      expect(sys()).not.toContain('星座(西洋占星)');
+    } finally {
+      gateway.close();
+    }
+  });
+
   test('members:服务端装配群盘 Prompt(称谓、关系矩阵),超员拒绝', async () => {
     const gateway = createGatewayServer({ provider: mockProvider() });
     await new Promise<void>((resolve) => gateway.listen(0, '127.0.0.1', resolve));

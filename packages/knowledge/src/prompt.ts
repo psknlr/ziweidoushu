@@ -5,11 +5,13 @@
  * 装配结果是纯文本 system prompt,与具体 LLM 供应商解耦;
  * promptVersion 纳入解读缓存 key,变更必须升版本。
  */
-import { describeBaZi, describeBrightness, zh, type Astrolabe, type BaZiChart, type ChartFeatures } from '@ziwei/core';
+import {
+  describeAstro, describeBaZi, describeBrightness, zh, type Astrolabe, type AstroChart, type BaZiChart, type ChartFeatures,
+} from '@ziwei/core';
 import type { RetrievedEntry } from './retrieval.js';
 import { buildSkillBlock, type ReadingSkill } from './skills.js';
 
-export const PROMPT_VERSION = '0.3.0';
+export const PROMPT_VERSION = '0.4.0';
 
 export interface PromptOptions {
   /** 命理师人设名 */
@@ -20,7 +22,9 @@ export interface PromptOptions {
   skill?: ReadingSkill;
   /** 附带八字(四柱)事实,做紫微 + 八字双系统互参 */
   bazi?: BaZiChart;
-  /** 关注的流年(八字流年与大运定位) */
+  /** 附带星座(西洋占星)事实,做紫微 + 星座(+ 八字)多系统互参 */
+  astro?: AstroChart;
+  /** 关注的流年(八字流年与大运定位;星座小限与过境) */
   year?: number;
 }
 
@@ -28,6 +32,18 @@ export interface PromptOptions {
 const DUAL_SYSTEM_DISCIPLINE = [
   '- 双系统互参:紫微以宫位星曜定「舞台与角色」,八字以日主十神定「体质与动力」;二者相合处加重断语,相悖处并陈并说明各自依据,不得强行统一。',
   '- 八字部分以旺衰、格局、用神为纲,神煞只作辅助标签;五行缺项只是表面计数,禁止「缺什么补什么」式话术。',
+];
+
+/** 星座互参纪律(与紫微/八字并用时) */
+const ASTRO_DISCIPLINE = [
+  '- 星座互参:西洋占星以三大(日月升)与行星相位定「心理动力与节奏」;与紫微/八字相合处加重,相悖处并陈,不得把星座术语与中式术语混为一谈(如把「元素」等同「五行」)。',
+  '- 星座的陷弱、四分、对分一律表述为张力与成长方向;无出生地(无上升)时宫位断语降一档并说明。',
+];
+
+/** 星座术语规范:中文术语 + 首次出现附英文 */
+const ASTRO_STYLE = [
+  '- 星座术语用中文(合相/对分相/三分相/四分相/六分相、整宫制、小限),首次出现可附英文;度数保留到度分即可。',
+  '- 禁用「水逆害我」「星座不合」等流行话术;逆行只作「内化与复盘」倾向表述。',
 ];
 
 export const DISCLAIMER =
@@ -114,15 +130,19 @@ export function buildSystemPrompt(
     ? options.skill.outputStructure
     : ['命格总断(150字内)', '事业与财运', '婚姻与情感', '健康与家庭', '隐忧与建议', '一句收束(命格金句)'];
 
+  const extra = [options.bazi ? '兼通子平八字' : '', options.astro ? '兼通西洋占星' : ''].filter(Boolean).join('、');
   return [
     `# 角色`,
-    `你是${persona},一位严谨的紫微斗数命理师${options.bazi ? ',兼通子平八字' : ''}。${school}`,
+    `你是${persona},一位严谨的紫微斗数命理师${extra ? `,${extra}` : ''}。${school}`,
     ``,
     `# 本盘结构化事实(排盘引擎输出,不得自行重排或臆造星曜)`,
     describeChart(chart, features),
     ``,
     ...(options.bazi
       ? [`# 八字(四柱)结构化事实(与紫微盘同一出生时刻排出,不得自行重排)`, describeBaZi(options.bazi, options.year), ``]
+      : []),
+    ...(options.astro
+      ? [`# 星座(西洋占星)结构化事实(天文历算输出,回归黄道,不得自行重算)`, describeAstro(options.astro, options.year), ``]
       : []),
     ...(options.skill ? [buildSkillBlock(options.skill), ``] : []),
     `# 专业知识导向(检索自可溯源知识库;请自然融入论述,禁止逐条复述或罗列出处)`,
@@ -134,6 +154,43 @@ export function buildSystemPrompt(
     `- 断语强度与知识置信度匹配:低置信度用"倾向/可能",高置信度方可用确定语气。`,
     `- ${features.brightness.discipline}`,
     ...(options.bazi ? DUAL_SYSTEM_DISCIPLINE : []),
+    ...(options.astro ? [...ASTRO_DISCIPLINE, ...ASTRO_STYLE] : []),
+    ``,
+    `# 输出结构(严格遵循)`,
+    ...structure.map((s, i) => `${i + 1}. ${s}`),
+    ``,
+    `# 免责声明(必须原文附于结尾)`,
+    DISCLAIMER,
+  ].join('\n');
+}
+
+/** 纯星座(西洋占星)解读的 system prompt(五要素结构) */
+export function buildAstroPrompt(
+  astro: AstroChart,
+  retrieved: RetrievedEntry[],
+  options: PromptOptions = {},
+): string {
+  const persona = options.personaName ?? '星衡先生';
+  const structure = options.skill
+    ? options.skill.outputStructure
+    : ['三大总论(150 字内)', '命主星与人生取径', '思维、情感与行动(水金火)', '主要相位与内在动力', '元素与节奏平衡', '核心主题与练习建议', '一句收束'];
+  return [
+    `# 角色`,
+    `你是${persona},一位严谨的西洋占星师。以回归黄道为准,先三大(太阳/月亮/上升)、再命主星与行星落座落宫、再相位与元素平衡;流年用小限法与慢行星过境。`,
+    ``,
+    `# 星座结构化事实(天文历算输出,不得自行重算或臆造位置;宫位为整宫制)`,
+    describeAstro(astro, options.year),
+    ``,
+    ...(options.skill ? [buildSkillBlock(options.skill), ``] : []),
+    `# 专业知识导向(检索自可溯源知识库;请自然融入论述,禁止逐条复述或罗列出处)`,
+    buildGuidanceBlock(retrieved),
+    ``,
+    `# 语言风格`,
+    `- 白话为主,术语首次出现时随手解释;长项与课题并陈,不恐吓、不谄媚、不宿命论。`,
+    `- 禁用"能量""磁场""宇宙频率"等身心灵话术;禁用「水逆害我」「星座不合」等流行话术。`,
+    `- 断语强度与知识置信度匹配:星座描述为倾向与课题;陷弱与刑冲一律表述为成长方向。`,
+    ...ASTRO_STYLE.slice(0, 1),
+    ...(astro.ascendant ? [] : ['- 本盘缺出生地,无上升与天顶,宫位为太阳整宫制:不作宫位与命主星的确定断言,须向用户说明补充出生城市可得完整盘。']),
     ``,
     `# 输出结构(严格遵循)`,
     ...structure.map((s, i) => `${i + 1}. ${s}`),

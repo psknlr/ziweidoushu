@@ -1,8 +1,10 @@
 import { useCallback, useMemo, useState } from 'react';
 import { ZiweiEngine, type Astrolabe, type BirthInput } from '@ziwei/core';
+import { MAX_GROUP_MEMBERS } from '@ziwei/knowledge';
 import { ChartForm } from './components/ChartForm.js';
 import { BrightnessLegend, ChartBoard } from './components/ChartBoard.js';
 import { BaZiBoard } from './components/BaZiBoard.js';
+import { AstroBoard } from './components/AstroBoard.js';
 import { TimeNav, type HoroscopeMode } from './components/TimeNav.js';
 import { AIPanel } from './components/AIPanel.js';
 import { loadChannel, saveChannel, type Channel } from './lib/ai-channel.js';
@@ -12,17 +14,23 @@ import { SettingsView } from './components/SettingsView.js';
 import { UnlockDialog } from './components/UnlockDialog.js';
 import { Logo } from './components/Logo.js';
 import { consumeUsage, isUnlocked, remainingToday } from './lib/usage-limit.js';
-import type { Profile } from './lib/profiles.js';
+import { loadProfiles, type Profile } from './lib/profiles.js';
 
 const NOW = new Date();
 
 type View = 'profile' | 'chart' | 'agent' | 'settings';
+type BoardView = 'ziwei' | 'bazi' | 'astro';
 
 const NAV_ITEMS: { id: View; label: string; glyph: string }[] = [
   { id: 'profile', label: '档案', glyph: '档' },
   { id: 'chart', label: '星盘', glyph: '盘' },
   { id: 'agent', label: '智能体', glyph: '智' },
   { id: 'settings', label: '设置', glyph: '设' },
+];
+const BOARD_ITEMS: { id: BoardView; label: string }[] = [
+  { id: 'ziwei', label: '紫微盘' },
+  { id: 'bazi', label: '八字盘' },
+  { id: 'astro', label: '星座盘' },
 ];
 
 export function App() {
@@ -40,11 +48,16 @@ export function App() {
   const [synastry, setSynastry] = useState<{ a: Profile; b: Profile } | null>(null);
   const [limitOpen, setLimitOpen] = useState(false);
   const [usageTick, setUsageTick] = useState(0);
-  const [boardView, setBoardView] = useState<'ziwei' | 'bazi'>('ziwei');
+  const [boardView, setBoardView] = useState<BoardView>('ziwei');
+  // 档案与人物组合选择:档案页与智能体页共用(点选任意组合)
+  const [profiles, setProfiles] = useState<Profile[]>(() => loadProfiles());
+  const [groupIds, setGroupIds] = useState<string[]>([]);
+  const [includeCurrent, setIncludeCurrent] = useState(true);
 
   const engine = useMemo(() => new ZiweiEngine(preset), [preset]);
   const features = useMemo(() => (chart ? engine.features(chart) : null), [engine, chart]);
   const bazi = useMemo(() => (chart ? engine.bazi(chart) : null), [engine, chart]);
+  const astro = useMemo(() => (chart ? engine.astro(chart) : null), [engine, chart]);
   // 运限目标时刻:大限/流年取该年 12-31(虚岁按「当年所达之岁」计,生日分界流派下不受生日前后影响,
   // 且 12-31 必在该流年之内);流月/流日/流时取具体日期
   const horoscopeTarget = useMemo(() => {
@@ -84,6 +97,22 @@ export function App() {
   };
   void usageTick;
 
+  const toggleGroupId = (id: string) =>
+    setGroupIds((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : ids.length >= MAX_GROUP_MEMBERS ? ids : [...ids, id]));
+
+  /** 档案页「→ 智能体」:没有当前盘时以组合中第一位为当前盘 */
+  const enterGroupAgent = () => {
+    if (!chart) {
+      const first = groupIds.map((id) => profiles.find((p) => p.id === id)).find((p): p is Profile => !!p);
+      if (first) {
+        setChart(engine.fromBirth(first.input));
+        setLastInput(first.input);
+        setSelected(null);
+      }
+    }
+    setView('agent');
+  };
+
   const needChart = (label: string) => (
     <div className="empty-state">
       <div className="empty-glyph">☯</div>
@@ -121,12 +150,20 @@ export function App() {
           <div className="view-stack">
             <ChartForm onSubmit={handleSubmit} remaining={isUnlocked() ? null : remainingToday()} />
             <ProfilesPanel
+              profiles={profiles}
+              onProfilesChange={setProfiles}
               currentInput={lastInput}
               onLoad={openChart}
+              selectedIds={groupIds}
+              onToggleSelect={toggleGroupId}
+              onClearSelect={() => setGroupIds([])}
               onSynastry={(a, b) => {
                 setSynastry({ a, b });
-                setView('chart');
+                if (!chart) openChart(a.input);
+                else setView('chart');
               }}
+              onGroup={enterGroupAgent}
+              maxGroup={MAX_GROUP_MEMBERS}
             />
           </div>
         )}
@@ -135,11 +172,16 @@ export function App() {
           (chart && features ? (
             <div className="view-stack">
               <div className="seg" role="tablist">
-                <button type="button" className={boardView === 'ziwei' ? 'seg-btn active' : 'seg-btn'} onClick={() => setBoardView('ziwei')}>紫微盘</button>
-                <button type="button" className={boardView === 'bazi' ? 'seg-btn active' : 'seg-btn'} onClick={() => setBoardView('bazi')}>八字盘</button>
+                {BOARD_ITEMS.map((b) => (
+                  <button key={b.id} type="button" role="tab" aria-selected={boardView === b.id} className={boardView === b.id ? 'seg-btn active' : 'seg-btn'} onClick={() => setBoardView(b.id)}>
+                    {b.label}
+                  </button>
+                ))}
               </div>
               {boardView === 'bazi' && bazi ? (
                 <BaZiBoard bazi={bazi} year={year} onYearChange={setYear} />
+              ) : boardView === 'astro' && astro ? (
+                <AstroBoard astro={astro} year={year} onYearChange={setYear} />
               ) : (
                 <>
                   <TimeNav
@@ -171,7 +213,9 @@ export function App() {
         {view === 'agent' &&
           (chart ? (
             <AIPanel
-              engine={engine} chart={chart} bazi={bazi} channel={channel} lastInput={lastInput}
+              engine={engine} chart={chart} bazi={bazi} astro={astro} channel={channel} lastInput={lastInput}
+              profiles={profiles} groupIds={groupIds} onGroupIdsChange={setGroupIds}
+              includeCurrent={includeCurrent} onIncludeCurrentChange={setIncludeCurrent}
               horoscope={horoscope} horoscopeFor={horoscopeFor}
               mode={mode} onModeChange={setMode}
               year={year} month={month} day={day} hourIndex={hourIndex}

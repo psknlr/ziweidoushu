@@ -21,6 +21,7 @@ import { lookupCity } from './cities.js';
 import type { Astrolabe, ChartFeatures, HoroscopeSnapshot, NormalizedInput } from './types.js';
 import type { PatternDef } from './analyzer/patterns.js';
 import { baziFromAstrolabe, type BaZiChart } from './bazi/index.js';
+import { astroFromAstrolabe, type AstroChart } from './astro/index.js';
 
 export interface BirthInput {
   /** 公历出生时刻(本地时区标准时) */
@@ -34,6 +35,10 @@ export interface BirthInput {
   city?: string;
   /** 出生地东经,显式给出时优先于 city */
   longitude?: number;
+  /** 出生地北纬(星座盘上升/天顶用),显式给出时优先于 city */
+  latitude?: number;
+  /** 民用时区偏移(分钟),星座盘换算 UTC 用;默认 480(UTC+8) */
+  utcOffsetMinutes?: number;
   /** 是否做真太阳时校正,默认在能取得经度时开启 */
   useTrueSolarTime?: boolean;
   /** 闰月修正(闰月十五之后算下月),默认 true */
@@ -71,8 +76,9 @@ export class ZiweiEngine {
    * 若校正改变了时辰,UI 必须显著提示(record.timeIndexChanged)。
    */
   fromBirth(input: BirthInput): Astrolabe {
-    const longitude =
-      input.longitude ?? (input.city !== undefined ? lookupCity(input.city)?.longitude : undefined);
+    const city = input.city !== undefined ? lookupCity(input.city) : undefined;
+    const longitude = input.longitude ?? city?.longitude;
+    const latitude = input.latitude ?? city?.latitude;
     const useTst = input.useTrueSolarTime ?? longitude !== undefined;
 
     // 夏令时扣除与真太阳时校正统一在 normalizeBirth 完成(不做 TST 时不传经度)
@@ -93,7 +99,11 @@ export class ZiweiEngine {
       fixLeap: input.fixLeap ?? true,
       trueSolarTime: normalized.record,
     };
-    return this.computeChart(normalizedInput, input.gender);
+    const chart = this.computeChart(normalizedInput, input.gender);
+    // 出生地与时区不参与 chartHash(不改变紫微/八字排盘),仅供星座盘使用
+    if (longitude !== undefined && latitude !== undefined) chart.meta.location = { latitude, longitude };
+    if (input.utcOffsetMinutes !== undefined) chart.meta.utcOffsetMinutes = input.utcOffsetMinutes;
+    return chart;
   }
 
   /**
@@ -132,6 +142,23 @@ export class ZiweiEngine {
   }
 
   private readonly baziCache = new Map<string, BaZiChart>();
+
+  /**
+   * 星座(西洋占星)盘:取标准民用时(非真太阳时)换算 UTC,出生地来自 chart.meta.location;
+   * 按 chartHash + 位置缓存。
+   */
+  astro(chart: Astrolabe): AstroChart {
+    const loc = chart.meta.location;
+    const key = `${chart.meta.chartHash}|${loc ? `${loc.latitude},${loc.longitude}` : '-'}|${chart.meta.utcOffsetMinutes ?? 480}`;
+    const cached = this.astroCache.get(key);
+    if (cached) return cached;
+    const out = astroFromAstrolabe(chart, undefined, chart.meta.utcOffsetMinutes);
+    if (this.astroCache.size > 64) this.astroCache.clear();
+    this.astroCache.set(key, out);
+    return out;
+  }
+
+  private readonly astroCache = new Map<string, AstroChart>();
 
   private computeChart(input: NormalizedInput, gender: Gender): Astrolabe {
     applySchool(this.school);
