@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App.js';
+import { setupServiceWorker } from './lib/sw-lifecycle.js';
 import './styles.css';
 
 createRoot(document.getElementById('root')!).render(
@@ -9,9 +10,5 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 );
 
-// PWA:生产环境注册 Service Worker(相对路径,兼容子路径部署)
-if (import.meta.env.PROD && 'serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(() => undefined);
-  });
-}
+// 网页 / PWA:注册随构建号更新的 Service Worker;Android App 内注销 SW 并清除旧缓存
+if (import.meta.env.PROD) setupServiceWorker();

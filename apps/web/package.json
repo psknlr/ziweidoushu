@@ -1,7 +1,7 @@
 {
   "name": "@ziwei/web",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "紫微斗数星盘工作台:4×4 宫格 + SVG 三方四正联动 + 运限四化叠加 + AI 解读",
   "type": "module",
   "scripts": {

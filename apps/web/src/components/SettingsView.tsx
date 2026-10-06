@@ -15,6 +15,7 @@ import { createBackup, parseBackup, restoreBackup, summarize, type BackupSummary
 import { copyText } from '../lib/clipboard.js';
 import { saveTextFile } from '../lib/export-file.js';
 import { DAILY_LIMIT, isUnlocked, remainingToday, revokeUnlock, tryUnlock } from '../lib/usage-limit.js';
+import { hardReload } from '../lib/sw-lifecycle.js';
 
 const APP_VERSION = (import.meta.env.VITE_APP_VERSION as string | undefined) ?? '0.1.0-dev';
 const RELEASE_URL = 'https://github.com/psknlr/ziweidoushu/releases/tag/apk-latest';
@@ -262,12 +263,21 @@ export function SettingsView({ preset, onPresetChange, channel, onChannelChange 
         <h2>关于</h2>
         <p className="settings-text">
           紫微斗数工作台 v{APP_VERSION} · 医哲未来人工智能研究院(IMPF-AI)出品。
-          确定性排盘引擎(iztro 紫微 + lunar-typescript 八字)+ 可溯源知识库(433 条,39 格局)+ 全星曜亮度/星性体系。
+          确定性排盘引擎(iztro 紫微 + lunar-typescript 八字 + astronomy-engine 星座)+ 可溯源知识库(537 条,39 格局)+ 全星曜亮度/星性体系。
+        </p>
+        <p className="settings-text">
+          本版包含:紫微盘 · 八字盘 · <b>星座盘(西洋占星)</b>;智能体五种命理体系(紫微 / 八字 / 星座 / 紫微+八字 / 三系统互参);档案任意组合群盘。
         </p>
         <p className="settings-text">
           <a className="link" href={RELEASE_URL} target="_blank" rel="noopener noreferrer">检查更新(APK 最新版)</a>
           <span className="hint"> · 同签名可直接覆盖安装,数据保留</span>
         </p>
+        <div className="export-actions" style={{ marginTop: 8 }}>
+          <button type="button" className="primary alt" onClick={() => void hardReload()}>
+            清除页面缓存并重新载入
+          </button>
+        </div>
+        <p className="hint">升级后若仍看到旧界面(例如「星盘」页没有「星座盘」),点此一次即可;档案、对话与设置不受影响。</p>
         <p className="hint">命理内容仅供文化研究与自我认知参考,不构成医疗/投资/重大决策建议。</p>
       </div>
     </div>
